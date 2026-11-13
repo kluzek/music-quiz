@@ -69,7 +69,8 @@
             --accent-glow: rgba(16, 185, 129, 0.55);
             --accent-text: #34d399;
             --accent-bg-subtle: rgba(6, 78, 59, 0.35);
-            --accent-border-subtle: rgba(6, 95, 70, 0.5);
+            --accent-border-subtle: rgba(16, 185, 129, 0.45);
+            --accent-ring: rgba(16, 185, 129, 0.65);
             --vvh: 100dvh;
             --vv-top: 0px;
         }
@@ -79,8 +80,9 @@
             --accent-hover: #f87171;
             --accent-glow: rgba(239, 68, 68, 0.55);
             --accent-text: #f87171;
-            --accent-bg-subtle: rgba(69, 10, 10, 0.4);
-            --accent-border-subtle: rgba(185, 28, 28, 0.5);
+            --accent-bg-subtle: rgba(69, 10, 10, 0.42);
+            --accent-border-subtle: rgba(239, 68, 68, 0.5);
+            --accent-ring: rgba(239, 68, 68, 0.72);
         }
 
         .theme-accent-text {
@@ -91,6 +93,29 @@
         .theme-accent-bg {
             background-color: var(--accent-color) !important;
             transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .theme-accent-border {
+            border-color: var(--accent-border-subtle) !important;
+            transition: border-color 0.3s ease;
+        }
+
+        .theme-accent-surface {
+            background-color: var(--accent-bg-subtle) !important;
+            border-color: var(--accent-border-subtle) !important;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .theme-accent-badge {
+            background-color: var(--accent-bg-subtle) !important;
+            border-color: var(--accent-border-subtle) !important;
+            color: var(--accent-text) !important;
+            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+        }
+
+        .theme-accent-ring {
+            border: 1.5px solid var(--accent-ring) !important;
+            transition: border-color 0.3s ease;
         }
 
         /* Strict native-app anti-select, anti-copy, anti-zoom & anti-callout rules */
@@ -139,6 +164,12 @@
                 radial-gradient(circle at 50% 60%, rgba(16, 185, 129, 0.03) 0%, transparent 55%);
         }
 
+        html.lose-state {
+            background-image:
+                radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.04) 0%, transparent 50%),
+                radial-gradient(circle at 50% 60%, rgba(239, 68, 68, 0.04) 0%, transparent 55%);
+        }
+
         body {
             background-color: #09090b;
             background-image:
@@ -182,6 +213,8 @@
                 padding-bottom: 0.35rem !important;
             }
             body.game-locked.mobile-keyboard-open #gameView {
+                margin-top: 0 !important;
+                margin-bottom: auto !important;
                 gap: 0.5rem !important;
             }
             body.game-locked.mobile-keyboard-open #mainPlayerCard {
@@ -628,8 +661,8 @@
                 </button>
 
                 <!-- Live Background Playlist Sync Pill -->
-                <button id="bgSyncHeaderPill" onclick="toggleDevLogsModal(true)" class="hidden h-8 px-2.5 rounded-full bg-emerald-950/50 border border-emerald-500/40 text-[11px] font-mono text-emerald-300 items-center gap-1.5 shrink-0" title="Trwa dociąganie pełnej playlisty w tle — kliknij, aby otworzyć logi deweloperskie">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping shrink-0"></span>
+                <button id="bgSyncHeaderPill" onclick="toggleDevLogsModal(true)" class="hidden h-8 px-2.5 rounded-full theme-accent-badge border text-[11px] font-mono items-center gap-1.5 shrink-0" title="Trwa dociąganie pełnej playlisty w tle — kliknij, aby otworzyć logi deweloperskie">
+                    <span class="w-1.5 h-1.5 rounded-full theme-accent-bg animate-ping shrink-0"></span>
                     <span id="bgSyncHeaderText" class="hidden sm:inline truncate">Sync...</span>
                 </button>
             </div>
@@ -651,7 +684,7 @@
 
                 <!-- Header Multiplayer Button -->
                 <button id="headerMpBtn" onclick="toggleMultiplayerModal(true)" class="magnetic-item h-8 px-2.5 rounded-full ui-pill text-zinc-300 hover:text-white inline-flex items-center justify-center gap-1.5 text-xs font-medium shrink-0" title="Multiplayer na żywo ze znajomym">
-                    <svg class="w-3.5 h-3.5 text-emerald-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg class="w-3.5 h-3.5 theme-accent-text shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                         <circle cx="9" cy="7" r="4"></circle>
                         <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
@@ -662,8 +695,8 @@
 
                 <!-- Streak & Score Trigger Pill (Opens Session History) -->
                 <button id="streakStatBox" onclick="toggleHistoryModal(true)" class="magnetic-item h-8 inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 rounded-full ui-pill text-xs whitespace-nowrap" title="Seria, zdobyte punkty i historia ostatnio zagranych utworów">
-                    <span class="inline-flex items-center gap-1 font-mono font-semibold text-zinc-100">
-                        <span class="theme-accent-text text-[9px]">●</span>
+                    <span class="inline-flex items-center gap-1.5 font-mono font-semibold text-zinc-100">
+                        <span class="w-1.5 h-1.5 rounded-full theme-accent-bg shrink-0"></span>
                         <span id="statStreak">0</span>
                     </span>
                     <span class="text-zinc-700">·</span>
@@ -684,7 +717,7 @@
 
                 <!-- Przycisk Konta Google -->
                 <button id="headerQuickFolderBtn" onclick="toggleAccountModal(true)" class="magnetic-item w-8 h-8 sm:w-auto sm:h-8 inline-flex items-center justify-center gap-1.5 p-0 sm:px-2.5 rounded-full ui-pill text-zinc-300 hover:text-white font-medium text-xs whitespace-nowrap shrink-0" title="Konto gracza, ulubione i zapisane playlisty">
-                    <img id="headerUserAvatar" src="" alt="" referrerpolicy="no-referrer" class="hidden w-5 h-5 rounded-full object-cover border border-emerald-500/60 shrink-0" />
+                    <img id="headerUserAvatar" src="" alt="" referrerpolicy="no-referrer" class="hidden w-5 h-5 rounded-full object-cover theme-accent-ring shrink-0" />
                     <svg id="headerUserIcon" class="w-3.5 h-3.5 text-zinc-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                         <circle cx="12" cy="7" r="4"></circle>
@@ -720,9 +753,9 @@
                                 <span class="text-[10px] font-mono text-zinc-500">YT</span>
                             </button>
 
-                            <button onclick="closeStudioMenuPopover(); toggleMultiplayerModal(true);" class="w-full px-3.5 py-2.5 sm:py-2 text-left text-xs text-emerald-300 hover:bg-[#18181c] flex items-center justify-between gap-2 transition-colors">
+                            <button onclick="closeStudioMenuPopover(); toggleMultiplayerModal(true);" class="w-full px-3.5 py-2.5 sm:py-2 text-left text-xs theme-accent-text hover:bg-[#18181c] flex items-center justify-between gap-2 transition-colors">
                                 <span class="flex items-center gap-2">
-                                    <svg class="w-3.5 h-3.5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <svg class="w-3.5 h-3.5 theme-accent-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                                         <circle cx="9" cy="7" r="4"></circle>
                                         <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
@@ -730,7 +763,7 @@
                                     </svg>
                                     <span>Multiplayer (Ze znajomym)</span>
                                 </span>
-                                <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-300">LIVE</span>
+                                <span class="text-[10px] font-mono px-1.5 py-0.5 rounded theme-accent-badge border">LIVE</span>
                             </button>
 
                             <button onclick="closeStudioMenuPopover(); toggleLeaderboardModal(true);" class="w-full px-3.5 py-2.5 sm:py-2 text-left text-xs text-zinc-200 hover:bg-[#18181c] flex items-center justify-between gap-2 transition-colors">
@@ -806,15 +839,15 @@
                                 </span>
                             </button>
 
-                            <button onclick="closeStudioMenuPopover(); toggleDevLogsModal(true);" class="w-full px-3.5 py-2.5 sm:py-2 text-left text-xs text-emerald-300 hover:bg-[#18181c] flex items-center justify-between gap-2 transition-colors">
+                            <button onclick="closeStudioMenuPopover(); toggleDevLogsModal(true);" class="w-full px-3.5 py-2.5 sm:py-2 text-left text-xs theme-accent-text hover:bg-[#18181c] flex items-center justify-between gap-2 transition-colors">
                                 <span class="flex items-center gap-2">
-                                    <svg class="w-3.5 h-3.5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <svg class="w-3.5 h-3.5 theme-accent-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <polyline points="16 18 22 12 16 6"></polyline>
                                         <polyline points="8 6 2 12 8 18"></polyline>
                                     </svg>
                                     <span>Logi i diagnostyka (Dev)</span>
                                 </span>
-                                <span id="menuDevLogsCountBadge" class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-300">L</span>
+                                <span id="menuDevLogsCountBadge" class="text-[10px] font-mono px-1.5 py-0.5 rounded theme-accent-badge border">L</span>
                             </button>
 
                             <button onclick="closeStudioMenuPopover(); toggleHistoryModal(true);" class="w-full px-3.5 py-2.5 sm:py-2 text-left text-xs text-zinc-200 hover:bg-[#18181c] flex items-center justify-between gap-2 transition-colors">
@@ -840,7 +873,7 @@
                                 <span class="text-[10px] font-mono text-zinc-600">4 utw.</span>
                             </button>
 
-                            <button onclick="closeStudioMenuPopover(); resetStats();" class="w-full px-3.5 py-2.5 sm:py-2 text-left text-xs text-zinc-400 hover:text-zinc-200 hover:bg-[#18181c] flex items-center gap-2 transition-colors">
+                            <button onclick="closeStudioMenuPopover(); resetStats();" class="w-full px-3.5 py-2.5 sm:py-2 text-left text-xs text-zinc-400 hover:text-zinc-200 hover:bg-[#18181c] flex items-center justify-between gap-2 transition-colors">
                                 <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
                                     <path d="M3 3v5h5"></path>
@@ -848,7 +881,7 @@
                                 <span>Resetuj serię sesji</span>
                             </button>
 
-                            <button onclick="closeStudioMenuPopover(); toggleHelpModal(true);" class="w-full px-3.5 py-2.5 sm:py-2 text-left text-xs text-zinc-400 hover:text-zinc-200 hover:bg-[#18181c] flex items-center gap-2 transition-colors">
+                            <button onclick="closeStudioMenuPopover(); toggleHelpModal(true);" class="w-full px-3.5 py-2.5 sm:py-2 text-left text-xs text-zinc-400 hover:text-zinc-200 hover:bg-[#18181c] flex items-center justify-between gap-2 transition-colors">
                                 <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
                                     <circle cx="12" cy="12" r="10"></circle>
                                     <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
@@ -865,10 +898,10 @@
     </header>
 
     <!-- ==================== MAIN CONTENT (CENTERED STAGE) ==================== -->
-    <main class="relative z-10 flex-1 w-full max-w-2xl mx-auto px-4 py-3 sm:py-8 flex flex-col justify-center">
+    <main class="relative z-10 flex-1 w-full max-w-2xl mx-auto px-4 py-2.5 sm:py-8 flex flex-col">
 
         <!-- ==================== VIEW 0: ULTRA-CLEAN START HUB ==================== -->
-        <div id="startView" class="w-full max-w-xl mx-auto flex flex-col items-center justify-center gap-5 sm:gap-6 py-4 sm:py-8 reveal-enter">
+        <div id="startView" class="w-full max-w-xl mx-auto my-auto flex flex-col items-center justify-center gap-5 sm:gap-6 py-4 sm:py-8 reveal-enter">
             
             <!-- Minimalist Greeting -->
             <div class="text-center space-y-2">
@@ -892,7 +925,7 @@
                 </button>
 
                 <button onclick="toggleMultiplayerModal(true)" class="w-full sm:w-auto h-11 px-5 rounded-full ui-pill text-zinc-200 hover:text-white font-semibold text-xs sm:text-sm inline-flex items-center justify-center gap-2 whitespace-nowrap shrink-0" title="Graj na żywo w jednym pokoju ze znajomym">
-                    <svg class="w-4 h-4 text-emerald-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg class="w-4 h-4 theme-accent-text shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                         <circle cx="9" cy="7" r="4"></circle>
                         <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
@@ -999,7 +1032,12 @@
                             </svg>
                             <span id="aiConciergeTitle">Propozycje klimatu</span>
                         </div>
-                        <button onclick="document.getElementById('aiConciergeBox').classList.add('hidden')" class="text-zinc-500 hover:text-zinc-300 text-xs font-mono">✕</button>
+                        <button onclick="document.getElementById('aiConciergeBox').classList.add('hidden')" class="p-1 rounded-full text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/70 transition-colors" title="Zamknij">
+                            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </button>
                     </div>
                     <p id="aiConciergeMessage" class="text-xs text-zinc-300 leading-relaxed"></p>
                     <div id="aiConciergeSuggestions" class="flex flex-wrap gap-1.5 pt-0.5"></div>
@@ -1079,19 +1117,22 @@
         </div>
 
         <!-- ==================== VIEW 1: OPEN CENTERED GAME STAGE ==================== -->
-        <div id="gameView" class="hidden w-full max-w-lg mx-auto flex-col items-center gap-4 sm:gap-7">
+        <div id="gameView" class="hidden w-full max-w-lg mx-auto my-auto flex-col items-center gap-3.5 sm:gap-7">
 
             <!-- LIVE MULTIPLAYER HUD BAR (Visible when inside a Multiplayer Room) -->
-            <div id="mpLiveHudBar" class="hidden w-full items-center justify-between gap-2 px-3 py-1.5 rounded-2xl bg-[#121215]/95 border border-emerald-500/35 text-xs shadow-lg">
-                <button onclick="toggleMultiplayerModal(true)" class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-emerald-500/15 text-emerald-300 font-mono text-[11px] font-semibold shrink-0 hover:bg-emerald-500/25 transition-colors" title="Kliknij, aby zobaczyć pokój lub skopiować kod">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                    <span id="mpHudRoomCode">POKÓJ</span>
-                </button>
-                <div id="mpHudPlayersList" class="flex items-center justify-end gap-2 overflow-x-auto min-w-0 py-0.5"></div>
+            <div id="mpLiveHudBar" class="hidden w-full flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2 px-3 py-2 rounded-2xl bg-[#121215]/95 border theme-accent-border text-xs shadow-lg">
+                <div class="flex items-center justify-between sm:justify-start gap-2 shrink-0">
+                    <button onclick="toggleMultiplayerModal(true)" class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg theme-accent-badge border font-mono text-[11px] font-semibold shrink-0 hover:brightness-110 transition-colors" title="Kliknij, aby zobaczyć pokój lub skopiować kod">
+                        <span class="w-1.5 h-1.5 rounded-full theme-accent-bg animate-pulse"></span>
+                        <span id="mpHudRoomCode">POKÓJ</span>
+                    </button>
+                    <span id="mpHudCountMobile" class="sm:hidden text-[10px] font-mono text-zinc-500"></span>
+                </div>
+                <div id="mpHudPlayersList" class="scrollable-touch-area flex flex-wrap items-center justify-start gap-1.5 min-w-0 flex-1 max-h-24 overflow-y-auto py-0.5"></div>
             </div>
 
             <!-- Open Player Stage -->
-            <div id="mainPlayerCard" class="w-full flex flex-col items-center gap-5 sm:gap-7">
+            <div id="mainPlayerCard" class="w-full flex flex-col items-center gap-4 sm:gap-7">
 
                 <!-- 1. Centered Stage Info + Play Hub -->
                 <div class="flex flex-col items-center gap-3.5 sm:gap-4 w-full">
@@ -1102,8 +1143,8 @@
                         <span id="offsetActiveBadge" class="hidden text-[11px] text-zinc-500" title="Utwór startuje z pominięciem intro">(+0.0s)</span>
                     </div>
 
-                    <!-- Subtle Active Hint Pill (Revealed when user clicks the Audio Visualizer) -->
-                    <div id="activeHintBanner" onclick="triggerVisualizerHint()" class="hidden px-3.5 py-1 rounded-full bg-amber-950/35 border border-amber-500/35 text-[11px] font-mono text-amber-300 text-center max-w-full truncate cursor-pointer transition-all" title="Kliknij ponownie w wizualizator po kolejną podpowiedź"></div>
+                    <!-- Subtle Hint Pill (Revealed when user clicks the Audio Visualizer) -->
+                    <div id="activeHintBanner" onclick="triggerVisualizerHint()" class="hidden px-3.5 py-1.5 rounded-2xl sm:rounded-full bg-[#18181c]/80 border border-[#27272a] hover:border-zinc-700 text-[11px] font-mono text-zinc-300 text-center max-w-full sm:max-w-md leading-snug cursor-pointer transition-colors items-center justify-center gap-2" title="Kliknij ponownie w wizualizator po kolejną podpowiedź"></div>
 
                     <div class="flex items-center justify-center gap-5">
                         <button id="restartSnippetBtn" onclick="restartFromBeginning()" class="magnetic-item w-10 h-10 rounded-full ui-pill text-zinc-400 hover:text-zinc-100 inline-flex items-center justify-center focus:outline-none" title="Odtwórz od początku [Klawisz R]">
@@ -1200,7 +1241,7 @@
                                     </svg>
                                 </button>
                                 <!-- Compact Voice Microphone Button -->
-                                <button id="voiceGuessBtn" type="button" onclick="toggleVoiceGuess()" class="absolute right-2.5 sm:right-[5.6rem] w-8 h-8 sm:w-7 sm:h-7 rounded-full text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/90 inline-flex items-center justify-center transition-all z-10" title="Zgadnij głosem">
+                                <button id="voiceGuessBtn" type="button" onclick="toggleVoiceGuess()" class="absolute right-2.5 sm:right-[5.6rem] w-8 h-8 sm:w-7 sm:h-7 rounded-full text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/90 inline-flex items-center justify-center transition-colors z-10" title="Zgadnij głosem">
                                     <svg class="w-4 h-4 sm:w-3.5 sm:h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
                                         <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
@@ -1220,7 +1261,7 @@
                         </div>
 
                         <!-- Unified Skip / Guess Button -->
-                        <button id="skipAttemptBtn" onclick="handleGuessOrSkip()" class="magnetic-item w-full sm:w-auto h-12 px-5 rounded-full ui-pill text-zinc-300 hover:text-white font-medium text-xs inline-flex items-center justify-center gap-1.5 shrink-0 whitespace-nowrap transition-all" title="Zatwierdź wpisaną odpowiedź lub pomiń próbę (Klawisz S / Enter)">
+                        <button id="skipAttemptBtn" onclick="handleGuessOrSkip()" class="magnetic-item w-full sm:w-auto h-12 px-5 rounded-full ui-pill text-zinc-300 hover:text-white font-medium text-xs inline-flex items-center justify-center gap-1.5 shrink-0 whitespace-nowrap transition-[background-color,border-color,color,opacity,box-shadow]" title="Zatwierdź wpisaną odpowiedź lub pomiń próbę (Klawisz S / Enter)">
                             <span id="skipBtnLabel">Pomiń (+1.5s)</span>
                             <svg id="skipBtnIcon" class="w-3.5 h-3.5 text-zinc-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <polygon points="5 4 15 12 5 20 5 4"></polygon>
@@ -1315,7 +1356,7 @@
 
                 <!-- 5. Centered Lightweight Previous Guesses Trail (Also displays live Multiplayer guesses!) -->
                 <div id="attemptsTrailWrapper" class="hidden w-full flex-col items-center gap-1.5 pt-1">
-                    <div id="attemptsList" class="flex flex-wrap items-center justify-center gap-2 w-full"></div>
+                    <div id="attemptsList" class="scrollable-touch-area flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 w-full max-h-20 sm:max-h-28 overflow-y-auto py-0.5"></div>
                 </div>
 
             </div>
@@ -1350,7 +1391,7 @@
                 </div>
 
                 <div class="flex items-center gap-2 shrink-0 flex-wrap">
-                    <button onclick="toggleDevLogsModal(true)" class="px-3 py-1.5 rounded-full ui-pill text-emerald-300 text-xs font-medium">
+                    <button onclick="toggleDevLogsModal(true)" class="px-3 py-1.5 rounded-full ui-pill theme-accent-text text-xs font-medium">
                         Logi (Dev)
                     </button>
                     <button onclick="switchView('start')" class="px-3 py-1.5 rounded-full ui-pill text-zinc-300 text-xs font-medium">
@@ -1776,7 +1817,13 @@
             <div id="modalSubcategoryWrapper" class="hidden flex-col items-center gap-2.5 p-3.5 rounded-2xl bg-[#09090b]/90 border border-[#27272a]">
                 <div class="w-full flex items-center justify-between text-xs px-1">
                     <span id="modalExpandedFolderTitle" class="font-mono text-zinc-400 text-[11px]">Podkategorie:</span>
-                    <button onclick="closeSubcategoryInlineRow()" class="text-[11px] text-zinc-500 hover:text-zinc-300 font-mono">Zamknij ✕</button>
+                    <button onclick="closeSubcategoryInlineRow()" class="text-[11px] text-zinc-500 hover:text-zinc-300 font-mono inline-flex items-center gap-1">
+                        <span>Zamknij</span>
+                        <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
                 </div>
                 <div id="subcategoryBar" class="scrollable-touch-area flex flex-wrap justify-center gap-1.5 max-h-44 overflow-y-auto pt-1 w-full"></div>
             </div>
@@ -2202,7 +2249,7 @@
             if (shouldFocus) input.focus();
         }
 
-        // ==================== LOADING BARRIER & PROGRESSIVE VISUALIZER HINTS ====================
+        // ==================== LOADING BARRIER & BALANCED PROGRESSIVE HINTS ====================
         function isSongLoadingBarrierActive() {
             if (roundOver) return false;
             if (isPreparingRoundAudio) return true;
@@ -2212,6 +2259,22 @@
             return false;
         }
 
+        function formatWordCountPL(count) {
+            if (count === 1) return '1 słowo';
+            const mod10 = count % 10;
+            const mod100 = count % 100;
+            if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return `${count} słowa`;
+            return `${count} słów`;
+        }
+
+        function formatCharCountPL(count) {
+            if (count === 1) return '1 znak';
+            const mod10 = count % 10;
+            const mod100 = count % 100;
+            if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return `${count} znaki`;
+            return `${count} znaków`;
+        }
+
         function buildHintTextForLevel(song, level) {
             if (!song) return '';
             const parsed = parseArtistAndTrackTitle(song.cleanTitle);
@@ -2219,47 +2282,44 @@
             const cleanTitle = stripTrackClutterForMatching(parsed.title) || song.cleanTitle;
 
             const hasRealArtist = cleanArtist && cleanArtist !== 'Utwór z biblioteki' && cleanArtist !== 'Nieznany wykonawca';
+            const titleWords = cleanTitle.split(/\s+/).filter(Boolean);
+            const artistWords = hasRealArtist ? cleanArtist.split(/\s+/).filter(Boolean) : [];
+            const titleCharCount = cleanTitle.replace(/\s+/g, '').length;
 
+            // Poziom 1/3: Zero liter — wyłącznie struktura (liczba słów i znaków)
             if (level === 1) {
-                const words = cleanTitle.split(/\s+/).filter(Boolean);
-                const wordCount = words.length;
-                const wordLabel = wordCount === 1 ? '1 słowo' : (wordCount < 5 ? `${wordCount} słowa` : `${wordCount} słów`);
-                const firstChar = cleanTitle.charAt(0).toUpperCase();
-                const lastChar = cleanTitle.charAt(cleanTitle.length - 1).toLowerCase();
-
                 if (hasRealArtist) {
-                    const initials = cleanArtist
-                        .split(/\s+/)
-                        .filter(Boolean)
-                        .map(w => w.charAt(0).toUpperCase() + '.')
-                        .join(' ');
-                    return `Podpowiedź 1/3 · Wykonawca: ${initials} · Tytuł: „${firstChar}...${lastChar}” (${wordLabel})`;
+                    return `Podpowiedź 1/3 · Wykonawca: ${formatWordCountPL(artistWords.length)} · Tytuł: ${formatWordCountPL(titleWords.length)} (${formatCharCountPL(titleCharCount)})`;
                 }
-                return `Podpowiedź 1/3 · Tytuł zaczyna się na „${firstChar}...” i kończy na „...${lastChar}” (${wordLabel})`;
+                return `Podpowiedź 1/3 · Tytuł: ${formatWordCountPL(titleWords.length)} (${formatCharCountPL(titleCharCount)})`;
             }
 
+            const firstTitleMatch = cleanTitle.match(/[A-Za-z0-9ĄĆĘŁŃÓŚŹŻąćęłńóśźż]/);
+            const firstTitleChar = firstTitleMatch ? firstTitleMatch[0].toUpperCase() : cleanTitle.charAt(0).toUpperCase();
+
+            // Poziom 2/3: Tylko pierwsza litera tytułu + struktura (bez liter wykonawcy)
             if (level === 2) {
-                if (hasRealArtist) {
-                    return `Podpowiedź 2/3 · Wykonawca: ${cleanArtist}`;
-                }
-                const halfReveal = cleanTitle
-                    .split('')
-                    .map((ch, idx) => (ch === ' ' || idx < 3) ? ch : '•')
-                    .join('');
-                return `Podpowiedź 2/3 · Początek tytułu: „${halfReveal}”`;
+                return `Podpowiedź 2/3 · Tytuł zaczyna się na „${firstTitleChar}...” (${formatWordCountPL(titleWords.length)}, ${formatCharCountPL(titleCharCount)})`;
             }
 
+            // Poziom 3/3: Pierwsza litera wykonawcy + oszczędna maska tytułu (~25% znaków)
+            let alphaCounter = 0;
             const maskedTitle = cleanTitle
                 .split('')
-                .map((ch, idx) => {
-                    if (ch === ' ' || ch === '-' || ch === "'" || ch === '.') return ch;
-                    if (idx === 0 || idx % 2 === 0) return ch;
+                .map((ch) => {
+                    if (ch === ' ' || ch === '-' || ch === "'" || ch === '.' || ch === ',') return ch;
+                    const idx = alphaCounter++;
+                    if (idx === 0 || (titleCharCount >= 5 && idx % 4 === 0)) {
+                        return ch;
+                    }
                     return '•';
                 })
                 .join('');
 
             if (hasRealArtist) {
-                return `Podpowiedź 3/3 · ${cleanArtist} — „${maskedTitle}”`;
+                const firstArtistMatch = cleanArtist.match(/[A-Za-z0-9ĄĆĘŁŃÓŚŹŻąćęłńóśźż]/);
+                const firstArtistChar = firstArtistMatch ? firstArtistMatch[0].toUpperCase() : cleanArtist.charAt(0).toUpperCase();
+                return `Podpowiedź 3/3 · Wykonawca na „${firstArtistChar}...” (${formatWordCountPL(artistWords.length)}) · Tytuł: „${maskedTitle}”`;
             }
             return `Podpowiedź 3/3 · Tytuł: „${maskedTitle}”`;
         }
@@ -2278,6 +2338,7 @@
                 return;
             }
 
+            const prevLevel = currentHintLevel;
             if (currentHintLevel < 3) {
                 currentHintLevel++;
             }
@@ -2285,14 +2346,14 @@
             const hintStr = buildHintTextForLevel(currentSong, currentHintLevel);
             const bannerEl = document.getElementById('activeHintBanner');
             if (bannerEl) {
-                bannerEl.textContent = hintStr;
+                bannerEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-400/70 shrink-0"></span><span class="break-words">${escapeHtml(hintStr)}</span>`;
                 bannerEl.classList.remove('hidden');
+                bannerEl.classList.add('inline-flex');
             }
 
-            const nextHintSub = currentHintLevel < 3
-                ? 'Kliknij wizualizator ponownie po więcej'
-                : 'Odkryto wszystkie 3 podpowiedzi';
-            showFloatingFeedbackPill(hintStr, 'amber', nextHintSub);
+            if (prevLevel >= 3) {
+                showFloatingFeedbackPill('Odkryto wszystkie 3 podpowiedzi', 'neutral');
+            }
             invalidateLayoutRectCache();
         }
 
@@ -7234,7 +7295,7 @@
             invalidateLayoutRectCache();
         }
 
-        // ==================== BOTTOM-CENTER STUDIO HUD FEEDBACK CARD (MOBILE-SAFE & 4.5s DURATION) ====================
+        // ==================== BOTTOM-CENTER STUDIO HUD FEEDBACK CARD (SUBTLE & MOBILE-SAFE) ====================
         function showFloatingFeedbackPill(titleText, tone = 'neutral', subtitleText = '') {
             const container = document.getElementById('floatingFeedbackContainer');
             if (!container) return;
@@ -7250,9 +7311,9 @@
                 badgeHtml = `<span class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399] shrink-0"></span>`;
                 titleColor = 'text-emerald-300';
             } else if (tone === 'amber') {
-                borderAndGlow = 'border-amber-500/60 shadow-[0_10px_30px_rgba(245,158,11,0.22)]';
-                badgeHtml = `<span class="w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_8px_#fbbf24] shrink-0"></span>`;
-                titleColor = 'text-amber-300';
+                borderAndGlow = 'border-[#3f3f46] shadow-[0_12px_32px_rgba(0,0,0,0.75)]';
+                badgeHtml = `<span class="w-1.5 h-1.5 rounded-full bg-amber-400/75 shrink-0"></span>`;
+                titleColor = 'text-zinc-200';
             } else if (tone === 'red') {
                 borderAndGlow = 'border-red-500/60 shadow-[0_10px_30px_rgba(239,68,68,0.22)]';
                 badgeHtml = `<span class="w-2 h-2 rounded-full bg-red-400 shadow-[0_0_8px_#f87171] shrink-0"></span>`;
@@ -8058,11 +8119,14 @@
             const loseGlowEl = document.getElementById('loseScreenGlow');
             const resultCard = document.getElementById('roundResultCard');
             const playBtn = document.getElementById('mainPlayBtn');
+            const themeMeta = document.querySelector('meta[name="theme-color"]');
 
             winGlowEl.classList.remove('active');
             loseGlowEl.classList.remove('active');
+            document.documentElement.classList.remove('lose-state');
             document.body.classList.remove('lose-state');
             if (resultCard) resultCard.classList.remove('shake-error');
+            if (themeMeta) themeMeta.setAttribute('content', mode === 'lose' ? '#ef4444' : '#10b981');
 
             if (mode === 'win') {
                 winGlowEl.classList.add('active');
@@ -8073,6 +8137,7 @@
                     triggerOutcomeCanvasFX(true);
                 }
             } else if (mode === 'lose') {
+                document.documentElement.classList.add('lose-state');
                 document.body.classList.add('lose-state');
                 loseGlowEl.classList.add('active');
                 if (playBtn) {
@@ -8785,7 +8850,7 @@
             const streakBox = document.getElementById('streakStatBox');
             if (streakBox) {
                 if (stats.streak >= 3) {
-                    streakBox.className = 'magnetic-item h-8 inline-flex items-center gap-1.5 sm:gap-2 bg-emerald-950/40 border border-emerald-500/50 px-2.5 sm:px-3 rounded-full text-xs whitespace-nowrap transition-colors';
+                    streakBox.className = 'magnetic-item h-8 inline-flex items-center gap-1.5 sm:gap-2 theme-accent-surface border px-2.5 sm:px-3 rounded-full text-xs whitespace-nowrap transition-colors';
                 } else {
                     streakBox.className = 'magnetic-item h-8 inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 rounded-full ui-pill text-xs whitespace-nowrap';
                 }
@@ -10382,6 +10447,7 @@
             if (hintBanner) {
                 hintBanner.textContent = '';
                 hintBanner.classList.add('hidden');
+                hintBanner.classList.remove('inline-flex');
             }
             const socialStatRow = document.getElementById('resultSocialStatRow');
             if (socialStatRow) {
@@ -10545,6 +10611,7 @@
             const submitBtn = document.getElementById('submitGuessBtn');
             if (!skipBtn || !skipBtnLabel) return;
 
+            const prevLabelText = skipBtnLabel.textContent;
             const isBlockedByLoading = isSongLoadingBarrierActive();
             const hasText = Boolean(input && input.value.trim().length > 0);
             const skipText = getCurrentSkipStageLabel();
@@ -10565,7 +10632,7 @@
 
             if (isBlockedByLoading) {
                 skipBtnLabel.textContent = hasText && isTouchMobileDevice ? 'Zgadnij (Ładowanie...)' : 'Ładowanie...';
-                skipBtn.className = 'magnetic-item w-full sm:w-auto h-12 px-5 rounded-full ui-pill text-zinc-500 font-medium text-xs inline-flex items-center justify-center gap-1.5 shrink-0 whitespace-nowrap transition-all opacity-55 cursor-wait';
+                skipBtn.className = 'magnetic-item w-full sm:w-auto h-12 px-5 rounded-full ui-pill text-zinc-500 font-medium text-xs inline-flex items-center justify-center gap-1.5 shrink-0 whitespace-nowrap transition-[background-color,border-color,color,opacity,box-shadow] opacity-55 cursor-wait';
                 if (skipBtnIcon) {
                     skipBtnIcon.className = 'w-3.5 h-3.5 text-zinc-500 shrink-0';
                     skipBtnIcon.innerHTML = `
@@ -10573,26 +10640,23 @@
                         <line x1="19" y1="5" x2="19" y2="19"></line>
                     `;
                 }
-                return;
-            }
-
-            if (hasText && isTouchMobileDevice) {
+            } else if (hasText && isTouchMobileDevice) {
                 skipBtnLabel.textContent = 'Zgadnij';
-                skipBtn.className = 'magnetic-item w-full sm:w-auto h-12 px-5 rounded-full bg-zinc-100 text-zinc-950 font-semibold text-xs inline-flex items-center justify-center gap-1.5 shrink-0 whitespace-nowrap transition-all shadow-lg';
+                skipBtn.className = 'magnetic-item w-full sm:w-auto h-12 px-5 rounded-full bg-zinc-100 text-zinc-950 font-semibold text-xs inline-flex items-center justify-center gap-1.5 shrink-0 whitespace-nowrap transition-[background-color,border-color,color,opacity,box-shadow] shadow-lg';
                 if (skipBtnIcon) {
                     skipBtnIcon.className = 'w-3.5 h-3.5 text-zinc-900 shrink-0';
                     skipBtnIcon.innerHTML = `<polyline points="20 6 9 17 4 12"></polyline>`;
                 }
             } else if (iAlreadyVotedSkip) {
                 skipBtnLabel.textContent = skipText;
-                skipBtn.className = 'magnetic-item w-full sm:w-auto h-12 px-5 rounded-full bg-amber-950/35 border border-amber-500/40 text-amber-300 font-medium text-xs inline-flex items-center justify-center gap-1.5 shrink-0 whitespace-nowrap transition-all';
+                skipBtn.className = 'magnetic-item w-full sm:w-auto h-12 px-5 rounded-full bg-[#18181c] border border-[#3f3f46] text-zinc-200 font-medium text-xs inline-flex items-center justify-center gap-1.5 shrink-0 whitespace-nowrap transition-[background-color,border-color,color,opacity,box-shadow]';
                 if (skipBtnIcon) {
-                    skipBtnIcon.className = 'w-3.5 h-3.5 text-amber-400 shrink-0';
+                    skipBtnIcon.className = 'w-3.5 h-3.5 text-amber-400/75 shrink-0';
                     skipBtnIcon.innerHTML = `<circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>`;
                 }
             } else {
                 skipBtnLabel.textContent = skipText;
-                skipBtn.className = 'magnetic-item w-full sm:w-auto h-12 px-5 rounded-full ui-pill text-zinc-300 hover:text-white font-medium text-xs inline-flex items-center justify-center gap-1.5 shrink-0 whitespace-nowrap transition-all';
+                skipBtn.className = 'magnetic-item w-full sm:w-auto h-12 px-5 rounded-full ui-pill text-zinc-300 hover:text-white font-medium text-xs inline-flex items-center justify-center gap-1.5 shrink-0 whitespace-nowrap transition-[background-color,border-color,color,opacity,box-shadow]';
                 if (skipBtnIcon) {
                     skipBtnIcon.className = 'w-3.5 h-3.5 text-zinc-400 shrink-0';
                     skipBtnIcon.innerHTML = `
@@ -10600,6 +10664,10 @@
                         <line x1="19" y1="5" x2="19" y2="19"></line>
                     `;
                 }
+            }
+
+            if (skipBtnLabel.textContent !== prevLabelText) {
+                invalidateLayoutRectCache();
             }
         }
 
@@ -10679,8 +10747,8 @@
                             barTone = 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]';
                             textTone = 'text-emerald-400 font-semibold';
                         } else if (item.type === 'artist_match') {
-                            barTone = roundOver && !roundWon ? 'bg-red-500/75' : 'bg-amber-400';
-                            textTone = roundOver && !roundWon ? 'text-red-400/80' : 'text-amber-400';
+                            barTone = roundOver && !roundWon ? 'bg-red-500/75' : 'bg-amber-400/65';
+                            textTone = roundOver && !roundWon ? 'text-red-400/80' : 'text-amber-300/75';
                         } else if (item.type === 'wrong') {
                             barTone = 'bg-red-500/75';
                             textTone = 'text-red-400/80';
@@ -10689,7 +10757,7 @@
                             textTone = roundOver && !roundWon ? 'text-red-400/70' : 'text-zinc-500';
                         }
                     } else if (isCurrent) {
-                        barTone = 'theme-accent-bg shadow-[0_0_8px_rgba(16,185,129,0.45)]';
+                        barTone = 'theme-accent-bg shadow-[0_0_8px_var(--accent-glow)]';
                         textTone = 'text-zinc-300 font-medium';
                     }
 
@@ -10704,10 +10772,35 @@
             if (!container || !trailWrapper) return;
             container.innerHTML = '';
 
-            // In Multiplayer, display the shared live feed of what both players typed/skipped!
+            // In Multiplayer: remove old stage skips completely & collapse current-stage skips into 1 sleek pill
             if (mpState.active && mpState.roomData && mpState.roomData.currentRound) {
                 const mpGuesses = mpState.roomData.currentRound.guesses || [];
-                if (mpGuesses.length === 0) {
+                const stepLabels = ['1.5s', '3s', '6s', '10s', '15s', 'MAX'];
+                const activeStageLabel = stepLabels[currentAttemptIndex] || '';
+
+                const currentStageSkips = [];
+                const seenSkipUids = new Set();
+                if (!roundOver) {
+                    for (let i = 0; i < mpGuesses.length; i++) {
+                        const g = mpGuesses[i];
+                        if (g.type !== 'skip') continue;
+                        const isCurrentStage = (typeof g.stage === 'number')
+                            ? g.stage === currentAttemptIndex
+                            : g.stageLabel === activeStageLabel;
+                        if (!isCurrentStage) continue;
+                        const dedupeKey = g.uid || g.name || String(i);
+                        if (seenSkipUids.has(dedupeKey)) continue;
+                        seenSkipUids.add(dedupeKey);
+                        currentStageSkips.push(g);
+                    }
+                }
+
+                const maxGuessPills = isTouchMobileDevice ? 3 : 5;
+                const guessPills = mpGuesses
+                    .filter(g => g.type !== 'skip')
+                    .slice(-maxGuessPills);
+
+                if (guessPills.length === 0 && currentStageSkips.length === 0) {
                     trailWrapper.classList.add('hidden');
                     trailWrapper.classList.remove('flex');
                     invalidateLayoutRectCache();
@@ -10717,7 +10810,7 @@
                 trailWrapper.classList.remove('hidden');
                 trailWrapper.classList.add('flex');
 
-                mpGuesses.slice(-8).forEach(g => {
+                guessPills.forEach(g => {
                     const pill = document.createElement('div');
                     const playerName = g.name || 'Gracz';
                     if (g.type === 'correct') {
@@ -10728,28 +10821,37 @@
                             <span class="truncate">${escapeHtml(g.text)}</span>
                         `;
                     } else if (g.type === 'artist_match') {
-                        pill.className = 'px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 inline-flex items-center gap-1.5 text-xs max-w-full';
+                        pill.className = 'px-3 py-1 rounded-full bg-zinc-900/85 border border-[#27272a] text-zinc-300 inline-flex items-center gap-1.5 text-xs max-w-full';
                         pill.innerHTML = `
-                            <span class="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0"></span>
+                            <span class="w-1.5 h-1.5 rounded-full bg-amber-400/70 shrink-0"></span>
                             <span class="font-semibold shrink-0">${escapeHtml(playerName)}:</span>
                             <span class="truncate">${escapeHtml(g.text)}</span>
-                            <span class="text-[10px] font-mono text-amber-400/80 shrink-0">(Wykonawca)</span>
-                        `;
-                    } else if (g.type === 'skip') {
-                        pill.className = 'px-2.5 py-1 rounded-full bg-zinc-900/70 border border-zinc-800 text-zinc-500 inline-flex items-center gap-1.5 text-[11px] font-mono max-w-full';
-                        pill.innerHTML = `
-                            <span>${escapeHtml(playerName)} pominął (${g.stageLabel || ''})</span>
+                            <span class="text-[10px] font-mono text-amber-300/70 shrink-0">(Wykonawca)</span>
                         `;
                     } else {
                         pill.className = 'px-3 py-1 rounded-full bg-zinc-900/85 border border-zinc-800/80 text-zinc-300 inline-flex items-center gap-1.5 text-xs max-w-full';
                         pill.innerHTML = `
-                            <span class="text-red-400/90 font-mono text-[10px] shrink-0">✕</span>
+                            <svg class="w-3 h-3 text-red-400/90 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                             <span class="font-semibold text-zinc-400 shrink-0">${escapeHtml(playerName)}:</span>
                             <span class="truncate">${escapeHtml(g.text)}</span>
                         `;
                     }
                     container.appendChild(pill);
                 });
+
+                if (currentStageSkips.length > 0) {
+                    const totalPlayers = Math.max(1, Object.keys(mpState.roomData.players || {}).length);
+                    const skipNames = currentStageSkips
+                        .map(s => (s.name || 'Gracz').split(' ')[0])
+                        .join(', ');
+                    const skipPill = document.createElement('div');
+                    skipPill.className = 'px-2.5 py-1 rounded-full bg-zinc-900/70 border border-zinc-800 text-zinc-400 inline-flex items-center gap-1.5 text-[11px] font-mono max-w-full';
+                    skipPill.innerHTML = `
+                        <svg class="w-3 h-3 text-zinc-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></svg>
+                        <span class="truncate">Pominęli (${currentStageSkips.length}/${totalPlayers}): ${escapeHtml(skipNames)}</span>
+                    `;
+                    container.appendChild(skipPill);
+                }
 
                 invalidateLayoutRectCache();
                 return;
@@ -10772,16 +10874,16 @@
             meaningfulAttempts.forEach(item => {
                 const pill = document.createElement('div');
                 if (item.type === 'artist_match') {
-                    pill.className = 'px-3 py-1 rounded-full bg-amber-500/10 text-amber-300 inline-flex items-center gap-1.5 text-xs max-w-full';
+                    pill.className = 'px-3 py-1 rounded-full bg-zinc-900/85 border border-[#27272a] text-zinc-300 inline-flex items-center gap-1.5 text-xs max-w-full';
                     pill.innerHTML = `
-                        <span class="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0"></span>
+                        <span class="w-1.5 h-1.5 rounded-full bg-amber-400/70 shrink-0"></span>
                         <span class="truncate">${escapeHtml(item.text)}</span>
-                        <span class="text-[10px] font-mono text-amber-400/80 shrink-0">(Ten wykonawca)</span>
+                        <span class="text-[10px] font-mono text-amber-300/70 shrink-0">(Ten wykonawca)</span>
                     `;
                 } else {
                     pill.className = 'px-3 py-1 rounded-full bg-zinc-900/80 text-zinc-400 inline-flex items-center gap-1.5 text-xs max-w-full';
                     pill.innerHTML = `
-                        <span class="text-red-400/90 font-mono text-[10px] shrink-0">✕</span>
+                        <svg class="w-3 h-3 text-red-400/90 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                         <span class="truncate">${escapeHtml(item.text)}</span>
                     `;
                 }
@@ -11697,6 +11799,7 @@
             const hintBanner = document.getElementById('activeHintBanner');
             if (hintBanner) {
                 hintBanner.classList.add('hidden');
+                hintBanner.classList.remove('inline-flex');
             }
 
             syncPeriodRollover(stats);
@@ -12228,6 +12331,7 @@
             if (hintBanner) {
                 hintBanner.textContent = '';
                 hintBanner.classList.add('hidden');
+                hintBanner.classList.remove('inline-flex');
             }
 
             await switchView('game');
@@ -12431,7 +12535,7 @@
                 }
                 if (headerMpBtn) {
                     if (mpState.active) {
-                        headerMpBtn.className = 'magnetic-item h-8 px-2.5 rounded-full bg-emerald-950/50 border border-emerald-500/50 text-emerald-300 hover:text-white inline-flex items-center justify-center gap-1.5 text-xs font-medium shrink-0';
+                        headerMpBtn.className = 'magnetic-item h-8 px-2.5 rounded-full theme-accent-badge border hover:text-white inline-flex items-center justify-center gap-1.5 text-xs font-medium shrink-0';
                     } else {
                         headerMpBtn.className = 'magnetic-item h-8 px-2.5 rounded-full ui-pill text-zinc-300 hover:text-white inline-flex items-center justify-center gap-1.5 text-xs font-medium shrink-0';
                     }
@@ -12514,13 +12618,17 @@
                     }
                 }
 
-                // Live HUD Bar in Game View
+                // Live HUD Bar in Game View (All players always visible in order 1..N, zero emojis)
                 if (hudBar) {
                     hudBar.classList.remove('hidden');
                     hudBar.classList.add('flex');
                     const hudCode = document.getElementById('mpHudRoomCode');
+                    const hudCountMobile = document.getElementById('mpHudCountMobile');
                     const hudPlayers = document.getElementById('mpHudPlayersList');
                     if (hudCode) hudCode.textContent = mpState.roomCode;
+                    if (hudCountMobile) {
+                        hudCountMobile.textContent = `${playerList.length} ${playerList.length === 1 ? 'gracz' : 'graczy'}`;
+                    }
 
                     if (hudPlayers) {
                         hudPlayers.innerHTML = '';
@@ -12528,7 +12636,7 @@
                         const stageVotes = curRound?.stageVotes || [];
                         const nextVotes = curRound?.nextVotes || [];
 
-                        playerList.forEach(p => {
+                        playerList.forEach((p, idx) => {
                             const isMe = currentUser && p.uid === currentUser.uid;
                             const votedSkip = curRound && curRound.status === 'playing' && stageVotes.includes(p.uid);
                             const votedNext = curRound && (curRound.status === 'won' || curRound.status === 'failed') && nextVotes.includes(p.uid);
@@ -12536,20 +12644,25 @@
 
                             let statusBadge = '';
                             if (isWinner) {
-                                statusBadge = `<span class="text-[10px] font-mono text-emerald-400">★</span>`;
+                                statusBadge = `<svg class="w-3 h-3 text-emerald-400 shrink-0" viewBox="0 0 24 24" fill="currentColor" aria-label="Zwycięzca rundy"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>`;
                             } else if (votedSkip) {
-                                statusBadge = `<span class="text-[10px] font-mono text-amber-400" title="Gotowy do pominięcia">⏭</span>`;
+                                statusBadge = `<svg class="w-3 h-3 text-amber-400/75 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" title="Gotowy do pominięcia"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></svg>`;
                             } else if (votedNext) {
-                                statusBadge = `<span class="text-[10px] font-mono text-emerald-400" title="Gotowy na następny utwór">✓</span>`;
+                                statusBadge = `<svg class="w-3 h-3 theme-accent-text shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" title="Gotowy na następny utwór"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
                             }
 
+                            const rankPrefix = playerList.length > 1
+                                ? `<span class="text-[10px] font-mono ${idx === 0 ? 'theme-accent-text font-bold' : 'text-zinc-500'} shrink-0">${idx + 1}.</span>`
+                                : '';
+
                             const chip = document.createElement('div');
-                            chip.className = `inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border text-[11px] shrink-0 ${
+                            chip.className = `inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[11px] shrink-0 ${
                                 isMe ? 'bg-zinc-900 border-zinc-700 text-zinc-100' : 'bg-zinc-900/60 border-zinc-800 text-zinc-300'
                             }`;
                             chip.innerHTML = `
-                                <span class="font-medium truncate max-w-[75px]">${escapeHtml((p.name || 'Gracz').split(' ')[0])}</span>
-                                <span class="font-mono font-semibold text-emerald-400">${p.score || 0}</span>
+                                ${rankPrefix}
+                                <span class="font-medium truncate max-w-[72px]">${escapeHtml((p.name || 'Gracz').split(' ')[0])}</span>
+                                <span class="font-mono font-semibold theme-accent-text">${p.score || 0}</span>
                                 ${statusBadge}
                             `;
                             hudPlayers.appendChild(chip);
@@ -12578,7 +12691,6 @@
                 const existingKeys = new Set(songsLibrary.map(s => getCanonicalSongKey(s.cleanTitle)));
                 let added = 0;
 
-                // Remove demo tracks if we are receiving real multiplayer titles
                 if (songsLibrary.every(s => s.isDemo)) {
                     songsLibrary = [];
                 }
@@ -12639,6 +12751,7 @@
                 if (hintBanner) {
                     hintBanner.textContent = '';
                     hintBanner.classList.add('hidden');
+                    hintBanner.classList.remove('inline-flex');
                 }
                 const socialStatRow = document.getElementById('resultSocialStatRow');
                 if (socialStatRow) {
@@ -12674,7 +12787,6 @@
                     isDemo: false
                 };
 
-                // Ensure the current song is in songsLibrary so autocomplete always includes it
                 const cKey = getCanonicalSongKey(syncedSong.cleanTitle);
                 if (!songsLibrary.some(s => getCanonicalSongKey(s.cleanTitle) === cKey)) {
                     songsLibrary.push(syncedSong);
@@ -12743,7 +12855,6 @@
                     mpState.roomData = data;
                     mpState.isHost = Boolean(currentUser && data.hostUid === currentUser.uid);
 
-                    // Auto-promote to host if previous host left the room
                     const playersObj = data.players || {};
                     const activeUids = Object.keys(playersObj);
                     if (currentUser && activeUids.length > 0 && !playersObj[data.hostUid]) {
@@ -12804,19 +12915,21 @@
                         renderMpModalAndHud();
                     }
 
-                    // 5. Host coordinator: check if all players voted to skip current stage or start next round
+                    // 5. Host coordinator: strip old skip pills when advancing stage / ending round
                     if (mpState.isHost && activeUids.length > 0) {
                         const requiredVotes = activeUids.length;
                         if (r.status === 'playing') {
                             const sVotes = (r.stageVotes || []).filter(uid => Boolean(playersObj[uid]));
                             if (sVotes.length >= requiredVotes && !mpState.isAdvancingStage) {
                                 mpState.isAdvancingStage = true;
+                                const cleanedGuesses = (r.guesses || []).filter(g => g.type !== 'skip');
                                 if (r.stageIndex >= 5) {
                                     await safeMpRoomWrite(roomCode, {
                                         currentRound: {
                                             ...r,
                                             status: 'failed',
-                                            stageVotes: []
+                                            stageVotes: [],
+                                            guesses: cleanedGuesses
                                         }
                                     }, true);
                                 } else {
@@ -12824,7 +12937,8 @@
                                         currentRound: {
                                             ...r,
                                             stageIndex: (r.stageIndex || 0) + 1,
-                                            stageVotes: []
+                                            stageVotes: [],
+                                            guesses: cleanedGuesses
                                         }
                                     }, true);
                                 }
@@ -13010,7 +13124,6 @@
                     window.toggleMultiplayerModal(false);
                 }
 
-                // If host only has Demo tracks loaded, automatically load the default 900+ YouTube playlist first!
                 if (songsLibrary.length === 0 || songsLibrary.every(s => s.isDemo) || songsLibrary.every(s => s.sourceType === 'local')) {
                     showFloatingFeedbackPill('Ładowanie playlisty dla pokoju...', 'emerald');
                     await loadDefaultKluzekYouTubePlaylist();
@@ -13063,7 +13176,6 @@
                 const samplePool = songsLibrary
                     .filter(s => !s.isDemo)
                     .map(s => s.cleanTitle);
-                // Make sure the current song's cleanTitle is in the titlePool sent to guests
                 const shuffledSample = [...new Set([pickedSong.cleanTitle, ...samplePool])].slice(0, 180);
 
                 const roundId = 'r_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
@@ -13135,7 +13247,7 @@
                             winnerName: myName,
                             winnerStage: currentAttemptIndex,
                             winnerPoints: pts,
-                            guesses: updatedGuesses
+                            guesses: updatedGuesses.filter(g => g.type !== 'skip')
                         }
                     }, true);
                 } else {
@@ -13185,6 +13297,7 @@
                         name: myName,
                         text: 'Pomiń',
                         type: 'skip',
+                        stage: currentAttemptIndex,
                         stageLabel: stepLabels[currentAttemptIndex] || '',
                         ts: Date.now()
                     }
@@ -13957,7 +14070,6 @@
                                 const firstName = getDisplayNameForPlayer(currentUser, stats.customNickname).split(' ')[0];
                                 showFloatingFeedbackPill(`Zalogowano: ${firstName}`, 'emerald');
                             }
-                            // Check if URL has ?room=CODE to auto-join!
                             const params = new URLSearchParams(window.location.search);
                             const roomParam = params.get('room');
                             if (roomParam && !mpState.active) {
