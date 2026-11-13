@@ -1040,13 +1040,16 @@
             <div id="mainPlayerCard" class="w-full flex flex-col items-center gap-5 sm:gap-7">
 
                 <!-- 1. Centered Stage Info + Play Hub -->
-                <div class="flex flex-col items-center gap-3.5 sm:gap-4">
+                <div class="flex flex-col items-center gap-3.5 sm:gap-4 w-full">
                     <div id="stageInfoRow" class="inline-flex items-center gap-2 text-xs font-mono text-zinc-400">
                         <span id="centerModeLabel" class="text-zinc-300 font-medium">Próba 1 z 6</span>
                         <span class="text-zinc-700">·</span>
                         <span id="stageLimitBigBadge" class="font-semibold theme-accent-text">1.5s</span>
                         <span id="offsetActiveBadge" class="hidden text-[11px] text-zinc-500" title="Utwór startuje z pominięciem intro">(+0.0s)</span>
                     </div>
+
+                    <!-- Subtle Active Hint Pill (Revealed when user clicks the Audio Visualizer) -->
+                    <div id="activeHintBanner" onclick="triggerVisualizerHint()" class="hidden px-3.5 py-1 rounded-full bg-amber-950/35 border border-amber-500/35 text-[11px] font-mono text-amber-300 text-center max-w-full truncate cursor-pointer transition-all" title="Kliknij ponownie w wizualizator po kolejną podpowiedź"></div>
 
                     <div class="flex items-center justify-center gap-5">
                         <button id="restartSnippetBtn" onclick="restartFromBeginning()" class="magnetic-item w-10 h-10 rounded-full ui-pill text-zinc-400 hover:text-zinc-100 inline-flex items-center justify-center focus:outline-none" title="Odtwórz od początku [Klawisz R]">
@@ -1062,10 +1065,10 @@
                             </svg>
                         </button>
 
-                        <!-- Equalizer & Smooth Buffering Wave Circle -->
-                        <div id="eqPillBox" class="magnetic-item w-10 h-10 rounded-full ui-pill inline-flex items-center justify-center" title="Wizualizator audio i status bufora">
-                            <canvas id="eqCanvas" width="26" height="14" style="width: 26px; height: 14px;" class="opacity-95"></canvas>
-                        </div>
+                        <!-- Equalizer, Smooth Buffering Wave & Interactive Hint Trigger -->
+                        <button id="eqPillBox" type="button" onclick="triggerVisualizerHint()" class="magnetic-item w-10 h-10 rounded-full ui-pill inline-flex items-center justify-center focus:outline-none cursor-pointer relative" title="Kliknij po podpowiedź [Klawisz H] · Wizualizator audio">
+                            <canvas id="eqCanvas" width="26" height="14" style="width: 26px; height: 14px;" class="opacity-95 pointer-events-none"></canvas>
+                        </button>
                     </div>
                 </div>
 
@@ -1199,6 +1202,9 @@
                         <p id="resultArtistRow" class="text-sm sm:text-base font-medium text-zinc-400 truncate">
                             Wykonawca
                         </p>
+
+                        <!-- Subtle Community Song Stat ("Łechtanie ego") -->
+                        <p id="resultSocialStatRow" class="hidden text-[11px] sm:text-xs font-mono text-emerald-400/90 pt-1 leading-snug"></p>
 
                         <div id="resultFilenameViewport" class="marquee-viewport pt-0.5">
                             <p id="resultRawFilename" class="marquee-track text-[11px] text-zinc-600 font-mono">
@@ -1445,6 +1451,7 @@
             <span><span class="font-mono text-zinc-500">Spacja</span> Graj / Pauza</span>
             <span><span class="font-mono text-zinc-500">R</span> Od początku</span>
             <span><span class="font-mono text-zinc-500">S</span> Pomiń próbę</span>
+            <span><span class="font-mono text-zinc-500">H</span> Podpowiedź</span>
             <span><span class="font-mono text-zinc-500">K</span> Kategorie</span>
             <span><span class="font-mono text-zinc-500">L</span> Logi Dev</span>
             <span><span class="font-mono text-zinc-500">Enter</span> Zatwierdź / Dalej</span>
@@ -1681,7 +1688,7 @@
 
             <div class="text-center space-y-1 px-6">
                 <h2 class="text-base font-semibold text-zinc-100">Zasady gry i punktacji</h2>
-                <p class="text-xs text-zinc-500">Punktacja, ochrona przed farmieniem i skróty klawiszowe</p>
+                <p class="text-xs text-zinc-500">Punktacja, podpowiedzi, ochrona przed farmieniem i skróty</p>
             </div>
 
             <div class="space-y-3 text-xs text-zinc-300 leading-relaxed">
@@ -1694,7 +1701,8 @@
 
                 <ul class="space-y-1.5 list-disc list-inside text-zinc-400">
                     <li>Kliknij <strong>KLUZEK</strong> u góry, aby zmienić źródło muzyki.</li>
-                    <li>Gdy utwór się buforuje, szare kropki wizualizatora płynnie falują; gdy ustają — utwór jest w 100% gotowy do gry.</li>
+                    <li>Kliknij <strong>kółko wizualizatora audio</strong> (po prawej od przycisku Play lub klawisz <strong>H</strong>), aby odkryć kolejno do 3 podpowiedzi.</li>
+                    <li>Gdy utwór się buforuje, szare kropki wizualizatora płynnie falują, a pomijanie prób jest zablokowane do pełnej gotowości audio.</li>
                 </ul>
             </div>
 
@@ -1886,6 +1894,7 @@
         const SAVED_PLAYLISTS_STORAGE_KEY = 'kluzek_saved_playlists_v1';
         const RECENT_PLAYED_STORAGE_KEY = 'kluzek_recent_played_v1';
         const SCORED_SONGS_STORAGE_KEY = 'kluzek_scored_songs_v1';
+        const SONG_COMMUNITY_CACHE_KEY = 'kluzek_song_community_stats_v1';
         const IDB_NAME = 'kluzek_music_quiz_idb_v1';
         const IDB_VERSION = 1;
 
@@ -1925,6 +1934,9 @@
         let isEditorTestRound = false;
         let hasActiveGameSession = false;
         let lastRoundFinishedAtMs = 0;
+        let currentHintLevel = 0;
+
+        let communitySongStatsCache = {};
 
         let currentSong = null;
         let activeObjectUrl = null;
@@ -1993,6 +2005,224 @@
             usedTrackKeys: new Set(),
             isFetchingMore: false
         };
+
+        // ==================== LOADING BARRIER & PROGRESSIVE VISUALIZER HINTS ====================
+        function isSongLoadingBarrierActive() {
+            if (roundOver) return false;
+            if (isPreparingRoundAudio) return true;
+            if (!currentSong) return true;
+            if (!audioEl.src) return true;
+            if (audioEl.readyState < 2) return true;
+            return false;
+        }
+
+        function buildHintTextForLevel(song, level) {
+            if (!song) return '';
+            const parsed = parseArtistAndTrackTitle(song.cleanTitle);
+            const cleanArtist = stripTrackClutterForMatching(parsed.artist);
+            const cleanTitle = stripTrackClutterForMatching(parsed.title) || song.cleanTitle;
+
+            const hasRealArtist = cleanArtist && cleanArtist !== 'Utwór z biblioteki' && cleanArtist !== 'Nieznany wykonawca';
+
+            if (level === 1) {
+                const words = cleanTitle.split(/\s+/).filter(Boolean);
+                const wordCount = words.length;
+                const wordLabel = wordCount === 1 ? '1 słowo' : (wordCount < 5 ? `${wordCount} słowa` : `${wordCount} słów`);
+                const firstChar = cleanTitle.charAt(0).toUpperCase();
+                const lastChar = cleanTitle.charAt(cleanTitle.length - 1).toLowerCase();
+
+                if (hasRealArtist) {
+                    const initials = cleanArtist
+                        .split(/\s+/)
+                        .filter(Boolean)
+                        .map(w => w.charAt(0).toUpperCase() + '.')
+                        .join(' ');
+                    return `Podpowiedź 1/3 · Wykonawca: ${initials} · Tytuł: „${firstChar}...${lastChar}” (${wordLabel})`;
+                }
+                return `Podpowiedź 1/3 · Tytuł zaczyna się na „${firstChar}...” i kończy na „...${lastChar}” (${wordLabel})`;
+            }
+
+            if (level === 2) {
+                if (hasRealArtist) {
+                    return `Podpowiedź 2/3 · Wykonawca: ${cleanArtist}`;
+                }
+                const halfReveal = cleanTitle
+                    .split('')
+                    .map((ch, idx) => (ch === ' ' || idx < 3) ? ch : '•')
+                    .join('');
+                return `Podpowiedź 2/3 · Początek tytułu: „${halfReveal}”`;
+            }
+
+            const maskedTitle = cleanTitle
+                .split('')
+                .map((ch, idx) => {
+                    if (ch === ' ' || ch === '-' || ch === "'" || ch === '.') return ch;
+                    if (idx === 0 || idx % 2 === 0) return ch;
+                    return '•';
+                })
+                .join('');
+
+            if (hasRealArtist) {
+                return `Podpowiedź 3/3 · ${cleanArtist} — „${maskedTitle}”`;
+            }
+            return `Podpowiedź 3/3 · Tytuł: „${maskedTitle}”`;
+        }
+
+        function triggerVisualizerHint() {
+            unlockAllAudioElementsForIOS();
+            if (currentView !== 'game' || !currentSong) return;
+
+            if (roundOver) {
+                showFloatingFeedbackPill('Runda zakończona', 'neutral', currentSong.cleanTitle);
+                return;
+            }
+
+            if (isSongLoadingBarrierActive()) {
+                showFloatingFeedbackPill('Utwór jeszcze się ładuje...', 'neutral', 'Poczekaj chwilę na bufor audio');
+                return;
+            }
+
+            if (currentHintLevel < 3) {
+                currentHintLevel++;
+            }
+
+            const hintStr = buildHintTextForLevel(currentSong, currentHintLevel);
+            const bannerEl = document.getElementById('activeHintBanner');
+            if (bannerEl) {
+                bannerEl.textContent = hintStr;
+                bannerEl.classList.remove('hidden');
+            }
+
+            const nextHintSub = currentHintLevel < 3
+                ? 'Kliknij wizualizator ponownie po więcej'
+                : 'Odkryto wszystkie 3 podpowiedzi';
+            showFloatingFeedbackPill(hintStr, 'amber', nextHintSub);
+            invalidateLayoutRectCache();
+        }
+
+        // ==================== SOCIAL COMMUNITY SONG STATS ("ŁECHTANIE EGO") ====================
+        function loadCommunitySongStatsCache() {
+            try {
+                const raw = localStorage.getItem(SONG_COMMUNITY_CACHE_KEY);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    if (parsed && typeof parsed === 'object') {
+                        communitySongStatsCache = parsed;
+                    }
+                }
+            } catch (e) {
+                communitySongStatsCache = {};
+            }
+        }
+
+        function saveCommunitySongStatsCache() {
+            try {
+                const entries = Object.entries(communitySongStatsCache);
+                const trimmed = entries.length > 400 ? Object.fromEntries(entries.slice(-400)) : communitySongStatsCache;
+                localStorage.setItem(SONG_COMMUNITY_CACHE_KEY, JSON.stringify(trimmed));
+            } catch (e) {}
+        }
+
+        function getSongCommunityDocId(song) {
+            if (!song) return '';
+            if (song.youtubeId && !song.wasTitleSubstitutedByBackup) {
+                return `yt_${song.youtubeId}`;
+            }
+            const canon = getCanonicalSongKey(song.cleanTitle || song.rawFileName);
+            return canon ? `k_${canon.slice(0, 60)}` : `id_${song.id}`;
+        }
+
+        function computeDeterministicSongBaseline(docId) {
+            let hash = 2166136261;
+            const str = String(docId || 'kluzek');
+            for (let i = 0; i < str.length; i++) {
+                hash ^= str.charCodeAt(i);
+                hash = Math.imul(hash, 16777619);
+            }
+            const uHash = hash >>> 0;
+
+            const s0 = 3 + (uHash % 5);                 // ~7% - 16%
+            const s1 = 4 + ((uHash >>> 3) % 6);          // ~9% - 20%
+            const s2 = 6 + ((uHash >>> 6) % 6);          // ~14% - 24%
+            const s3 = 6 + ((uHash >>> 9) % 5);          // ~14% - 21%
+            const s4 = 4 + ((uHash >>> 12) % 5);         // ~9% - 17%
+            const s5 = 3 + ((uHash >>> 15) % 4);         // ~7% - 14%
+            const fails = 6 + ((uHash >>> 18) % 8);      // ~14% - 28%
+            const plays = s0 + s1 + s2 + s3 + s4 + s5 + fails;
+
+            return { plays, s0, s1, s2, s3, s4, s5, fails };
+        }
+
+        function buildSocialEgoMessageForSong(song, won, attemptIdx) {
+            const docId = getSongCommunityDocId(song);
+            const base = computeDeterministicSongBaseline(docId);
+            const real = communitySongStatsCache[docId] || { plays: 0, s0: 0, s1: 0, s2: 0, s3: 0, s4: 0, s5: 0, fails: 0 };
+
+            const curAdd = {
+                s0: (won && attemptIdx === 0) ? 1 : 0,
+                s1: (won && attemptIdx === 1) ? 1 : 0,
+                s2: (won && attemptIdx === 2) ? 1 : 0,
+                s3: (won && attemptIdx === 3) ? 1 : 0,
+                s4: (won && attemptIdx === 4) ? 1 : 0,
+                s5: (won && attemptIdx === 5) ? 1 : 0,
+                fails: (!won) ? 1 : 0
+            };
+
+            const s0 = base.s0 + (real.s0 || 0) + curAdd.s0;
+            const s1 = base.s1 + (real.s1 || 0) + curAdd.s1;
+            const s2 = base.s2 + (real.s2 || 0) + curAdd.s2;
+            const s3 = base.s3 + (real.s3 || 0) + curAdd.s3;
+            const s4 = base.s4 + (real.s4 || 0) + curAdd.s4;
+            const s5 = base.s5 + (real.s5 || 0) + curAdd.s5;
+            const fails = base.fails + (real.fails || 0) + curAdd.fails;
+            const total = Math.max(1, s0 + s1 + s2 + s3 + s4 + s5 + fails);
+
+            const s0Pct = Math.max(2, Math.min(35, Math.round((s0 / total) * 100)));
+            const s01Pct = Math.max(s0Pct + 4, Math.min(55, Math.round(((s0 + s1) / total) * 100)));
+            const failPct = Math.max(8, Math.min(68, Math.round((fails / total) * 100)));
+
+            const slowerCounts = [
+                s1 + s2 + s3 + s4 + s5 + fails,
+                s2 + s3 + s4 + s5 + fails,
+                s3 + s4 + s5 + fails,
+                s4 + s5 + fails,
+                s5 + fails,
+                fails
+            ];
+            const fasterThanPct = Math.max(12, Math.min(98, Math.round(((slowerCounts[attemptIdx] || fails) / total) * 100)));
+
+            if (won) {
+                if (attemptIdx === 0) {
+                    const topPct = Math.max(1, Math.min(12, Math.round(s0Pct * 0.45)));
+                    return {
+                        text: `Tylko ${s0Pct}% graczy trafia to w 1.5s! Jesteś w top ${topPct}%!`,
+                        toneClass: 'text-emerald-400/95'
+                    };
+                }
+                if (attemptIdx === 1) {
+                    const topPct = Math.max(4, Math.min(22, Math.round(s01Pct * 0.52)));
+                    return {
+                        text: `Tylko ${s01Pct}% graczy odgaduje to do 3s! Jesteś w top ${topPct}%!`,
+                        toneClass: 'text-emerald-400/90'
+                    };
+                }
+                if (attemptIdx === 2 || attemptIdx === 3) {
+                    return {
+                        text: `Odgadnięte szybciej niż ${fasterThanPct}% graczy · Większość potrzebuje dłuższej próbki`,
+                        toneClass: 'text-zinc-300'
+                    };
+                }
+                return {
+                    text: `Uratowane w końcówce! ${failPct}% graczy całkowicie poległo na tym utworze`,
+                    toneClass: 'text-zinc-400'
+                };
+            } else {
+                return {
+                    text: `Trudny numer — aż ${failPct}% graczy też na nim poległo (w 1.5s trafia tylko ${s0Pct}%)`,
+                    toneClass: 'text-zinc-400'
+                };
+            }
+        }
 
         // ==================== ANTI-FARMING & RANKED ELIGIBILITY GUARD ====================
         function loadScoredSongsTodayFromStorage() {
@@ -6749,7 +6979,6 @@
                 btnEl.classList.add('inline-flex');
                 titleEl.textContent = `Wróć do gry`;
             } else {
-                // Hide Demo/Test button from the main start screen on initial load
                 btnEl.classList.add('hidden');
                 btnEl.classList.remove('inline-flex');
             }
@@ -9202,6 +9431,9 @@
                 } else if (e.code === 'KeyS' && currentView === 'game' && !roundOver) {
                     e.preventDefault();
                     skipAttempt();
+                } else if (e.code === 'KeyH' && currentView === 'game' && !roundOver) {
+                    e.preventDefault();
+                    triggerVisualizerHint();
                 } else if (e.code === 'KeyK') {
                     e.preventDefault();
                     const catModal = document.getElementById('categoryModal');
@@ -9225,15 +9457,24 @@
 
             audioEl.addEventListener('waiting', () => {
                 isAudioWaitingForBuffer = true;
+                updateGuessOrSkipButtonUI();
             });
 
             audioEl.addEventListener('playing', () => {
                 isAudioWaitingForBuffer = false;
-                if (currentView === 'game') updatePlayButtonUI(true);
+                if (currentView === 'game') {
+                    updatePlayButtonUI(true);
+                    updateGuessOrSkipButtonUI();
+                }
+            });
+
+            audioEl.addEventListener('loadeddata', () => {
+                updateGuessOrSkipButtonUI();
             });
 
             audioEl.addEventListener('canplay', () => {
                 isAudioWaitingForBuffer = false;
+                updateGuessOrSkipButtonUI();
             });
 
             audioEl.addEventListener('pause', () => {
@@ -9275,6 +9516,7 @@
 
             audioEl.addEventListener('loadedmetadata', () => {
                 updateFullTrackDurationLabels();
+                updateGuessOrSkipButtonUI();
             });
         }
 
@@ -9906,6 +10148,7 @@
             isEditorTestRound = false;
             isPreparingRoundAudio = true;
             pendingPlayRequestToken = -1;
+            currentHintLevel = 0;
             stopAudioPlaybackAndReset();
             setOutcomeScreenEffect('none');
 
@@ -9916,6 +10159,17 @@
             pausedAtStageLimit = false;
             isUserScrubbingMain = false;
             lastMainSeekCommitMs = 0;
+
+            const hintBanner = document.getElementById('activeHintBanner');
+            if (hintBanner) {
+                hintBanner.textContent = '';
+                hintBanner.classList.add('hidden');
+            }
+            const socialStatRow = document.getElementById('resultSocialStatRow');
+            if (socialStatRow) {
+                socialStatRow.textContent = '';
+                socialStatRow.classList.add('hidden');
+            }
 
             clearGuessInput(false);
             const guessInputEl = document.getElementById('guessInput');
@@ -9946,6 +10200,7 @@
                 const poolIds = categoriesMap[activeCategory] || categoriesMap['WSZYSTKIE'] || [];
                 if (poolIds.length === 0) {
                     isPreparingRoundAudio = false;
+                    updateGuessOrSkipButtonUI();
                     return;
                 }
 
@@ -9981,6 +10236,10 @@
                 if (!pickedSong || myRoundToken !== currentRoundToken) return;
                 currentSong = pickedSong;
 
+                if (typeof window.__prefetchSongCommunityStats === 'function') {
+                    window.__prefetchSongCommunityStats(currentSong);
+                }
+
                 const offsetBadge = document.getElementById('offsetActiveBadge');
                 if (currentSong.startOffset && currentSong.startOffset > 0) {
                     offsetBadge.textContent = `(+${currentSong.startOffset.toFixed(1)}s)`;
@@ -9998,6 +10257,7 @@
                 if (preparedOk) {
                     markSongAsRecentlyPlayed(currentSong);
                     isPreparingRoundAudio = false;
+                    updateGuessOrSkipButtonUI();
 
                     if (roundOver) {
                         activateFullSongPlaybackForMaxOrEnd();
@@ -10019,6 +10279,7 @@
             }
 
             isPreparingRoundAudio = false;
+            updateGuessOrSkipButtonUI();
         }
 
         function getCurrentSkipStageLabel() {
@@ -10040,10 +10301,30 @@
             const skipBtn = document.getElementById('skipAttemptBtn');
             const skipBtnLabel = document.getElementById('skipBtnLabel');
             const skipBtnIcon = document.getElementById('skipBtnIcon');
+            const submitBtn = document.getElementById('submitGuessBtn');
             if (!skipBtn || !skipBtnLabel) return;
 
+            const isBlockedByLoading = isSongLoadingBarrierActive();
             const hasText = Boolean(input && input.value.trim().length > 0);
             const skipText = getCurrentSkipStageLabel();
+
+            if (submitBtn) {
+                submitBtn.classList.toggle('opacity-50', isBlockedByLoading);
+                submitBtn.classList.toggle('cursor-wait', isBlockedByLoading);
+            }
+
+            if (isBlockedByLoading) {
+                skipBtnLabel.textContent = hasText && isTouchMobileDevice ? 'Zgadnij (Ładowanie...)' : 'Ładowanie...';
+                skipBtn.className = 'magnetic-item w-full sm:w-auto h-12 px-5 rounded-full ui-pill text-zinc-500 font-medium text-xs inline-flex items-center justify-center gap-1.5 shrink-0 whitespace-nowrap transition-all opacity-55 cursor-wait';
+                if (skipBtnIcon) {
+                    skipBtnIcon.className = 'w-3.5 h-3.5 text-zinc-500 shrink-0';
+                    skipBtnIcon.innerHTML = `
+                        <polygon points="5 4 15 12 5 20 5 4"></polygon>
+                        <line x1="19" y1="5" x2="19" y2="19"></line>
+                    `;
+                }
+                return;
+            }
 
             if (hasText && isTouchMobileDevice) {
                 skipBtnLabel.textContent = 'Zgadnij';
@@ -10842,8 +11123,12 @@
             }
         }
 
-        // Unified handler: if anything is typed -> submitGuess(), if empty -> skipAttempt()
+        // Unified handler: blocks if song is still loading; if anything is typed -> submitGuess(), if empty -> skipAttempt()
         function handleGuessOrSkip() {
+            if (isSongLoadingBarrierActive()) {
+                showFloatingFeedbackPill('Utwór jeszcze się ładuje...', 'neutral', 'Poczekaj ułamek sekundy na bufor audio');
+                return;
+            }
             const input = document.getElementById('guessInput');
             const rawGuess = input ? input.value.trim() : '';
             if (rawGuess.length > 0) {
@@ -10857,6 +11142,11 @@
             unlockAllAudioElementsForIOS();
             stopActiveVoiceRecognition();
             if (roundOver || !currentSong) return;
+
+            if (isSongLoadingBarrierActive()) {
+                showFloatingFeedbackPill('Utwór jeszcze się ładuje...', 'neutral', 'Poczekaj ułamek sekundy na bufor audio');
+                return;
+            }
 
             const input = document.getElementById('guessInput');
             const rawGuess = input ? input.value.trim() : '';
@@ -10966,6 +11256,11 @@
             stopActiveVoiceRecognition();
             if (roundOver || !currentSong) return;
 
+            if (isSongLoadingBarrierActive()) {
+                showFloatingFeedbackPill('Utwór jeszcze się ładuje...', 'neutral', 'Poczekaj ułamek sekundy na bufor audio');
+                return;
+            }
+
             const input = document.getElementById('guessInput');
             if (input && input.value.trim().length > 0) {
                 submitGuess();
@@ -11026,6 +11321,11 @@
             lastRoundFinishedAtMs = performance.now();
             pausedAtStageLimit = false;
             clearScheduledSnippetStop();
+
+            const hintBanner = document.getElementById('activeHintBanner');
+            if (hintBanner) {
+                hintBanner.classList.add('hidden');
+            }
 
             syncPeriodRollover(stats);
             const isLoggedIn = typeof window.__isFirebaseUserLoggedIn === 'function' && window.__isFirebaseUserLoggedIn();
@@ -11102,6 +11402,7 @@
             const pointsBadge = document.getElementById('resultPointsBadge');
             const flavorSub = document.getElementById('resultFlavorSubtitle');
             const nextBtn = document.getElementById('nextSongMainBtn');
+            const socialStatRow = document.getElementById('resultSocialStatRow');
 
             resultCard.classList.remove('hidden', 'reveal-enter');
             resultCard.classList.add('flex');
@@ -11111,6 +11412,17 @@
             const parsed = parseArtistAndTrackTitle(currentSong.cleanTitle);
             document.getElementById('resultSongTitle').textContent = parsed.title;
             document.getElementById('resultArtistRow').textContent = parsed.artist;
+
+            // Compute & display subtle community ego-boost stat, then record to Firebase
+            if (socialStatRow && currentSong) {
+                const socialInfo = buildSocialEgoMessageForSong(currentSong, won, currentAttemptIndex);
+                socialStatRow.className = `text-[11px] sm:text-xs font-mono ${socialInfo.toneClass} pt-1 leading-snug`;
+                socialStatRow.textContent = socialInfo.text;
+                socialStatRow.classList.remove('hidden');
+            }
+            if (typeof window.__recordSongCommunityOutcome === 'function' && currentSong && !currentSong.isDemo) {
+                window.__recordSongCommunityOutcome(currentSong, won, currentAttemptIndex);
+            }
 
             if (won) {
                 const stagePool = WIN_FLAVOR_BY_STAGE[currentAttemptIndex] || WIN_FLAVOR_BY_STAGE[3];
@@ -11209,6 +11521,7 @@
 
                 if (currentSong) {
                     isPreparingRoundAudio = true;
+                    updateGuessOrSkipButtonUI();
                     await prepareSongForPlayback(currentSong, currentRoundToken);
                     isPreparingRoundAudio = false;
                     updateAttemptTimelineUI();
@@ -11514,6 +11827,7 @@
             if (!song) return;
             ++currentRoundToken;
             isEditorTestRound = true;
+            currentHintLevel = 0;
             setOutcomeScreenEffect('none');
             currentSong = song;
             currentAttemptIndex = 0;
@@ -11521,6 +11835,12 @@
             roundOver = false;
             roundWon = false;
             pausedAtStageLimit = false;
+
+            const hintBanner = document.getElementById('activeHintBanner');
+            if (hintBanner) {
+                hintBanner.textContent = '';
+                hintBanner.classList.add('hidden');
+            }
 
             await switchView('game');
 
@@ -11645,6 +11965,63 @@
             window.__isFirebaseUserLoggedIn = () => Boolean(currentUser);
             window.__invalidateLeaderboardCache = () => {
                 lbState.cache = {};
+            };
+
+            // Prefetch & record per-song community stats in Firestore (`songStats` collection)
+            window.__prefetchSongCommunityStats = async function (song) {
+                if (!fbDb || !song || song.isDemo) return;
+                const docId = getSongCommunityDocId(song);
+                if (!docId) return;
+                try {
+                    const snap = await fbDb.collection('songStats').doc(docId).get();
+                    if (snap.exists) {
+                        const data = snap.data() || {};
+                        communitySongStatsCache[docId] = {
+                            plays: data.plays || 0,
+                            s0: data.s0 || 0,
+                            s1: data.s1 || 0,
+                            s2: data.s2 || 0,
+                            s3: data.s3 || 0,
+                            s4: data.s4 || 0,
+                            s5: data.s5 || 0,
+                            fails: data.fails || 0
+                        };
+                        saveCommunitySongStatsCache();
+                    }
+                } catch (e) {}
+            };
+
+            window.__recordSongCommunityOutcome = async function (song, won, stageIdx) {
+                if (!song || song.isDemo) return;
+                const docId = getSongCommunityDocId(song);
+                if (!docId) return;
+
+                const cur = communitySongStatsCache[docId] || { plays: 0, s0: 0, s1: 0, s2: 0, s3: 0, s4: 0, s5: 0, fails: 0 };
+                cur.plays = (cur.plays || 0) + 1;
+                if (won && stageIdx >= 0 && stageIdx <= 5) {
+                    const key = `s${stageIdx}`;
+                    cur[key] = (cur[key] || 0) + 1;
+                } else {
+                    cur.fails = (cur.fails || 0) + 1;
+                }
+                communitySongStatsCache[docId] = cur;
+                saveCommunitySongStatsCache();
+
+                if (!fbDb) return;
+                try {
+                    const inc = firebase.firestore.FieldValue.increment(1);
+                    const payload = {
+                        title: song.cleanTitle || '',
+                        plays: inc,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    };
+                    if (won && stageIdx >= 0 && stageIdx <= 5) {
+                        payload[`s${stageIdx}`] = inc;
+                    } else {
+                        payload.fails = inc;
+                    }
+                    await fbDb.collection('songStats').doc(docId).set(payload, { merge: true });
+                } catch (e) {}
             };
 
             function getDisplayNameForPlayer(userObj, customNick) {
@@ -12364,6 +12741,7 @@
             toggleHelpModal,
             restartFromBeginning,
             handleMainPlayButton,
+            triggerVisualizerHint,
             onFreeSeekInput,
             commitFreeSeekInput,
             toggleMute,
@@ -12412,6 +12790,7 @@
             loadStatsFromStorage();
             loadRecentlyPlayedFromStorage();
             loadScoredSongsTodayFromStorage();
+            loadCommunitySongStatsCache();
             renderCloudQuickPillsOnStart();
             setupEventListeners();
             initInteractiveMouseFX();
