@@ -37,7 +37,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <!-- Google Firebase SDK (Logowanie i Baza Statystyk) -->
+    <!-- Google Firebase SDK (Logowanie, Baza Statystyk i Multiplayer Live) -->
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
@@ -188,7 +188,8 @@
                 gap: 0.65rem !important;
             }
             body.game-locked.mobile-keyboard-open #attemptsTrailWrapper,
-            body.game-locked.mobile-keyboard-open #recentHistoryCard {
+            body.game-locked.mobile-keyboard-open #recentHistoryCard,
+            body.game-locked.mobile-keyboard-open #mpLiveHudBar {
                 display: none !important;
             }
             body.game-locked.mobile-keyboard-open #autocompleteList {
@@ -222,9 +223,10 @@
             left: -32px;
             right: -32px;
             bottom: 0;
-            background-color: rgba(9, 9, 11, 0.85);
+            background-color: rgba(9, 9, 11, 0.88);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(39, 39, 42, 0.45);
             pointer-events: none;
             z-index: -1;
         }
@@ -301,7 +303,7 @@
         /* Native mobile app feel on touch devices */
         @media (hover: none), (pointer: coarse) {
             header.studio-header::before {
-                background-color: rgba(9, 9, 11, 0.96);
+                background-color: rgba(9, 9, 11, 0.98);
                 backdrop-filter: none;
                 -webkit-backdrop-filter: none;
             }
@@ -331,7 +333,7 @@
                 background-color: #f4f4f5 !important;
             }
             button:active {
-                transform: scale(0.94) !important;
+                transform: scale(0.95) !important;
                 transition: transform 0.06s ease-out !important;
             }
             .ui-pill:active {
@@ -607,33 +609,33 @@
 
     <!-- ==================== COHESIVE MINIMALIST HEADER ==================== -->
     <header class="studio-header">
-        <div class="max-w-3xl mx-auto px-2.5 sm:px-4 h-13 sm:h-16 flex items-center justify-between gap-1 sm:gap-2">
+        <div class="max-w-3xl mx-auto px-3 sm:px-4 h-14 sm:h-16 flex items-center justify-between gap-1.5 sm:gap-2">
             
             <!-- Left: Brand + Active Category Pill + Background Sync Indicator -->
-            <div class="flex items-center gap-1 sm:gap-2 min-w-0 shrink">
-                <button id="brandLogoBtn" onclick="switchView('start')" class="magnetic-item h-7 sm:h-8 px-2 sm:px-2.5 rounded-full ui-pill inline-flex items-center gap-1.5 font-mono font-bold text-[11px] sm:text-xs text-zinc-100 tracking-tight shrink-0" title="Menu startowe i wybór źródła muzyki">
-                    <span class="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full theme-accent-bg shrink-0"></span>
+            <div class="flex items-center gap-1.5 sm:gap-2 min-w-0 shrink">
+                <button id="brandLogoBtn" onclick="switchView('start')" class="magnetic-item h-8 px-2.5 rounded-full ui-pill inline-flex items-center gap-1.5 font-mono font-bold text-xs text-zinc-100 tracking-tight shrink-0" title="Menu startowe i wybór źródła muzyki">
+                    <span class="w-2 h-2 rounded-full theme-accent-bg shrink-0"></span>
                     <span>KLUZEK</span>
                 </button>
 
                 <!-- Active Category Trigger Pill -->
-                <button id="activeCategoryPillBtn" onclick="toggleCategoryModal(true)" class="magnetic-item group h-7 sm:h-8 inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 rounded-full ui-pill text-[11px] sm:text-xs shrink-0 whitespace-nowrap" title="Zmień kategorię lub podkategorię (Klawisz K)">
+                <button id="activeCategoryPillBtn" onclick="toggleCategoryModal(true)" class="magnetic-item group h-8 inline-flex items-center gap-1.5 px-2.5 sm:px-3 rounded-full ui-pill text-xs shrink-0 whitespace-nowrap" title="Zmień kategorię lub podkategorię (Klawisz K)">
                     <span id="headerActiveCategoryName" class="hidden">Wszystkie</span>
-                    <span id="headerActiveCategoryCount" class="font-mono font-semibold text-[11px] sm:text-xs text-zinc-200 shrink-0">4</span>
-                    <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 text-zinc-500 group-hover:text-zinc-300 shrink-0 transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <span id="headerActiveCategoryCount" class="font-mono font-semibold text-xs text-zinc-200 shrink-0">4</span>
+                    <svg class="w-3.5 h-3.5 text-zinc-500 group-hover:text-zinc-300 shrink-0 transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="6 9 12 15 18 9"></polyline>
                     </svg>
                 </button>
 
-                <!-- Live Background Playlist Sync Pill (Compact on mobile so header never overlaps) -->
-                <button id="bgSyncHeaderPill" onclick="toggleDevLogsModal(true)" class="hidden h-7 sm:h-8 px-1.5 sm:px-2.5 rounded-full bg-emerald-950/50 border border-emerald-500/40 text-[10px] sm:text-[11px] font-mono text-emerald-300 items-center gap-1 sm:gap-1.5 shrink-0" title="Trwa dociąganie pełnej playlisty w tle — kliknij, aby otworzyć logi deweloperskie">
+                <!-- Live Background Playlist Sync Pill -->
+                <button id="bgSyncHeaderPill" onclick="toggleDevLogsModal(true)" class="hidden h-8 px-2.5 rounded-full bg-emerald-950/50 border border-emerald-500/40 text-[11px] font-mono text-emerald-300 items-center gap-1.5 shrink-0" title="Trwa dociąganie pełnej playlisty w tle — kliknij, aby otworzyć logi deweloperskie">
                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping shrink-0"></span>
-                    <span id="bgSyncHeaderText" class="hidden xs:inline sm:inline truncate max-w-[54px] sm:max-w-none">Sync...</span>
+                    <span id="bgSyncHeaderText" class="hidden sm:inline truncate">Sync...</span>
                 </button>
             </div>
 
-            <!-- Right: Volume + Score/Streak + Leaderboard + Account + Settings -->
-            <div class="flex items-center gap-1 sm:gap-2 shrink-0">
+            <!-- Right: Volume + Multiplayer + Score/Streak + Leaderboard + Account + Settings -->
+            <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
 
                 <!-- Sleek Header Volume Control (Desktop) -->
                 <div id="volumePillBox" class="magnetic-item hidden sm:inline-flex items-center gap-2 h-8 px-3 rounded-full ui-pill">
@@ -647,18 +649,29 @@
                     <input id="volumeSlider" type="range" min="0" max="1" step="0.01" value="0.8" style="--progress: 80%;" oninput="changeVolume(this.value)" class="w-16" title="Głośność" />
                 </div>
 
+                <!-- Header Multiplayer Button -->
+                <button id="headerMpBtn" onclick="toggleMultiplayerModal(true)" class="magnetic-item h-8 px-2.5 rounded-full ui-pill text-zinc-300 hover:text-white inline-flex items-center justify-center gap-1.5 text-xs font-medium shrink-0" title="Multiplayer na żywo ze znajomym">
+                    <svg class="w-3.5 h-3.5 text-emerald-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                    <span id="headerMpLabel" class="hidden sm:inline text-[11px] font-mono">Co-op</span>
+                </button>
+
                 <!-- Streak & Score Trigger Pill (Opens Session History) -->
-                <button id="streakStatBox" onclick="toggleHistoryModal(true)" class="magnetic-item h-7 sm:h-8 inline-flex items-center gap-1 sm:gap-2 px-2 sm:px-3 rounded-full ui-pill text-[11px] sm:text-xs whitespace-nowrap" title="Seria, zdobyte punkty i historia ostatnio zagranych utworów">
+                <button id="streakStatBox" onclick="toggleHistoryModal(true)" class="magnetic-item h-8 inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 rounded-full ui-pill text-xs whitespace-nowrap" title="Seria, zdobyte punkty i historia ostatnio zagranych utworów">
                     <span class="inline-flex items-center gap-1 font-mono font-semibold text-zinc-100">
-                        <span class="theme-accent-text text-[8px] sm:text-[9px]">●</span>
+                        <span class="theme-accent-text text-[9px]">●</span>
                         <span id="statStreak">0</span>
                     </span>
                     <span class="text-zinc-700">·</span>
-                    <span id="statGuessed" class="font-mono text-[10px] sm:text-[11px] text-zinc-300">0 pkt</span>
+                    <span id="statGuessed" class="font-mono text-[11px] text-zinc-300">0 pkt</span>
                 </button>
 
                 <!-- Leaderboard Trophy Button -->
-                <button id="headerLeaderboardBtn" onclick="toggleLeaderboardModal(true)" class="magnetic-item w-7 h-7 sm:w-8 sm:h-8 rounded-full ui-pill text-zinc-300 hover:text-white inline-flex items-center justify-center shrink-0" title="Ranking Graczy">
+                <button id="headerLeaderboardBtn" onclick="toggleLeaderboardModal(true)" class="magnetic-item w-8 h-8 rounded-full ui-pill text-zinc-300 hover:text-white inline-flex items-center justify-center shrink-0" title="Ranking Graczy">
                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
                         <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
@@ -670,7 +683,7 @@
                 </button>
 
                 <!-- Przycisk Konta Google -->
-                <button id="headerQuickFolderBtn" onclick="toggleAccountModal(true)" class="magnetic-item w-7 h-7 sm:w-auto sm:h-8 inline-flex items-center justify-center gap-1.5 p-0 sm:px-2.5 rounded-full ui-pill text-zinc-300 hover:text-white font-medium text-xs whitespace-nowrap shrink-0" title="Konto gracza, ulubione i zapisane playlisty">
+                <button id="headerQuickFolderBtn" onclick="toggleAccountModal(true)" class="magnetic-item w-8 h-8 sm:w-auto sm:h-8 inline-flex items-center justify-center gap-1.5 p-0 sm:px-2.5 rounded-full ui-pill text-zinc-300 hover:text-white font-medium text-xs whitespace-nowrap shrink-0" title="Konto gracza, ulubione i zapisane playlisty">
                     <img id="headerUserAvatar" src="" alt="" referrerpolicy="no-referrer" class="hidden w-5 h-5 rounded-full object-cover border border-emerald-500/60 shrink-0" />
                     <svg id="headerUserIcon" class="w-3.5 h-3.5 text-zinc-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -681,8 +694,8 @@
 
                 <!-- Settings Gear Button -->
                 <div class="relative" id="studioMenuWrapper">
-                    <button id="studioMenuBtn" onclick="toggleStudioMenuPopover()" class="magnetic-item w-7 h-7 sm:w-8 sm:h-8 rounded-full ui-pill text-zinc-400 hover:text-zinc-100 inline-flex items-center justify-center" title="Ustawienia, logi deweloperskie i biblioteka">
-                        <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <button id="studioMenuBtn" onclick="toggleStudioMenuPopover()" class="magnetic-item w-8 h-8 rounded-full ui-pill text-zinc-400 hover:text-zinc-100 inline-flex items-center justify-center" title="Ustawienia, logi deweloperskie i biblioteka">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="12" cy="12" r="3"></circle>
                             <path d="M 12.22 2 h -0.44 a 2 2 0 0 0 -2 2 v 0.18 a 2 2 0 0 1 -1 1.73 l -0.43 0.25 a 2 2 0 0 1 -2 0 l -0.15 -0.08 a 2 2 0 0 0 -2.73 0.73 l -0.22 0.38 a 2 2 0 0 0 0.73 2.73 l 0.15 0.1 a 2 2 0 0 1 1 1.72 v 0.51 a 2 2 0 0 1 -1 1.74 l -0.15 0.09 a 2 2 0 0 0 -0.73 2.73 l 0.22 0.38 a 2 2 0 0 0 2.73 0.73 l 0.15 -0.08 a 2 2 0 0 1 2 0 l 0.43 0.25 a 2 2 0 0 1 1 1.73 V 20 a 2 2 0 0 0 2 2 h 0.44 a 2 2 0 0 0 2 -2 v -0.18 a 2 2 0 0 1 1 -1.73 l 0.43 -0.25 a 2 2 0 0 1 2 0 l 0.15 0.08 a 2 2 0 0 0 2.73 -0.73 l 0.22 -0.39 a 2 2 0 0 0 -0.73 -2.73 l -0.15 -0.08 a 2 2 0 0 1 -1 -1.74 v -0.5 a 2 2 0 0 1 1 -1.74 l 0.15 -0.09 a 2 2 0 0 0 0.73 -2.73 l -0.22 -0.38 a 2 2 0 0 0 -2.73 -0.73 l -0.15 0.08 a 2 2 0 0 1 -2 0 l -0.43 -0.25 a 2 2 0 0 1 -1 -1.73 V 4 a 2 2 0 0 0 -2 -2 z"></path>
                         </svg>
@@ -705,6 +718,19 @@
                                     <span>Menu startowe / Źródło</span>
                                 </span>
                                 <span class="text-[10px] font-mono text-zinc-500">YT</span>
+                            </button>
+
+                            <button onclick="closeStudioMenuPopover(); toggleMultiplayerModal(true);" class="w-full px-3.5 py-2.5 sm:py-2 text-left text-xs text-emerald-300 hover:bg-[#18181c] flex items-center justify-between gap-2 transition-colors">
+                                <span class="flex items-center gap-2">
+                                    <svg class="w-3.5 h-3.5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                        <circle cx="9" cy="7" r="4"></circle>
+                                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                    </svg>
+                                    <span>Multiplayer (Ze znajomym)</span>
+                                </span>
+                                <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-300">LIVE</span>
                             </button>
 
                             <button onclick="closeStudioMenuPopover(); toggleLeaderboardModal(true);" class="w-full px-3.5 py-2.5 sm:py-2 text-left text-xs text-zinc-200 hover:bg-[#18181c] flex items-center justify-between gap-2 transition-colors">
@@ -852,20 +878,30 @@
                 </div>
                 <h1 class="text-2xl sm:text-4xl font-bold tracking-tight text-white">W co dzisiaj gramy?</h1>
                 <p class="text-xs sm:text-sm text-zinc-400 max-w-md mx-auto">
-                    Zacznij jednym kliknięciem lub wpisz wykonawcę, link albo klimat.
+                    Zacznij jednym kliknięciem, zagraj ze znajomym lub wklej dowolny link.
                 </p>
             </div>
 
-            <!-- 1-CLICK HERO PLAY BUTTON + ACTIVE GAME RETURN BUTTON (Hidden when only Demo is loaded) -->
-            <div class="w-full flex flex-col sm:flex-row items-center justify-center gap-2.5">
-                <button onclick="loadDefaultKluzekYouTubePlaylist()" class="w-full sm:w-auto py-3.5 px-7 rounded-full bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-semibold text-xs sm:text-sm inline-flex items-center justify-center gap-2.5 transition-[background-color,box-shadow,color] shadow-[0_0_35px_rgba(16,185,129,0.32)] hover:shadow-[0_0_50px_rgba(16,185,129,0.5)]">
+            <!-- 1-CLICK HERO PLAY BUTTON + MULTIPLAYER + ACTIVE GAME RETURN -->
+            <div class="w-full flex flex-col sm:flex-row flex-wrap items-center justify-center gap-2.5">
+                <button onclick="loadDefaultKluzekYouTubePlaylist()" class="w-full sm:w-auto h-11 px-6 rounded-full bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-semibold text-xs sm:text-sm inline-flex items-center justify-center gap-2 whitespace-nowrap transition-[background-color,box-shadow,color] shadow-[0_0_30px_rgba(16,185,129,0.28)] hover:shadow-[0_0_45px_rgba(16,185,129,0.45)] shrink-0">
                     <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="currentColor">
                         <polygon points="6 4 20 12 6 20 6 4"></polygon>
                     </svg>
-                    <span>Graj od razu · Bazowa Playlista Hitów (900+)</span>
+                    <span>Graj od razu · Bazowa Playlista (900+)</span>
                 </button>
 
-                <button id="resumeOrCurrentLibraryBtn" onclick="resumeSavedFolderOrCurrentGame()" class="hidden w-full sm:w-auto py-3.5 px-5 rounded-full ui-pill text-zinc-100 hover:text-white font-semibold text-xs items-center justify-center gap-2 shrink-0 border-emerald-500/40" title="Wróć do aktualnie rozpoczętej rozgrywki">
+                <button onclick="toggleMultiplayerModal(true)" class="w-full sm:w-auto h-11 px-5 rounded-full ui-pill text-zinc-200 hover:text-white font-semibold text-xs sm:text-sm inline-flex items-center justify-center gap-2 whitespace-nowrap shrink-0" title="Graj na żywo w jednym pokoju ze znajomym">
+                    <svg class="w-4 h-4 text-emerald-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                    <span id="startMpBtnLabel">Multiplayer</span>
+                </button>
+
+                <button id="resumeOrCurrentLibraryBtn" onclick="resumeSavedFolderOrCurrentGame()" class="hidden w-full sm:w-auto h-11 px-5 rounded-full ui-pill text-emerald-300 hover:text-white font-semibold text-xs sm:text-sm items-center justify-center gap-1.5 whitespace-nowrap shrink-0 border-emerald-500/40" title="Wróć do aktualnie rozpoczętej rozgrywki">
                     <svg class="w-3.5 h-3.5 theme-accent-text shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="9 18 15 12 9 6"></polyline>
                     </svg>
@@ -874,8 +910,8 @@
                 </button>
             </div>
 
-            <!-- UNIVERSAL OMNIBAR (Separated Input & Start Button on Mobile, Single Bar on Desktop) -->
-            <div class="w-full space-y-2.5">
+            <!-- UNIVERSAL OMNIBAR (With Clear X Button + Harmonious Dark Studio Start Button) -->
+            <div class="w-full space-y-2">
                 <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-0 w-full">
                     <div class="relative flex items-center w-full panel-card rounded-full p-1.5 pl-4 border border-zinc-800 focus-within:border-zinc-500 transition-colors shadow-2xl">
                         <!-- Search Icon -->
@@ -889,9 +925,18 @@
                             type="text"
                             autocomplete="off"
                             placeholder="Wklej link (YT/Spotify), wpisz artystę lub klimat..."
+                            oninput="onOmnibarInput()"
                             onkeydown="if(event.key==='Enter'){event.preventDefault(); handleOmnibarSubmit();}"
-                            class="w-full h-10 sm:h-11 bg-transparent text-base sm:text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none pr-2"
+                            class="w-full h-10 bg-transparent text-base sm:text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none pr-1"
                         />
+
+                        <!-- Clear Text X Button inside Omnibar -->
+                        <button id="omnibarClearBtn" type="button" onpointerdown="event.preventDefault()" onclick="clearOmnibarInput(true)" class="hidden w-8 h-8 rounded-full text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/80 inline-flex items-center justify-center shrink-0 transition-colors" title="Wyczyść wpisany link lub tekst">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </button>
 
                         <!-- Compact Voice Input inside Omnibar -->
                         <button id="omnibarVoiceBtn" type="button" onclick="toggleOmnibarVoice()" class="w-9 h-9 rounded-full text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/80 inline-flex items-center justify-center shrink-0 transition-colors sm:mr-0.5" title="Powiedz głosowo na co masz ochotę">
@@ -903,27 +948,27 @@
                             </svg>
                         </button>
 
-                        <!-- Quick Folder Upload Icon inside Omnibar (Desktop only to keep mobile input wide) -->
+                        <!-- Quick Folder Upload Icon inside Omnibar (Desktop only) -->
                         <button type="button" onclick="triggerFolderSelect()" class="hidden sm:inline-flex w-9 h-9 rounded-full text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/80 items-center justify-center shrink-0 transition-colors mr-1" title="Wczytaj własny folder MP3 z dysku (Offline)">
                             <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
                             </svg>
                         </button>
 
-                        <!-- Omnibar Submit Button (Desktop inline) -->
-                        <button type="button" onclick="handleOmnibarSubmit()" class="hidden sm:inline-flex h-10 px-4 rounded-full bg-zinc-100 hover:bg-white text-zinc-950 font-semibold text-xs items-center gap-1.5 shrink-0 transition-colors">
-                            <span>Start</span>
-                            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                        <!-- Omnibar Submit Button (Desktop inline - sleek studio emerald tint) -->
+                        <button type="button" onclick="handleOmnibarSubmit()" class="hidden sm:inline-flex h-10 px-4 rounded-full bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/35 font-semibold text-xs items-center gap-1.5 shrink-0 transition-colors whitespace-nowrap">
+                            <span>Uruchom</span>
+                            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                 <line x1="5" y1="12" x2="19" y2="12"></line>
                                 <polyline points="12 5 19 12 12 19"></polyline>
                             </svg>
                         </button>
                     </div>
 
-                    <!-- Mobile Dedicated Full-Width Start Button Below Input -->
-                    <button type="button" onclick="handleOmnibarSubmit()" class="sm:hidden w-full h-11 px-5 rounded-full bg-zinc-100 active:bg-white text-zinc-950 font-semibold text-xs inline-flex items-center justify-center gap-2 shrink-0 transition-colors shadow-lg">
-                        <span>Start · Uruchom z wpisanego linku lub frazy</span>
-                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                    <!-- Mobile Dedicated Start Button Below Input (Dark Studio Pill - No White Glare) -->
+                    <button type="button" onclick="handleOmnibarSubmit()" class="sm:hidden w-full h-11 px-5 rounded-full bg-[#18181c] active:bg-[#27272a] text-emerald-300 border border-emerald-500/35 font-semibold text-xs inline-flex items-center justify-center gap-2 shrink-0 transition-colors shadow-lg whitespace-nowrap">
+                        <span>Uruchom z wpisanego linku lub frazy</span>
+                        <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                             <line x1="5" y1="12" x2="19" y2="12"></line>
                             <polyline points="12 5 19 12 12 19"></polyline>
                         </svg>
@@ -961,60 +1006,60 @@
                 </div>
             </div>
 
-            <!-- UNIFIED INLINE PILL CLOUD (Expands additional pills directly in place) -->
+            <!-- UNIFIED INLINE PILL CLOUD (Uniform h-9 height and spacing) -->
             <div id="onlinePresetsGrid" class="flex flex-wrap items-center justify-center gap-2">
-                <button onclick="askAIConcierge('recommend')" class="px-3.5 py-2 rounded-full ui-pill text-zinc-300 hover:text-white text-xs font-medium inline-flex items-center gap-1.5">
+                <button onclick="askAIConcierge('recommend')" class="h-9 px-3.5 rounded-full ui-pill text-zinc-300 hover:text-white text-xs font-medium inline-flex items-center justify-center gap-1.5 whitespace-nowrap">
                     <span>Doradź klimat</span>
                 </button>
-                <button onclick="startOnlinePreset('pl_hits')" class="px-3.5 py-2 rounded-full ui-pill text-zinc-300 hover:text-white text-xs font-medium inline-flex items-center gap-1.5">
+                <button onclick="startOnlinePreset('pl_hits')" class="h-9 px-3.5 rounded-full ui-pill text-zinc-300 hover:text-white text-xs font-medium inline-flex items-center justify-center gap-1.5 whitespace-nowrap">
                     <span>Polskie Hity</span>
                 </button>
-                <button onclick="startOnlinePreset('world_hits')" class="px-3.5 py-2 rounded-full ui-pill text-zinc-300 hover:text-white text-xs font-medium inline-flex items-center gap-1.5">
+                <button onclick="startOnlinePreset('world_hits')" class="h-9 px-3.5 rounded-full ui-pill text-zinc-300 hover:text-white text-xs font-medium inline-flex items-center justify-center gap-1.5 whitespace-nowrap">
                     <span>Światowe Hity</span>
                 </button>
 
                 <!-- Extra Pills Expanded Inline -->
-                <button onclick="startOnlinePreset('mix_all')" class="extra-start-pill hidden px-3.5 py-2 rounded-full ui-pill text-zinc-100 hover:text-white text-xs font-semibold items-center gap-1.5 border-emerald-500/40">
+                <button onclick="startOnlinePreset('mix_all')" class="extra-start-pill hidden h-9 px-3.5 rounded-full ui-pill text-zinc-100 hover:text-white text-xs font-semibold items-center justify-center gap-1.5 border-emerald-500/40 whitespace-nowrap">
                     <span>Nieskończony Mix</span>
                 </button>
-                <button onclick="startOnlinePreset('pl_rap')" class="extra-start-pill hidden px-3.5 py-2 rounded-full ui-pill text-zinc-300 hover:text-white text-xs font-medium items-center gap-1.5">
+                <button onclick="startOnlinePreset('pl_rap')" class="extra-start-pill hidden h-9 px-3.5 rounded-full ui-pill text-zinc-300 hover:text-white text-xs font-medium items-center justify-center gap-1.5 whitespace-nowrap">
                     <span>Polski Rap</span>
                 </button>
-                <button onclick="startOnlinePreset('us_rap')" class="extra-start-pill hidden px-3.5 py-2 rounded-full ui-pill text-zinc-300 hover:text-white text-xs font-medium items-center gap-1.5">
+                <button onclick="startOnlinePreset('us_rap')" class="extra-start-pill hidden h-9 px-3.5 rounded-full ui-pill text-zinc-300 hover:text-white text-xs font-medium items-center justify-center gap-1.5 whitespace-nowrap">
                     <span>Rap USA</span>
                 </button>
-                <button onclick="startOnlinePreset('rock_classics')" class="extra-start-pill hidden px-3.5 py-2 rounded-full ui-pill text-zinc-300 hover:text-white text-xs font-medium items-center gap-1.5">
+                <button onclick="startOnlinePreset('rock_classics')" class="extra-start-pill hidden h-9 px-3.5 rounded-full ui-pill text-zinc-300 hover:text-white text-xs font-medium items-center justify-center gap-1.5 whitespace-nowrap">
                     <span>Rock & Klasyki</span>
                 </button>
-                <button onclick="startOnlinePreset('retro_80_90')" class="extra-start-pill hidden px-3.5 py-2 rounded-full ui-pill text-zinc-300 hover:text-white text-xs font-medium items-center gap-1.5">
+                <button onclick="startOnlinePreset('retro_80_90')" class="extra-start-pill hidden h-9 px-3.5 rounded-full ui-pill text-zinc-300 hover:text-white text-xs font-medium items-center justify-center gap-1.5 whitespace-nowrap">
                     <span>Lata 80. i 90.</span>
                 </button>
-                <button onclick="startOnlinePreset('hits_2000_2010')" class="extra-start-pill hidden px-3.5 py-2 rounded-full ui-pill text-zinc-300 hover:text-white text-xs font-medium items-center gap-1.5">
+                <button onclick="startOnlinePreset('hits_2000_2010')" class="extra-start-pill hidden h-9 px-3.5 rounded-full ui-pill text-zinc-300 hover:text-white text-xs font-medium items-center justify-center gap-1.5 whitespace-nowrap">
                     <span>Lata 2000 & 2010</span>
                 </button>
-                <button onclick="startOnlinePreset('club_edm')" class="extra-start-pill hidden px-3.5 py-2 rounded-full ui-pill text-zinc-300 hover:text-white text-xs font-medium items-center gap-1.5">
+                <button onclick="startOnlinePreset('club_edm')" class="extra-start-pill hidden h-9 px-3.5 rounded-full ui-pill text-zinc-300 hover:text-white text-xs font-medium items-center justify-center gap-1.5 whitespace-nowrap">
                     <span>Klubowe & EDM</span>
                 </button>
-                <button onclick="triggerFolderSelect()" class="extra-start-pill hidden px-3.5 py-2 rounded-full ui-pill text-zinc-300 hover:text-white text-xs font-medium items-center gap-1.5">
+                <button onclick="triggerFolderSelect()" class="extra-start-pill hidden h-9 px-3.5 rounded-full ui-pill text-zinc-300 hover:text-white text-xs font-medium items-center justify-center gap-1.5 whitespace-nowrap">
                     <svg class="w-3.5 h-3.5 theme-accent-text shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
                     </svg>
                     <span>Folder MP3 z dysku</span>
                 </button>
-                <button onclick="togglePasteListDrawer()" class="extra-start-pill hidden px-3.5 py-2 rounded-full ui-pill text-zinc-300 hover:text-white text-xs font-medium items-center gap-1.5">
+                <button onclick="togglePasteListDrawer()" class="extra-start-pill hidden h-9 px-3.5 rounded-full ui-pill text-zinc-300 hover:text-white text-xs font-medium items-center justify-center gap-1.5 whitespace-nowrap">
                     <span>Wklej listę / linki</span>
                 </button>
 
                 <!-- Toggle More / Less Pills Button -->
-                <button id="moreOptionsToggleBtn" onclick="toggleMoreStartOptions()" class="px-3.5 py-2 rounded-full ui-pill text-zinc-400 hover:text-zinc-200 text-xs font-medium inline-flex items-center gap-1.5">
+                <button id="moreOptionsToggleBtn" onclick="toggleMoreStartOptions()" class="h-9 px-3.5 rounded-full ui-pill text-zinc-400 hover:text-zinc-200 text-xs font-medium inline-flex items-center justify-center gap-1.5 whitespace-nowrap">
                     <span id="moreOptionsToggleLabel">Więcej stacji i opcji</span>
-                    <svg id="moreOptionsChevron" class="w-3.5 h-3.5 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg id="moreOptionsChevron" class="w-3.5 h-3.5 transition-transform duration-200 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="6 9 12 15 18 9"></polyline>
                     </svg>
                 </button>
             </div>
 
-            <!-- Optional Multi-line Paste Drawer (Appears cleanly below pills when "Wklej listę / linki" is clicked) -->
+            <!-- Optional Multi-line Paste Drawer -->
             <div id="pasteTracklistDrawer" class="hidden w-full panel-card rounded-3xl p-4 space-y-2.5 reveal-enter">
                 <textarea
                     id="rawTracklistTextarea"
@@ -1023,8 +1068,8 @@
                     class="w-full p-3 rounded-2xl bg-[#09090b] border border-[#27272a] focus:border-zinc-500 text-base sm:text-xs text-zinc-200 placeholder-zinc-600 focus:outline-none font-mono"
                 ></textarea>
                 <div class="flex justify-end gap-2">
-                    <button onclick="togglePasteListDrawer(false)" class="px-3.5 py-1.5 rounded-full ui-pill text-xs text-zinc-400">Anuluj</button>
-                    <button onclick="importRawTracklistText()" class="px-4 py-1.5 rounded-full bg-zinc-100 hover:bg-white text-zinc-950 font-semibold text-xs">Graj z tej listy</button>
+                    <button onclick="togglePasteListDrawer(false)" class="h-9 px-3.5 rounded-full ui-pill text-xs text-zinc-400">Anuluj</button>
+                    <button onclick="importRawTracklistText()" class="h-9 px-4 rounded-full bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-semibold text-xs">Graj z tej listy</button>
                 </div>
             </div>
 
@@ -1034,7 +1079,16 @@
         </div>
 
         <!-- ==================== VIEW 1: OPEN CENTERED GAME STAGE ==================== -->
-        <div id="gameView" class="hidden w-full max-w-lg mx-auto flex-col items-center gap-5 sm:gap-8">
+        <div id="gameView" class="hidden w-full max-w-lg mx-auto flex-col items-center gap-4 sm:gap-7">
+
+            <!-- LIVE MULTIPLAYER HUD BAR (Visible when inside a Multiplayer Room) -->
+            <div id="mpLiveHudBar" class="hidden w-full items-center justify-between gap-2 px-3 py-1.5 rounded-2xl bg-[#121215]/95 border border-emerald-500/35 text-xs shadow-lg">
+                <button onclick="toggleMultiplayerModal(true)" class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-emerald-500/15 text-emerald-300 font-mono text-[11px] font-semibold shrink-0 hover:bg-emerald-500/25 transition-colors" title="Kliknij, aby zobaczyć pokój lub skopiować kod">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span id="mpHudRoomCode">POKÓJ</span>
+                </button>
+                <div id="mpHudPlayersList" class="flex items-center justify-end gap-2 overflow-x-auto min-w-0 py-0.5"></div>
+            </div>
 
             <!-- Open Player Stage -->
             <div id="mainPlayerCard" class="w-full flex flex-col items-center gap-5 sm:gap-7">
@@ -1136,7 +1190,7 @@
                                     onkeydown="onSearchKeydown(event)"
                                     onfocus="onGuessInputFocus()"
                                     onblur="onGuessInputBlur()"
-                                    class="w-full h-14 sm:h-12 pl-10 pr-[5.2rem] sm:pr-[9.8rem] rounded-full bg-zinc-900/95 border border-zinc-800/90 focus:border-[#3f3f46] text-zinc-100 placeholder-zinc-500 text-base sm:text-sm focus:outline-none transition-colors shadow-inner"
+                                    class="w-full h-12 pl-10 pr-[5.2rem] sm:pr-[9.8rem] rounded-full bg-zinc-900/95 border border-zinc-800/90 focus:border-[#3f3f46] text-zinc-100 placeholder-zinc-500 text-base sm:text-sm focus:outline-none transition-colors shadow-inner"
                                 />
                                 <!-- Clear Text Button -->
                                 <button id="clearInputBtn" type="button" onpointerdown="event.preventDefault()" onclick="clearGuessInput(true)" class="hidden absolute right-[2.85rem] sm:right-[7.9rem] w-7 h-7 sm:w-6 sm:h-6 rounded-full text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/90 inline-flex items-center justify-center transition-colors z-10" title="Wyczyść wpisany tekst">
@@ -1165,7 +1219,7 @@
                             </div>
                         </div>
 
-                        <!-- Unified Skip / Guess Button (Single button on Mobile, secondary on Desktop; both execute Guess if text is typed, or Skip if empty) -->
+                        <!-- Unified Skip / Guess Button -->
                         <button id="skipAttemptBtn" onclick="handleGuessOrSkip()" class="magnetic-item w-full sm:w-auto h-12 px-5 rounded-full ui-pill text-zinc-300 hover:text-white font-medium text-xs inline-flex items-center justify-center gap-1.5 shrink-0 whitespace-nowrap transition-all" title="Zatwierdź wpisaną odpowiedź lub pomiń próbę (Klawisz S / Enter)">
                             <span id="skipBtnLabel">Pomiń (+1.5s)</span>
                             <svg id="skipBtnIcon" class="w-3.5 h-3.5 text-zinc-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1215,9 +1269,9 @@
 
                     <div class="pt-1 flex flex-col items-center gap-3 w-full">
                         <button id="nextSongMainBtn" onclick="startNewRound()" class="magnetic-item w-full sm:w-auto h-12 px-8 rounded-full bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-semibold text-sm inline-flex items-center justify-center gap-2.5 transition-[background-color,box-shadow,color] duration-200 shadow-[0_0_30px_rgba(16,185,129,0.3)] whitespace-nowrap">
-                            <span>Następny utwór</span>
-                            <span class="hidden sm:inline text-xs font-mono opacity-75">[Enter]</span>
-                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <span id="nextSongMainBtnLabel">Następny utwór</span>
+                            <span id="nextSongMainBtnHint" class="hidden sm:inline text-xs font-mono opacity-75">[Enter]</span>
+                            <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                 <line x1="5" y1="12" x2="19" y2="12"></line>
                                 <polyline points="12 5 19 12 12 19"></polyline>
                             </svg>
@@ -1259,7 +1313,7 @@
                     </div>
                 </div>
 
-                <!-- 5. Centered Lightweight Previous Guesses Trail -->
+                <!-- 5. Centered Lightweight Previous Guesses Trail (Also displays live Multiplayer guesses!) -->
                 <div id="attemptsTrailWrapper" class="hidden w-full flex-col items-center gap-1.5 pt-1">
                     <div id="attemptsList" class="flex flex-wrap items-center justify-center gap-2 w-full"></div>
                 </div>
@@ -1458,6 +1512,112 @@
             <span><span class="font-mono text-zinc-500">PPM</span> Efekty na drop</span>
         </div>
     </footer>
+
+    <!-- ==================== REAL-TIME MULTIPLAYER LOBBY & ROOM MODAL ==================== -->
+    <div id="multiplayerModal" onclick="if(event.target===this) toggleMultiplayerModal(false)" class="fixed inset-0 z-50 bg-black/85 hidden items-center justify-center p-4 backdrop-blur-sm">
+        <div class="panel-card modal-pop max-w-md w-full rounded-3xl p-5 sm:p-6 space-y-5 relative flex flex-col max-h-[88vh]">
+            <button onclick="toggleMultiplayerModal(false)" class="absolute top-5 right-5 p-1.5 rounded-full text-zinc-400 hover:text-zinc-100 hover:bg-[#18181c] transition-colors z-10" title="Zamknij">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+
+            <div class="space-y-1 pr-8">
+                <div class="inline-flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <h2 class="text-base font-semibold text-zinc-100">Multiplayer na żywo</h2>
+                </div>
+                <p class="text-xs text-zinc-400">
+                    Słuchacie tej samej piosenki w tym samym czasie, widzicie swoje odpowiedzi na żywo i wspólnie pomijacie etapy (1/2 → 2/2).
+                </p>
+            </div>
+
+            <!-- View A: Not logged in -->
+            <div id="mpNeedLoginView" class="hidden py-4 text-center space-y-4">
+                <p class="text-xs text-zinc-300 leading-relaxed">
+                    Aby dołączyć do wspólnego pokoju i synchronizować odpowiedzi na żywo, zaloguj się swoim kontem Google.
+                </p>
+                <button onclick="toggleMultiplayerModal(false); loginWithGoogleAccount();" class="w-full h-11 px-4 rounded-xl bg-white hover:bg-zinc-200 text-zinc-950 font-semibold text-xs inline-flex items-center justify-center gap-2 transition-colors">
+                    <span>Zaloguj się przez Google</span>
+                </button>
+            </div>
+
+            <!-- View B: Logged in, not in a room yet -->
+            <div id="mpCreateOrJoinView" class="hidden flex-col gap-4">
+                <button onclick="createMultiplayerRoom()" class="w-full h-11 px-5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-semibold text-xs inline-flex items-center justify-center gap-2 transition-colors shadow-[0_0_25px_rgba(16,185,129,0.25)]">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    <span>Stwórz nowy pokój (Host)</span>
+                </button>
+
+                <div class="flex items-center gap-3 text-[11px] font-mono text-zinc-600 uppercase">
+                    <div class="h-px flex-1 bg-zinc-800"></div>
+                    <span>lub wpisz kod znajomego</span>
+                    <div class="h-px flex-1 bg-zinc-800"></div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <input
+                        id="mpJoinCodeInput"
+                        type="text"
+                        maxlength="8"
+                        placeholder="Kod pokoju (np. KLU42)"
+                        onkeydown="if(event.key==='Enter'){event.preventDefault(); joinMultiplayerRoomFromInput();}"
+                        class="flex-1 h-11 px-4 rounded-xl bg-[#09090b] border border-[#27272a] focus:border-zinc-500 font-mono uppercase tracking-widest text-center text-base sm:text-xs text-zinc-100 placeholder-zinc-600 focus:outline-none"
+                    />
+                    <button onclick="joinMultiplayerRoomFromInput()" class="h-11 px-5 rounded-xl bg-zinc-100 hover:bg-white text-zinc-950 font-semibold text-xs shrink-0 transition-colors">
+                        Dołącz
+                    </button>
+                </div>
+            </div>
+
+            <!-- View C: Inside an active Multiplayer Room -->
+            <div id="mpActiveRoomView" class="hidden flex-col gap-4 min-h-0 flex-1">
+                <div class="p-3.5 rounded-2xl bg-[#09090b] border border-[#27272a] flex items-center justify-between gap-3">
+                    <div>
+                        <div class="text-[10px] font-mono text-zinc-500 uppercase">Kod pokoju</div>
+                        <div id="mpModalRoomCode" class="text-xl font-mono font-bold text-emerald-400 tracking-widest mt-0.5">-----</div>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <button onclick="copyMpRoomCode()" class="h-9 px-3 rounded-xl ui-pill text-zinc-200 hover:text-white text-xs font-medium inline-flex items-center gap-1.5">
+                            <span>Kopiuj kod</span>
+                        </button>
+                        <button onclick="copyMpRoomInviteLink()" class="h-9 px-3 rounded-xl ui-pill text-emerald-300 hover:text-white text-xs font-medium inline-flex items-center gap-1.5 border-emerald-500/35">
+                            <span>Kopiuj link</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="space-y-1.5">
+                    <div class="flex items-center justify-between text-xs text-zinc-400 px-1">
+                        <span>Gracze w pokoju (<span id="mpModalPlayerCount">1</span>)</span>
+                        <span id="mpModalPlaylistBadge" class="font-mono text-[11px] text-zinc-500 truncate max-w-[180px]">Bazowa Playlista</span>
+                    </div>
+                    <div id="mpModalPlayersList" class="scrollable-touch-area max-h-48 overflow-y-auto rounded-2xl bg-[#09090b] border border-[#27272a] divide-y divide-zinc-900"></div>
+                </div>
+
+                <div class="pt-1 flex flex-col gap-2">
+                    <button id="mpHostStartBtn" onclick="hostStartNextMpRound(true)" class="w-full h-11 px-5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-semibold text-xs inline-flex items-center justify-center gap-2 transition-colors shadow-[0_0_25px_rgba(16,185,129,0.25)]">
+                        <span>Rozpocznij wspólną grę</span>
+                    </button>
+                    <p id="mpGuestWaitHint" class="hidden text-center text-xs font-mono text-zinc-400 py-2">
+                        Czekamy aż Host uruchomi pierwszą rundę...
+                    </p>
+                    <div class="flex items-center justify-between gap-2 pt-1">
+                        <button onclick="leaveMultiplayerRoom()" class="h-9 px-3.5 rounded-xl text-xs text-zinc-500 hover:text-red-400 transition-colors">
+                            Opuść pokój
+                        </button>
+                        <button onclick="toggleMultiplayerModal(false)" class="h-9 px-4 rounded-xl ui-pill text-xs text-zinc-300 hover:text-white">
+                            Zamknij okno
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- ==================== MINIMALIST STUDIO LEADERBOARD MODAL ==================== -->
     <div id="leaderboardModal" onclick="if(event.target===this) toggleLeaderboardModal(false)" class="fixed inset-0 z-50 bg-black/85 hidden items-center justify-center p-4 backdrop-blur-sm">
@@ -1688,7 +1848,7 @@
 
             <div class="text-center space-y-1 px-6">
                 <h2 class="text-base font-semibold text-zinc-100">Zasady gry i punktacji</h2>
-                <p class="text-xs text-zinc-500">Punktacja, podpowiedzi, ochrona przed farmieniem i skróty</p>
+                <p class="text-xs text-zinc-500">Punktacja, Multiplayer, podpowiedzi i skróty</p>
             </div>
 
             <div class="space-y-3 text-xs text-zinc-300 leading-relaxed">
@@ -1696,7 +1856,7 @@
                     <div class="text-zinc-200 font-semibold">Punktacja za trafienie:</div>
                     <div>• <span class="text-emerald-400">1.5s: +100 pkt</span>, <span class="text-zinc-300">3s: +75</span>, <span class="text-zinc-300">6s: +55</span>, <span class="text-zinc-300">10s: +40</span>, <span class="text-zinc-300">15s: +25</span>, <span class="text-zinc-300">MAX: +15</span></div>
                     <div>• <span class="text-zinc-200">Seria</span>: od 2. trafienia z rzędu do +50 pkt bonusu za utwór.</div>
-                    <div>• <span class="text-zinc-200">Zasady Fair Play</span>: punkty naliczają się w pulach liczących min. 15 utworów (raz dziennie za dany utwór). Małe listy i podgląd z edytora działają jako trening.</div>
+                    <div>• <span class="text-zinc-200">Multiplayer</span>: gracie ten sam utwór na żywo, widzicie swoje odpowiedzi, a pominięcie etapu wymaga zgodności graczy (1/2 → 2/2).</div>
                 </div>
 
                 <ul class="space-y-1.5 list-disc list-inside text-zinc-400">
@@ -1735,7 +1895,7 @@
                 <div class="space-y-1.5">
                     <h2 class="text-base font-semibold text-zinc-100">Konto Gracza</h2>
                     <p class="text-xs text-zinc-400 leading-relaxed max-w-xs mx-auto">
-                        Zaloguj się przez Google, aby synchronizować punkty w rankingu, ulubione utwory oraz zapisane playlisty między urządzeniami.
+                        Zaloguj się przez Google, aby grać w trybie Multiplayer, zapisywać punkty w rankingu oraz ulubione utwory.
                     </p>
                 </div>
 
@@ -1938,6 +2098,21 @@
 
         let communitySongStatsCache = {};
 
+        // Multiplayer Real-Time State
+        const mpState = {
+            active: false,
+            roomCode: null,
+            isHost: false,
+            roomUnsubscribe: null,
+            roomData: null,
+            lastSyncedRoundId: null,
+            lastSyncedStageIndex: -1,
+            lastSyncedRoundStatus: null,
+            isAdvancingStage: false,
+            isStartingNextRound: false,
+            useUsersCollectionFallback: false
+        };
+
         let currentSong = null;
         let activeObjectUrl = null;
         let currentAttemptIndex = 0;
@@ -2005,6 +2180,27 @@
             usedTrackKeys: new Set(),
             isFetchingMore: false
         };
+
+        // ==================== OMNIBAR INPUT & CLEAR BUTTON ====================
+        function onOmnibarInput() {
+            const input = document.getElementById('omnibarInput');
+            const clearBtn = document.getElementById('omnibarClearBtn');
+            if (!input || !clearBtn) return;
+            if (input.value.length > 0) {
+                clearBtn.classList.remove('hidden');
+            } else {
+                clearBtn.classList.add('hidden');
+            }
+        }
+
+        function clearOmnibarInput(shouldFocus = true) {
+            const input = document.getElementById('omnibarInput');
+            const clearBtn = document.getElementById('omnibarClearBtn');
+            if (!input) return;
+            input.value = '';
+            if (clearBtn) clearBtn.classList.add('hidden');
+            if (shouldFocus) input.focus();
+        }
 
         // ==================== LOADING BARRIER & PROGRESSIVE VISUALIZER HINTS ====================
         function isSongLoadingBarrierActive() {
@@ -2141,13 +2337,13 @@
             }
             const uHash = hash >>> 0;
 
-            const s0 = 3 + (uHash % 5);                 // ~7% - 16%
-            const s1 = 4 + ((uHash >>> 3) % 6);          // ~9% - 20%
-            const s2 = 6 + ((uHash >>> 6) % 6);          // ~14% - 24%
-            const s3 = 6 + ((uHash >>> 9) % 5);          // ~14% - 21%
-            const s4 = 4 + ((uHash >>> 12) % 5);         // ~9% - 17%
-            const s5 = 3 + ((uHash >>> 15) % 4);         // ~7% - 14%
-            const fails = 6 + ((uHash >>> 18) % 8);      // ~14% - 28%
+            const s0 = 3 + (uHash % 5);
+            const s1 = 4 + ((uHash >>> 3) % 6);
+            const s2 = 6 + ((uHash >>> 6) % 6);
+            const s3 = 6 + ((uHash >>> 9) % 5);
+            const s4 = 4 + ((uHash >>> 12) % 5);
+            const s5 = 3 + ((uHash >>> 15) % 4);
+            const fails = 6 + ((uHash >>> 18) % 8);
             const plays = s0 + s1 + s2 + s3 + s4 + s5 + fails;
 
             return { plays, s0, s1, s2, s3, s4, s5, fails };
@@ -2288,9 +2484,11 @@
             if (isEditorTestRound) {
                 return { eligible: false, reason: 'Test z edytora' };
             }
-            const uniquePoolSize = getUniqueCanonicalPoolSize(activeCategory);
-            if (uniquePoolSize < MIN_RANKED_POOL_SIZE) {
-                return { eligible: false, reason: `Pula < ${MIN_RANKED_POOL_SIZE} utw.` };
+            if (!mpState.active) {
+                const uniquePoolSize = getUniqueCanonicalPoolSize(activeCategory);
+                if (uniquePoolSize < MIN_RANKED_POOL_SIZE) {
+                    return { eligible: false, reason: `Pula < ${MIN_RANKED_POOL_SIZE} utw.` };
+                }
             }
             if (hasSongBeenScoredToday(song)) {
                 return { eligible: false, reason: 'Już punktowane dziś' };
@@ -2998,6 +3196,7 @@
                 const input = document.getElementById('omnibarInput');
                 if (input) {
                     input.value = '';
+                    onOmnibarInput();
                     input.setAttribute('placeholder', 'Słucham... powiedz na co masz ochotę');
                 }
             }
@@ -3025,7 +3224,10 @@
 
                 if (mode === 'omnibar') {
                     const input = document.getElementById('omnibarInput');
-                    if (input) input.value = combined;
+                    if (input) {
+                        input.value = combined;
+                        onOmnibarInput();
+                    }
                     clearVoiceSilenceTimer();
                     voiceSilenceTimer = setTimeout(() => {
                         stopActiveVoiceRecognition();
@@ -3903,6 +4105,7 @@
             { id: 'brandLogoBtn', edgeRadius: 135, maxOffset: 9 },
             { id: 'activeCategoryPillBtn', edgeRadius: 145, maxOffset: 9.5 },
             { id: 'volumePillBox', edgeRadius: 135, maxOffset: 8.5 },
+            { id: 'headerMpBtn', edgeRadius: 135, maxOffset: 9 },
             { id: 'streakStatBox', edgeRadius: 140, maxOffset: 9 },
             { id: 'headerLeaderboardBtn', edgeRadius: 135, maxOffset: 9 },
             { id: 'headerQuickFolderBtn', edgeRadius: 140, maxOffset: 9 },
@@ -6295,7 +6498,7 @@
 
             if (preloadedCandidate.song && preloadedCandidate.poolSizeWhenPicked <= 210 && songsLibrary.length > 260) {
                 preloadedCandidate = { category: null, song: null, poolSizeWhenPicked: 0, readyPromise: null };
-                if (roundOver) {
+                if (roundOver && !mpState.active) {
                     preloadNextSongInBackground();
                 }
             }
@@ -6692,7 +6895,11 @@
 
             applyOnlineSongsToLibrary(builtSongs, categoryLabel, true);
             await switchView('game');
-            await startNewRound();
+            if (mpState.active && mpState.isHost) {
+                await window.hostStartNextMpRound(true);
+            } else if (!mpState.active) {
+                await startNewRound();
+            }
             showFloatingFeedbackPill(`Wczytano: ${categoryLabel}`, 'emerald', `Start z ${songsLibrary.length} utw. (reszta dociąga się w tle)`);
         }
 
@@ -6969,11 +7176,11 @@
             if (hasOnlyDemo && savedDirectoryHandle) {
                 btnEl.classList.remove('hidden');
                 btnEl.classList.add('inline-flex');
-                titleEl.textContent = `Wznów folder: ${savedDirectoryHandle.name || 'Muzyka'}`;
+                titleEl.textContent = `Wznów folder (${savedDirectoryHandle.name || 'Muzyka'})`;
             } else if (!hasOnlyDemo && songsLibrary.length > 0) {
                 btnEl.classList.remove('hidden');
                 btnEl.classList.add('inline-flex');
-                titleEl.textContent = `Wróć do gry (${songsLibrary.length} utw.)`;
+                titleEl.textContent = `Wróć do gry (${songsLibrary.length})`;
             } else if (hasActiveGameSession && songsLibrary.length > 0) {
                 btnEl.classList.remove('hidden');
                 btnEl.classList.add('inline-flex');
@@ -7173,6 +7380,7 @@
         }
 
         function preloadNextSongInBackground() {
+            if (mpState.active) return;
             const poolIds = categoriesMap[activeCategory] || categoriesMap['WSZYSTKIE'] || [];
             if (poolIds.length <= 1) return;
 
@@ -8577,9 +8785,9 @@
             const streakBox = document.getElementById('streakStatBox');
             if (streakBox) {
                 if (stats.streak >= 3) {
-                    streakBox.className = 'magnetic-item h-7 sm:h-8 inline-flex items-center gap-1 sm:gap-2 bg-emerald-950/40 border border-emerald-500/50 px-2 sm:px-3 rounded-full text-[11px] sm:text-xs whitespace-nowrap transition-colors';
+                    streakBox.className = 'magnetic-item h-8 inline-flex items-center gap-1.5 sm:gap-2 bg-emerald-950/40 border border-emerald-500/50 px-2.5 sm:px-3 rounded-full text-xs whitespace-nowrap transition-colors';
                 } else {
-                    streakBox.className = 'magnetic-item h-7 sm:h-8 inline-flex items-center gap-1 sm:gap-2 px-2 sm:px-3 rounded-full ui-pill text-[11px] sm:text-xs whitespace-nowrap';
+                    streakBox.className = 'magnetic-item h-8 inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 rounded-full ui-pill text-xs whitespace-nowrap';
                 }
             }
             invalidateLayoutRectCache();
@@ -8831,7 +9039,7 @@
                 const favBtn = document.createElement('button');
                 favBtn.type = 'button';
                 favBtn.onclick = () => playFavoritesLibrary();
-                favBtn.className = 'px-3.5 py-2 rounded-full ui-pill text-zinc-300 hover:text-white text-xs font-medium inline-flex items-center gap-1.5 transition-colors';
+                favBtn.className = 'h-9 px-3.5 rounded-full ui-pill text-zinc-300 hover:text-white text-xs font-medium inline-flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap';
                 favBtn.innerHTML = `<span>Ulubione (${favoritesList.length})</span>`;
                 row.appendChild(favBtn);
             }
@@ -8840,7 +9048,7 @@
                 const plBtn = document.createElement('button');
                 plBtn.type = 'button';
                 plBtn.onclick = () => playSavedCloudPlaylist(pl.id);
-                plBtn.className = 'px-3.5 py-2 rounded-full ui-pill text-zinc-300 hover:text-white text-xs font-medium inline-flex items-center gap-1.5 max-w-[210px]';
+                plBtn.className = 'h-9 px-3.5 rounded-full ui-pill text-zinc-300 hover:text-white text-xs font-medium inline-flex items-center justify-center gap-1.5 max-w-[210px]';
                 plBtn.innerHTML = `<span class="truncate">${escapeHtml(pl.title)}</span>`;
                 row.appendChild(plBtn);
             });
@@ -9408,6 +9616,7 @@
                     toggleHelpModal(false);
                     toggleDevLogsModal(false);
                     toggleLeaderboardModal(false);
+                    if (typeof window.toggleMultiplayerModal === 'function') window.toggleMultiplayerModal(false);
                     if (typeof window.toggleAccountModal === 'function') window.toggleAccountModal(false);
                     closeStudioMenuPopover();
                 }
@@ -10140,10 +10349,19 @@
             showFloatingFeedbackPill(`Kategoria: ${catName === 'WSZYSTKIE' ? 'Wszystkie utwory' : catName}`, 'emerald');
         }
 
-        // ==================== INSTANT 0ms ROUND TRANSITION + AUTO-SKIP BROKEN TRACKS ====================
+        // ==================== INSTANT 0ms ROUND TRANSITION + MULTIPLAYER NEXT ROUND SYNC ====================
         async function startNewRound() {
             unlockAllAudioElementsForIOS();
             stopActiveVoiceRecognition();
+
+            // If inside an active Multiplayer room, clicking "Następny utwór" votes for the next round!
+            if (mpState.active && mpState.roomData && mpState.roomData.status === 'playing') {
+                if (typeof window.__voteNextMpRound === 'function') {
+                    await window.__voteNextMpRound();
+                }
+                return;
+            }
+
             const myRoundToken = ++currentRoundToken;
             isEditorTestRound = false;
             isPreparingRoundAudio = true;
@@ -10170,6 +10388,8 @@
                 socialStatRow.textContent = '';
                 socialStatRow.classList.add('hidden');
             }
+            const nextBtnLabel = document.getElementById('nextSongMainBtnLabel');
+            if (nextBtnLabel) nextBtnLabel.textContent = 'Następny utwór';
 
             clearGuessInput(false);
             const guessInputEl = document.getElementById('guessInput');
@@ -10284,16 +10504,37 @@
 
         function getCurrentSkipStageLabel() {
             const dur = ATTEMPT_DURATIONS[currentAttemptIndex];
+            let baseSkipLabel = '';
             if (!isFinite(dur)) {
-                return 'Poddaj się';
+                baseSkipLabel = 'Poddaj się';
+            } else {
+                const nextDur = ATTEMPT_DURATIONS[currentAttemptIndex + 1];
+                if (!isFinite(nextDur)) {
+                    baseSkipLabel = 'Pomiń (MAX)';
+                } else {
+                    const diff = nextDur - dur;
+                    const diffStr = diff % 1 === 0 ? diff.toFixed(0) : diff.toFixed(1);
+                    baseSkipLabel = `Pomiń (+${diffStr}s)`;
+                }
             }
-            const nextDur = ATTEMPT_DURATIONS[currentAttemptIndex + 1];
-            if (!isFinite(nextDur)) {
-                return 'Pomiń (MAX)';
+
+            if (mpState.active && mpState.roomData && mpState.roomData.currentRound) {
+                const playersObj = mpState.roomData.players || {};
+                const totalPlayers = Math.max(1, Object.keys(playersObj).length);
+                const votes = mpState.roomData.currentRound.stageVotes || [];
+                const myUid = typeof window.__getCurrentUserUid === 'function' ? window.__getCurrentUserUid() : null;
+                const iVoted = myUid && votes.includes(myUid);
+
+                if (totalPlayers > 1) {
+                    if (iVoted) {
+                        return `Czekam (${votes.length}/${totalPlayers})...`;
+                    }
+                    if (votes.length > 0) {
+                        return `${baseSkipLabel} · ${votes.length}/${totalPlayers}`;
+                    }
+                }
             }
-            const diff = nextDur - dur;
-            const diffStr = diff % 1 === 0 ? diff.toFixed(0) : diff.toFixed(1);
-            return `Pomiń (+${diffStr}s)`;
+            return baseSkipLabel;
         }
 
         function updateGuessOrSkipButtonUI() {
@@ -10307,6 +10548,15 @@
             const isBlockedByLoading = isSongLoadingBarrierActive();
             const hasText = Boolean(input && input.value.trim().length > 0);
             const skipText = getCurrentSkipStageLabel();
+
+            const myUid = typeof window.__getCurrentUserUid === 'function' ? window.__getCurrentUserUid() : null;
+            const iAlreadyVotedSkip = Boolean(
+                !hasText &&
+                mpState.active &&
+                mpState.roomData?.currentRound?.stageVotes &&
+                myUid &&
+                mpState.roomData.currentRound.stageVotes.includes(myUid)
+            );
 
             if (submitBtn) {
                 submitBtn.classList.toggle('opacity-50', isBlockedByLoading);
@@ -10332,6 +10582,13 @@
                 if (skipBtnIcon) {
                     skipBtnIcon.className = 'w-3.5 h-3.5 text-zinc-900 shrink-0';
                     skipBtnIcon.innerHTML = `<polyline points="20 6 9 17 4 12"></polyline>`;
+                }
+            } else if (iAlreadyVotedSkip) {
+                skipBtnLabel.textContent = skipText;
+                skipBtn.className = 'magnetic-item w-full sm:w-auto h-12 px-5 rounded-full bg-amber-950/35 border border-amber-500/40 text-amber-300 font-medium text-xs inline-flex items-center justify-center gap-1.5 shrink-0 whitespace-nowrap transition-all';
+                if (skipBtnIcon) {
+                    skipBtnIcon.className = 'w-3.5 h-3.5 text-amber-400 shrink-0';
+                    skipBtnIcon.innerHTML = `<circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>`;
                 }
             } else {
                 skipBtnLabel.textContent = skipText;
@@ -10446,6 +10703,57 @@
 
             if (!container || !trailWrapper) return;
             container.innerHTML = '';
+
+            // In Multiplayer, display the shared live feed of what both players typed/skipped!
+            if (mpState.active && mpState.roomData && mpState.roomData.currentRound) {
+                const mpGuesses = mpState.roomData.currentRound.guesses || [];
+                if (mpGuesses.length === 0) {
+                    trailWrapper.classList.add('hidden');
+                    trailWrapper.classList.remove('flex');
+                    invalidateLayoutRectCache();
+                    return;
+                }
+
+                trailWrapper.classList.remove('hidden');
+                trailWrapper.classList.add('flex');
+
+                mpGuesses.slice(-8).forEach(g => {
+                    const pill = document.createElement('div');
+                    const playerName = g.name || 'Gracz';
+                    if (g.type === 'correct') {
+                        pill.className = 'px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/35 text-emerald-300 inline-flex items-center gap-1.5 text-xs max-w-full';
+                        pill.innerHTML = `
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0"></span>
+                            <span class="font-semibold shrink-0">${escapeHtml(playerName)}:</span>
+                            <span class="truncate">${escapeHtml(g.text)}</span>
+                        `;
+                    } else if (g.type === 'artist_match') {
+                        pill.className = 'px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 inline-flex items-center gap-1.5 text-xs max-w-full';
+                        pill.innerHTML = `
+                            <span class="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0"></span>
+                            <span class="font-semibold shrink-0">${escapeHtml(playerName)}:</span>
+                            <span class="truncate">${escapeHtml(g.text)}</span>
+                            <span class="text-[10px] font-mono text-amber-400/80 shrink-0">(Wykonawca)</span>
+                        `;
+                    } else if (g.type === 'skip') {
+                        pill.className = 'px-2.5 py-1 rounded-full bg-zinc-900/70 border border-zinc-800 text-zinc-500 inline-flex items-center gap-1.5 text-[11px] font-mono max-w-full';
+                        pill.innerHTML = `
+                            <span>${escapeHtml(playerName)} pominął (${g.stageLabel || ''})</span>
+                        `;
+                    } else {
+                        pill.className = 'px-3 py-1 rounded-full bg-zinc-900/85 border border-zinc-800/80 text-zinc-300 inline-flex items-center gap-1.5 text-xs max-w-full';
+                        pill.innerHTML = `
+                            <span class="text-red-400/90 font-mono text-[10px] shrink-0">✕</span>
+                            <span class="font-semibold text-zinc-400 shrink-0">${escapeHtml(playerName)}:</span>
+                            <span class="truncate">${escapeHtml(g.text)}</span>
+                        `;
+                    }
+                    container.appendChild(pill);
+                });
+
+                invalidateLayoutRectCache();
+                return;
+            }
 
             const meaningfulAttempts = attemptHistory
                 .map((h, idx) => ({ ...h, stageIdx: idx }))
@@ -11138,7 +11446,7 @@
             }
         }
 
-        function submitGuess() {
+        async function submitGuess() {
             unlockAllAudioElementsForIOS();
             stopActiveVoiceRecognition();
             if (roundOver || !currentSong) return;
@@ -11175,7 +11483,7 @@
             if (!aiEval.isCorrect && currentMatches.length > 0) {
                 const topEntry = currentMatches[0];
                 const topSong = topEntry.song || topEntry;
-                const secondScore = currentMatches[1] ? (currentMatches[1].score || 0) : 0;
+                const secondScore = currentMatches[1] ? (filteredSuggestions[1]?.score || 0) : 0;
 
                 if (areSongsSameCanonicalTrack(topSong, currentSong)) {
                     if (
@@ -11184,6 +11492,60 @@
                     ) {
                         aiEval = { isCorrect: true, isArtistMatch: false, wasFuzzyAI: true };
                     }
+                }
+            }
+
+            // Multiplayer Live Branch
+            if (mpState.active && mpState.roomData && mpState.roomData.status === 'playing') {
+                if (aiEval.isCorrect) {
+                    clearGuessInput(false);
+                    exitMobileKeyboardModeSmoothly(true, preSubmitTop);
+                    if (typeof window.__submitMpGuessResult === 'function') {
+                        await window.__submitMpGuessResult({
+                            isCorrect: true,
+                            text: currentSong.cleanTitle,
+                            wasFuzzyAI: aiEval.wasFuzzyAI
+                        });
+                    }
+                    return;
+                } else {
+                    const compactGuess = normalizeCompactText(rawGuess);
+                    const normGuess = normalizePolishText(rawGuess);
+                    const bestMatchedEntry = currentMatches[0];
+                    const guessedSongObj = (bestMatchedEntry && bestMatchedEntry.score >= 72)
+                        ? (bestMatchedEntry.song || bestMatchedEntry)
+                        : songsLibrary.find(s => normalizeCompactText(s.cleanTitle) === compactGuess);
+
+                    const guessedArtist = guessedSongObj ? guessedSongObj.artistNormalized : extractNormalizedArtist(rawGuess);
+                    const targetArtistCompact = normalizeCompactText(currentSong.artistNormalized);
+                    const isArtistMatch =
+                        aiEval.isArtistMatch ||
+                        (currentSong.artistNormalized &&
+                        currentSong.artistNormalized.length >= 3 &&
+                        (guessedArtist === currentSong.artistNormalized ||
+                         normGuess.includes(currentSong.artistNormalized) ||
+                         (targetArtistCompact.length >= 3 && compactGuess.includes(targetArtistCompact))));
+
+                    const displayWrongText = (guessedSongObj && bestMatchedEntry && bestMatchedEntry.score >= 82)
+                        ? guessedSongObj.cleanTitle
+                        : rawGuess;
+
+                    const controlsBox = document.getElementById('guessingControlsArea');
+                    controlsBox.classList.remove('shake-error');
+                    void controlsBox.offsetWidth;
+                    controlsBox.classList.add('shake-error');
+
+                    clearGuessInput(false);
+                    exitMobileKeyboardModeSmoothly(true, preSubmitTop);
+
+                    if (typeof window.__submitMpGuessResult === 'function') {
+                        await window.__submitMpGuessResult({
+                            isCorrect: false,
+                            isArtistMatch,
+                            text: displayWrongText
+                        });
+                    }
+                    return;
                 }
             }
 
@@ -11251,7 +11613,7 @@
             }
         }
 
-        function skipAttempt() {
+        async function skipAttempt() {
             unlockAllAudioElementsForIOS();
             stopActiveVoiceRecognition();
             if (roundOver || !currentSong) return;
@@ -11278,6 +11640,16 @@
 
             if (isTouchMobileDevice && input && document.activeElement === input) {
                 input.blur();
+            }
+
+            // Multiplayer Live Skip Voting (1/2 -> 2/2)
+            if (mpState.active && mpState.roomData && mpState.roomData.status === 'playing') {
+                clearGuessInput(false);
+                exitMobileKeyboardModeSmoothly(true, preSkipTop);
+                if (typeof window.__voteSkipMpStage === 'function') {
+                    await window.__voteSkipMpStage();
+                }
+                return;
             }
 
             attemptHistory.push({
@@ -11315,7 +11687,7 @@
             }
         }
 
-        function finishRound(won, wasFuzzyAI = false, preFinishTop = null) {
+        function finishRound(won, wasFuzzyAI = false, preFinishTop = null, mpRoundOverride = null) {
             roundOver = true;
             roundWon = won;
             lastRoundFinishedAtMs = performance.now();
@@ -11329,6 +11701,8 @@
 
             syncPeriodRollover(stats);
             const isLoggedIn = typeof window.__isFirebaseUserLoggedIn === 'function' && window.__isFirebaseUserLoggedIn();
+            const myUid = typeof window.__getCurrentUserUid === 'function' ? window.__getCurrentUserUid() : null;
+            const iWonInMp = !mpRoundOverride || (mpRoundOverride.winnerUid && mpRoundOverride.winnerUid === myUid);
             const rankCheck = checkRoundRankedEligibility(currentSong);
 
             let earnedPoints = 0;
@@ -11341,7 +11715,7 @@
                     stats.guestTotalDelta = (stats.guestTotalDelta || 0) + 1;
                 }
 
-                if (won) {
+                if (won && iWonInMp) {
                     markSongAsScoredToday(currentSong);
                     stats.guessed = (stats.guessed || 0) + 1;
                     stats.streak = (stats.streak || 0) + 1;
@@ -11369,7 +11743,7 @@
                         stats.guestScoreDelta = (stats.guestScoreDelta || 0) + earnedPoints;
                         stats.guestGuessedDelta = (stats.guestGuessedDelta || 0) + 1;
                     }
-                } else {
+                } else if (!won) {
                     stats.streak = 0;
                 }
 
@@ -11381,7 +11755,13 @@
 
             if (won) {
                 setOutcomeScreenEffect('win', true);
-                if (rankCheck.eligible) {
+                if (mpRoundOverride && mpRoundOverride.winnerName) {
+                    showFloatingFeedbackPill(
+                        iWonInMp ? `Trafiłeś jako pierwszy!` : `Trafił: ${mpRoundOverride.winnerName}`,
+                        'emerald',
+                        `${currentSong.cleanTitle} (+${mpRoundOverride.winnerPoints || STAGE_BASE_POINTS[currentAttemptIndex] || 15} pkt)`
+                    );
+                } else if (rankCheck.eligible) {
                     if (wasFuzzyAI) {
                         showFloatingFeedbackPill('Rozpoznano tytuł!', 'emerald', `${currentSong.cleanTitle} (+${earnedPoints} pkt)`);
                     } else if (stats.streak > 0 && stats.streak % 3 === 0) {
@@ -11394,7 +11774,7 @@
                 setOutcomeScreenEffect('lose', true);
             }
 
-            recordRoundInSessionHistory(currentSong, won, currentAttemptIndex);
+            recordRoundInSessionHistory(currentSong, won && iWonInMp, currentAttemptIndex);
 
             document.getElementById('guessingControlsArea').classList.add('hidden');
             const resultCard = document.getElementById('roundResultCard');
@@ -11413,25 +11793,31 @@
             document.getElementById('resultSongTitle').textContent = parsed.title;
             document.getElementById('resultArtistRow').textContent = parsed.artist;
 
-            // Compute & display subtle community ego-boost stat, then record to Firebase
             if (socialStatRow && currentSong) {
                 const socialInfo = buildSocialEgoMessageForSong(currentSong, won, currentAttemptIndex);
                 socialStatRow.className = `text-[11px] sm:text-xs font-mono ${socialInfo.toneClass} pt-1 leading-snug`;
                 socialStatRow.textContent = socialInfo.text;
                 socialStatRow.classList.remove('hidden');
             }
-            if (typeof window.__recordSongCommunityOutcome === 'function' && currentSong && !currentSong.isDemo) {
+            if (typeof window.__recordSongCommunityOutcome === 'function' && currentSong && !currentSong.isDemo && (!mpRoundOverride || iWonInMp)) {
                 window.__recordSongCommunityOutcome(currentSong, won, currentAttemptIndex);
             }
 
             if (won) {
                 const stagePool = WIN_FLAVOR_BY_STAGE[currentAttemptIndex] || WIN_FLAVOR_BY_STAGE[3];
-                const flavorText = stagePool[Math.floor(Math.random() * stagePool.length)];
+                const flavorText = mpRoundOverride && mpRoundOverride.winnerName
+                    ? `Najszybszy w pokoju: ${mpRoundOverride.winnerName}`
+                    : stagePool[Math.floor(Math.random() * stagePool.length)];
 
                 statusBadge.className = 'px-3 py-0.5 rounded-full text-[11px] font-mono font-semibold uppercase tracking-wide bg-emerald-500/15 text-emerald-300 border border-emerald-500/30';
-                statusBadge.textContent = `ODGADNIĘTO (${currentAttemptIndex + 1}/6)`;
+                statusBadge.textContent = mpRoundOverride && mpRoundOverride.winnerName && !iWonInMp
+                    ? `TRAFIŁ: ${mpRoundOverride.winnerName.toUpperCase()} (${currentAttemptIndex + 1}/6)`
+                    : `ODGADNIĘTO (${currentAttemptIndex + 1}/6)`;
                 if (pointsBadge) {
-                    if (rankCheck.eligible) {
+                    if (mpRoundOverride && mpRoundOverride.winnerPoints) {
+                        pointsBadge.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-mono font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30';
+                        pointsBadge.textContent = `+${mpRoundOverride.winnerPoints} pkt`;
+                    } else if (rankCheck.eligible) {
                         pointsBadge.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-mono font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30';
                         pointsBadge.textContent = streakBonus > 0 ? `+${earnedPoints} pkt (seria +${streakBonus})` : `+${earnedPoints} pkt`;
                     } else {
@@ -11467,7 +11853,9 @@
             updateMarqueeIfNeeded();
             invalidateLayoutRectCache();
 
-            preloadNextSongInBackground();
+            if (!mpState.active) {
+                preloadNextSongInBackground();
+            }
         }
 
         // ==================== VIEW SWITCHER (START MENU / GAME / EDITOR) ====================
@@ -11940,7 +12328,7 @@
                 .replace(/'/g, '&#039;');
         }
 
-        // ==================== FIREBASE AUTH, PROFILE, CLOUD SYNC & MINIMALIST LEADERBOARD ====================
+        // ==================== FIREBASE AUTH, PROFILE, CLOUD SYNC, LEADERBOARD & REAL-TIME MULTIPLAYER ====================
         (function initKluzekFirebaseModule() {
             const firebaseConfig = {
                 apiKey: "AIzaSyDxguQ1uyVQKIiUQaESzISKwVG05Jz73I0",
@@ -11963,8 +12351,873 @@
             };
 
             window.__isFirebaseUserLoggedIn = () => Boolean(currentUser);
+            window.__getCurrentUserUid = () => currentUser ? currentUser.uid : null;
             window.__invalidateLeaderboardCache = () => {
                 lbState.cache = {};
+            };
+
+            function getDisplayNameForPlayer(userObj, customNick) {
+                const nick = String(customNick || '').trim();
+                if (nick) return nick;
+                if (userObj && userObj.displayName) return userObj.displayName;
+                return 'Gracz';
+            }
+
+            // ==================== REAL-TIME MULTIPLAYER ENGINE ====================
+            function getMpRoomRef(roomCode) {
+                if (!fbDb || !roomCode) return null;
+                if (mpState.useUsersCollectionFallback) {
+                    return fbDb.collection('users').doc('mp_room_' + roomCode);
+                }
+                return fbDb.collection('mpRooms').doc(roomCode);
+            }
+
+            async function safeMpRoomWrite(roomCode, payload, merge = true) {
+                if (!fbDb || !roomCode) return false;
+                try {
+                    await getMpRoomRef(roomCode).set(payload, { merge });
+                    return true;
+                } catch (err) {
+                    const isPerm = err && (err.code === 'permission-denied' || String(err.message || '').toLowerCase().includes('permission'));
+                    if (isPerm && !mpState.useUsersCollectionFallback) {
+                        mpState.useUsersCollectionFallback = true;
+                        try {
+                            await getMpRoomRef(roomCode).set(payload, { merge });
+                            return true;
+                        } catch (e2) {}
+                    }
+                    return false;
+                }
+            }
+
+            async function safeMpRoomGet(roomCode) {
+                if (!fbDb || !roomCode) return null;
+                try {
+                    const snap = await getMpRoomRef(roomCode).get();
+                    if (snap.exists) return snap;
+                } catch (err) {
+                    const isPerm = err && (err.code === 'permission-denied' || String(err.message || '').toLowerCase().includes('permission'));
+                    if (isPerm && !mpState.useUsersCollectionFallback) {
+                        mpState.useUsersCollectionFallback = true;
+                        try {
+                            const snap2 = await getMpRoomRef(roomCode).get();
+                            if (snap2.exists) return snap2;
+                        } catch (e2) {}
+                    }
+                }
+                if (!mpState.useUsersCollectionFallback) {
+                    try {
+                        const fallbackSnap = await fbDb.collection('users').doc('mp_room_' + roomCode).get();
+                        if (fallbackSnap.exists) {
+                            mpState.useUsersCollectionFallback = true;
+                            return fallbackSnap;
+                        }
+                    } catch (e) {}
+                }
+                return null;
+            }
+
+            function renderMpModalAndHud() {
+                const needLoginEl = document.getElementById('mpNeedLoginView');
+                const createJoinEl = document.getElementById('mpCreateOrJoinView');
+                const activeRoomEl = document.getElementById('mpActiveRoomView');
+                const headerMpLabel = document.getElementById('headerMpLabel');
+                const headerMpBtn = document.getElementById('headerMpBtn');
+                const startMpBtnLabel = document.getElementById('startMpBtnLabel');
+                const hudBar = document.getElementById('mpLiveHudBar');
+
+                if (headerMpLabel) {
+                    headerMpLabel.textContent = mpState.active && mpState.roomCode ? mpState.roomCode : 'Co-op';
+                }
+                if (headerMpBtn) {
+                    if (mpState.active) {
+                        headerMpBtn.className = 'magnetic-item h-8 px-2.5 rounded-full bg-emerald-950/50 border border-emerald-500/50 text-emerald-300 hover:text-white inline-flex items-center justify-center gap-1.5 text-xs font-medium shrink-0';
+                    } else {
+                        headerMpBtn.className = 'magnetic-item h-8 px-2.5 rounded-full ui-pill text-zinc-300 hover:text-white inline-flex items-center justify-center gap-1.5 text-xs font-medium shrink-0';
+                    }
+                }
+                if (startMpBtnLabel) {
+                    startMpBtnLabel.textContent = mpState.active && mpState.roomCode ? `Pokój: ${mpState.roomCode}` : 'Multiplayer';
+                }
+
+                if (!currentUser) {
+                    if (needLoginEl) needLoginEl.classList.remove('hidden');
+                    if (createJoinEl) { createJoinEl.classList.add('hidden'); createJoinEl.classList.remove('flex'); }
+                    if (activeRoomEl) { activeRoomEl.classList.add('hidden'); activeRoomEl.classList.remove('flex'); }
+                    if (hudBar) { hudBar.classList.add('hidden'); hudBar.classList.remove('flex'); }
+                    return;
+                }
+
+                if (needLoginEl) needLoginEl.classList.add('hidden');
+
+                if (!mpState.active || !mpState.roomCode) {
+                    if (createJoinEl) { createJoinEl.classList.remove('hidden'); createJoinEl.classList.add('flex'); }
+                    if (activeRoomEl) { activeRoomEl.classList.add('hidden'); activeRoomEl.classList.remove('flex'); }
+                    if (hudBar) { hudBar.classList.add('hidden'); hudBar.classList.remove('flex'); }
+                    return;
+                }
+
+                if (createJoinEl) { createJoinEl.classList.add('hidden'); createJoinEl.classList.remove('flex'); }
+                if (activeRoomEl) { activeRoomEl.classList.remove('hidden'); activeRoomEl.classList.add('flex'); }
+
+                const roomData = mpState.roomData || {};
+                const playersMap = roomData.players || {};
+                const playerList = Object.values(playersMap).sort((a, b) => (b.score || 0) - (a.score || 0) || (a.joinedAt || 0) - (b.joinedAt || 0));
+
+                const codeEl = document.getElementById('mpModalRoomCode');
+                const countEl = document.getElementById('mpModalPlayerCount');
+                const plBadgeEl = document.getElementById('mpModalPlaylistBadge');
+                const listEl = document.getElementById('mpModalPlayersList');
+                const hostBtn = document.getElementById('mpHostStartBtn');
+                const guestHint = document.getElementById('mpGuestWaitHint');
+
+                if (codeEl) codeEl.textContent = mpState.roomCode;
+                if (countEl) countEl.textContent = playerList.length;
+                if (plBadgeEl) plBadgeEl.textContent = roomData.playlistTitle || 'Bazowa Playlista';
+
+                if (listEl) {
+                    listEl.innerHTML = '';
+                    playerList.forEach(p => {
+                        const isHostPlayer = p.uid === roomData.hostUid;
+                        const isMe = currentUser && p.uid === currentUser.uid;
+                        const row = document.createElement('div');
+                        row.className = 'px-3.5 py-2.5 flex items-center justify-between gap-2 text-xs';
+                        const avatarHtml = p.photoURL
+                            ? `<img src="${escapeHtml(p.photoURL)}" alt="" referrerpolicy="no-referrer" class="w-6 h-6 rounded-full object-cover border border-zinc-700 shrink-0" />`
+                            : `<div class="w-6 h-6 rounded-full bg-zinc-800 flex items-center justify-center text-[10px] font-bold text-zinc-300 shrink-0">${escapeHtml((p.name || 'G').charAt(0).toUpperCase())}</div>`;
+
+                        row.innerHTML = `
+                            <div class="flex items-center gap-2.5 min-w-0">
+                                ${avatarHtml}
+                                <span class="font-medium truncate ${isMe ? 'text-emerald-300 font-semibold' : 'text-zinc-200'}">${escapeHtml(p.name || 'Gracz')}</span>
+                                ${isHostPlayer ? `<span class="px-1.5 py-0.5 rounded bg-zinc-800 text-[9px] font-mono text-zinc-400 shrink-0">HOST</span>` : ''}
+                            </div>
+                            <span class="font-mono font-semibold text-zinc-100 shrink-0">${(p.score || 0)} pkt</span>
+                        `;
+                        listEl.appendChild(row);
+                    });
+                }
+
+                if (hostBtn && guestHint) {
+                    if (mpState.isHost) {
+                        hostBtn.classList.remove('hidden');
+                        guestHint.classList.add('hidden');
+                        hostBtn.querySelector('span').textContent = roomData.status === 'playing'
+                            ? 'Wylosuj nowy utwór dla pokoju'
+                            : 'Rozpocznij wspólną grę';
+                    } else {
+                        hostBtn.classList.add('hidden');
+                        guestHint.classList.remove('hidden');
+                        guestHint.textContent = roomData.status === 'playing'
+                            ? 'Gra trwa — zamknij okno, aby zgadywać!'
+                            : 'Czekamy aż Host uruchomi pierwszą rundę...';
+                    }
+                }
+
+                // Live HUD Bar in Game View
+                if (hudBar) {
+                    hudBar.classList.remove('hidden');
+                    hudBar.classList.add('flex');
+                    const hudCode = document.getElementById('mpHudRoomCode');
+                    const hudPlayers = document.getElementById('mpHudPlayersList');
+                    if (hudCode) hudCode.textContent = mpState.roomCode;
+
+                    if (hudPlayers) {
+                        hudPlayers.innerHTML = '';
+                        const curRound = roomData.currentRound || null;
+                        const stageVotes = curRound?.stageVotes || [];
+                        const nextVotes = curRound?.nextVotes || [];
+
+                        playerList.forEach(p => {
+                            const isMe = currentUser && p.uid === currentUser.uid;
+                            const votedSkip = curRound && curRound.status === 'playing' && stageVotes.includes(p.uid);
+                            const votedNext = curRound && (curRound.status === 'won' || curRound.status === 'failed') && nextVotes.includes(p.uid);
+                            const isWinner = curRound && curRound.status === 'won' && curRound.winnerUid === p.uid;
+
+                            let statusBadge = '';
+                            if (isWinner) {
+                                statusBadge = `<span class="text-[10px] font-mono text-emerald-400">★</span>`;
+                            } else if (votedSkip) {
+                                statusBadge = `<span class="text-[10px] font-mono text-amber-400" title="Gotowy do pominięcia">⏭</span>`;
+                            } else if (votedNext) {
+                                statusBadge = `<span class="text-[10px] font-mono text-emerald-400" title="Gotowy na następny utwór">✓</span>`;
+                            }
+
+                            const chip = document.createElement('div');
+                            chip.className = `inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border text-[11px] shrink-0 ${
+                                isMe ? 'bg-zinc-900 border-zinc-700 text-zinc-100' : 'bg-zinc-900/60 border-zinc-800 text-zinc-300'
+                            }`;
+                            chip.innerHTML = `
+                                <span class="font-medium truncate max-w-[75px]">${escapeHtml((p.name || 'Gracz').split(' ')[0])}</span>
+                                <span class="font-mono font-semibold text-emerald-400">${p.score || 0}</span>
+                                ${statusBadge}
+                            `;
+                            hudPlayers.appendChild(chip);
+                        });
+                    }
+                }
+
+                // Update Next Song button label on result screen if in Multiplayer
+                const nextBtnLabel = document.getElementById('nextSongMainBtnLabel');
+                if (nextBtnLabel && mpState.active && roomData.currentRound && roundOver) {
+                    const totalPlayers = Math.max(1, playerList.length);
+                    const nVotes = roomData.currentRound.nextVotes || [];
+                    const iVotedNext = currentUser && nVotes.includes(currentUser.uid);
+                    if (totalPlayers > 1) {
+                        nextBtnLabel.textContent = iVotedNext
+                            ? `Czekam na gracza (${nVotes.length}/${totalPlayers})...`
+                            : `Następny utwór (${nVotes.length}/${totalPlayers})`;
+                    } else {
+                        nextBtnLabel.textContent = 'Następny utwór';
+                    }
+                }
+            }
+
+            async function syncMpAutocompletePoolForGuest(titlePool, categoryName = 'Multiplayer') {
+                if (!Array.isArray(titlePool) || titlePool.length === 0) return;
+                const existingKeys = new Set(songsLibrary.map(s => getCanonicalSongKey(s.cleanTitle)));
+                let added = 0;
+
+                // Remove demo tracks if we are receiving real multiplayer titles
+                if (songsLibrary.every(s => s.isDemo)) {
+                    songsLibrary = [];
+                }
+
+                titlePool.forEach((cleanTitle, idx) => {
+                    const cKey = getCanonicalSongKey(cleanTitle);
+                    if (!cKey || existingKeys.has(cKey)) return;
+                    existingKeys.add(cKey);
+                    const searchMeta = buildSongSearchIndex(cleanTitle, cleanTitle);
+                    songsLibrary.push({
+                        id: 'mp_pool_' + idx + '_' + cKey.slice(0, 8),
+                        rawFileName: cleanTitle,
+                        relativePath: `${categoryName}/${cleanTitle}`,
+                        autoCleanedTitle: cleanTitle,
+                        cleanTitle,
+                        normalizedSearch: searchMeta.normalizedSearch,
+                        compactSearch: searchMeta.compactSearch,
+                        artistNormalized: extractNormalizedArtist(cleanTitle),
+                        categorySegments: [categoryName],
+                        category: categoryName,
+                        url: null,
+                        shortStreamUrl: null,
+                        sourceType: 'spotify_hybrid',
+                        fileHandle: null,
+                        fileObj: null,
+                        startOffset: 0,
+                        isDemo: false
+                    });
+                    added++;
+                });
+
+                if (added > 0) {
+                    songsLibrary.sort((a, b) => a.cleanTitle.localeCompare(b.cleanTitle, 'pl'));
+                    rebuildCategoriesAndPools();
+                }
+            }
+
+            async function startSyncedMpRoundOnClient(roundObj, roomData) {
+                unlockAllAudioElementsForIOS();
+                stopActiveVoiceRecognition();
+                const myRoundToken = ++currentRoundToken;
+                isEditorTestRound = false;
+                isPreparingRoundAudio = true;
+                pendingPlayRequestToken = -1;
+                currentHintLevel = 0;
+                stopAudioPlaybackAndReset();
+                setOutcomeScreenEffect('none');
+
+                currentAttemptIndex = roundObj.stageIndex || 0;
+                attemptHistory = [];
+                roundOver = false;
+                roundWon = false;
+                pausedAtStageLimit = false;
+                isUserScrubbingMain = false;
+                lastMainSeekCommitMs = 0;
+
+                const hintBanner = document.getElementById('activeHintBanner');
+                if (hintBanner) {
+                    hintBanner.textContent = '';
+                    hintBanner.classList.add('hidden');
+                }
+                const socialStatRow = document.getElementById('resultSocialStatRow');
+                if (socialStatRow) {
+                    socialStatRow.textContent = '';
+                    socialStatRow.classList.add('hidden');
+                }
+
+                if (Array.isArray(roomData?.titlePool)) {
+                    await syncMpAutocompletePoolForGuest(roomData.titlePool, roomData.playlistTitle || 'Multiplayer');
+                }
+
+                const songData = roundObj.song;
+                const searchMeta = buildSongSearchIndex(songData.cleanTitle, songData.rawFileName || songData.cleanTitle);
+                const syncedSong = {
+                    id: songData.id || ('mp_song_' + roundObj.roundId),
+                    rawFileName: songData.rawFileName || songData.cleanTitle,
+                    relativePath: `${songData.category || 'Multiplayer'}/${songData.cleanTitle}`,
+                    autoCleanedTitle: songData.cleanTitle,
+                    cleanTitle: songData.cleanTitle,
+                    normalizedSearch: searchMeta.normalizedSearch,
+                    compactSearch: searchMeta.compactSearch,
+                    artistNormalized: extractNormalizedArtist(songData.cleanTitle),
+                    categorySegments: [songData.category || 'Multiplayer'],
+                    category: songData.category || 'Multiplayer',
+                    url: songData.streamUrl,
+                    shortStreamUrl: songData.streamUrl,
+                    corsStreamUrl: songData.corsStreamUrl || null,
+                    youtubeId: songData.youtubeId || null,
+                    sourceType: 'online_stream',
+                    fileHandle: null,
+                    fileObj: null,
+                    startOffset: songData.startOffset || 0,
+                    isDemo: false
+                };
+
+                // Ensure the current song is in songsLibrary so autocomplete always includes it
+                const cKey = getCanonicalSongKey(syncedSong.cleanTitle);
+                if (!songsLibrary.some(s => getCanonicalSongKey(s.cleanTitle) === cKey)) {
+                    songsLibrary.push(syncedSong);
+                    songsLibrary.sort((a, b) => a.cleanTitle.localeCompare(b.cleanTitle, 'pl'));
+                    buildCategoryHierarchyFromLibrary();
+                    updateHeaderActiveCategoryPill();
+                }
+
+                currentSong = syncedSong;
+                if (typeof window.__prefetchSongCommunityStats === 'function') {
+                    window.__prefetchSongCommunityStats(currentSong);
+                }
+
+                clearGuessInput(false);
+                exitMobileKeyboardModeSmoothly(false);
+
+                const resultCard = document.getElementById('roundResultCard');
+                resultCard.classList.add('hidden');
+                resultCard.classList.remove('flex', 'reveal-enter');
+                document.getElementById('guessingControlsArea').classList.remove('hidden');
+
+                const offsetBadge = document.getElementById('offsetActiveBadge');
+                if (currentSong.startOffset && currentSong.startOffset > 0) {
+                    offsetBadge.textContent = `(+${currentSong.startOffset.toFixed(1)}s)`;
+                    offsetBadge.classList.remove('hidden');
+                } else {
+                    offsetBadge.classList.add('hidden');
+                }
+
+                if (currentView !== 'game') {
+                    await switchView('game');
+                }
+
+                updateSliderFillProgress(document.getElementById('fullTrackSeekSlider'), 0);
+                updateAttemptTimelineUI();
+                renderAttemptsLadder();
+                renderMpModalAndHud();
+
+                await prepareSongForPlayback(currentSong, myRoundToken);
+                if (myRoundToken !== currentRoundToken) return;
+
+                isPreparingRoundAudio = false;
+                updateGuessOrSkipButtonUI();
+
+                if (pendingPlayRequestToken === myRoundToken) {
+                    pendingPlayRequestToken = -1;
+                    handleMainPlayButton();
+                }
+            }
+
+            function subscribeToMpRoom(roomCode) {
+                if (mpState.roomUnsubscribe) {
+                    mpState.roomUnsubscribe();
+                    mpState.roomUnsubscribe = null;
+                }
+                const ref = getMpRoomRef(roomCode);
+                if (!ref) return;
+
+                mpState.roomUnsubscribe = ref.onSnapshot(async (snap) => {
+                    if (!snap.exists) {
+                        showToast('Pokój Multiplayer został zamknięty.');
+                        leaveMultiplayerRoom(true);
+                        return;
+                    }
+                    const data = snap.data() || {};
+                    mpState.roomData = data;
+                    mpState.isHost = Boolean(currentUser && data.hostUid === currentUser.uid);
+
+                    // Auto-promote to host if previous host left the room
+                    const playersObj = data.players || {};
+                    const activeUids = Object.keys(playersObj);
+                    if (currentUser && activeUids.length > 0 && !playersObj[data.hostUid]) {
+                        const newHostUid = activeUids[0];
+                        if (newHostUid === currentUser.uid) {
+                            mpState.isHost = true;
+                            await safeMpRoomWrite(roomCode, { hostUid: currentUser.uid }, true);
+                        }
+                    }
+
+                    renderMpModalAndHud();
+
+                    const r = data.currentRound;
+                    if (!r || data.status !== 'playing') return;
+
+                    // 1. Check if a brand new round started
+                    if (r.roundId && r.roundId !== mpState.lastSyncedRoundId) {
+                        mpState.lastSyncedRoundId = r.roundId;
+                        mpState.lastSyncedStageIndex = r.stageIndex || 0;
+                        mpState.lastSyncedRoundStatus = r.status || 'playing';
+                        mpState.isAdvancingStage = false;
+                        mpState.isStartingNextRound = false;
+                        window.toggleMultiplayerModal(false);
+                        await startSyncedMpRoundOnClient(r, data);
+                    }
+
+                    // 2. Check if stage advanced for the current round
+                    if (r.status === 'playing' && typeof r.stageIndex === 'number' && r.stageIndex > mpState.lastSyncedStageIndex) {
+                        mpState.lastSyncedStageIndex = r.stageIndex;
+                        mpState.isAdvancingStage = false;
+                        currentAttemptIndex = r.stageIndex;
+                        const nextDur = ATTEMPT_DURATIONS[currentAttemptIndex];
+                        showFloatingFeedbackPill(
+                            isFinite(nextDur) ? `Wszyscy gotowi · Odblokowano ${nextDur.toFixed(1)}s` : 'Wszyscy gotowi · Pełna próbka (MAX)',
+                            'neutral'
+                        );
+                        updateAttemptTimelineUI();
+                        renderAttemptsLadder();
+                        advanceStageSeamlessAudio(true);
+                    }
+
+                    // 3. Always refresh live attempts trail & button vote counters
+                    renderAttemptsLadder();
+                    updateGuessOrSkipButtonUI();
+
+                    // 4. Check if round ended (won or failed)
+                    if ((r.status === 'won' || r.status === 'failed') && mpState.lastSyncedRoundStatus === 'playing') {
+                        mpState.lastSyncedRoundStatus = r.status;
+                        mpState.isAdvancingStage = false;
+                        if (r.status === 'won') {
+                            if (typeof r.winnerStage === 'number') {
+                                currentAttemptIndex = r.winnerStage;
+                            }
+                            finishRound(true, false, null, r);
+                        } else {
+                            finishRound(false, false, null, r);
+                        }
+                        renderMpModalAndHud();
+                    }
+
+                    // 5. Host coordinator: check if all players voted to skip current stage or start next round
+                    if (mpState.isHost && activeUids.length > 0) {
+                        const requiredVotes = activeUids.length;
+                        if (r.status === 'playing') {
+                            const sVotes = (r.stageVotes || []).filter(uid => Boolean(playersObj[uid]));
+                            if (sVotes.length >= requiredVotes && !mpState.isAdvancingStage) {
+                                mpState.isAdvancingStage = true;
+                                if (r.stageIndex >= 5) {
+                                    await safeMpRoomWrite(roomCode, {
+                                        currentRound: {
+                                            ...r,
+                                            status: 'failed',
+                                            stageVotes: []
+                                        }
+                                    }, true);
+                                } else {
+                                    await safeMpRoomWrite(roomCode, {
+                                        currentRound: {
+                                            ...r,
+                                            stageIndex: (r.stageIndex || 0) + 1,
+                                            stageVotes: []
+                                        }
+                                    }, true);
+                                }
+                            }
+                        } else if (r.status === 'won' || r.status === 'failed') {
+                            const nVotes = (r.nextVotes || []).filter(uid => Boolean(playersObj[uid]));
+                            if (nVotes.length >= requiredVotes && !mpState.isStartingNextRound) {
+                                mpState.isStartingNextRound = true;
+                                await window.hostStartNextMpRound(false);
+                            }
+                        }
+                    }
+                });
+            }
+
+            window.toggleMultiplayerModal = function (show) {
+                const modal = document.getElementById('multiplayerModal');
+                if (!modal) return;
+                if (show) {
+                    renderMpModalAndHud();
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                } else {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }
+            };
+
+            window.createMultiplayerRoom = async function () {
+                if (!currentUser) {
+                    showToast('Zaloguj się przez Google, aby stworzyć pokój Multiplayer.');
+                    return;
+                }
+                const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+                let code = '';
+                for (let i = 0; i < 5; i++) {
+                    code += chars.charAt(getCryptoRandomInt(chars.length));
+                }
+
+                const myName = getDisplayNameForPlayer(currentUser, stats.customNickname);
+                const roomPayload = {
+                    isMpRoom: true,
+                    roomCode: code,
+                    hostUid: currentUser.uid,
+                    status: 'lobby',
+                    playlistTitle: currentActivePlaylistMeta?.title || 'Bazowa Playlista Hitów',
+                    titlePool: songsLibrary.filter(s => !s.isDemo).slice(0, 160).map(s => s.cleanTitle),
+                    players: {
+                        [currentUser.uid]: {
+                            uid: currentUser.uid,
+                            name: myName,
+                            photoURL: currentUser.photoURL || '',
+                            score: 0,
+                            guessed: 0,
+                            joinedAt: Date.now()
+                        }
+                    },
+                    currentRound: null
+                };
+
+                const ok = await safeMpRoomWrite(code, roomPayload, false);
+                if (!ok) {
+                    showToast('Nie udało się utworzyć pokoju w bazie Firebase.');
+                    return;
+                }
+
+                mpState.active = true;
+                mpState.roomCode = code;
+                mpState.isHost = true;
+                mpState.roomData = roomPayload;
+                mpState.lastSyncedRoundId = null;
+
+                subscribeToMpRoom(code);
+                renderMpModalAndHud();
+                showFloatingFeedbackPill(`Utworzono pokój: ${code}`, 'emerald', 'Wyślij kod lub link znajomemu!');
+            };
+
+            window.joinMultiplayerRoomFromInput = async function () {
+                const input = document.getElementById('mpJoinCodeInput');
+                const code = (input ? input.value : '').trim().toUpperCase();
+                if (!code) {
+                    showToast('Wpisz kod pokoju.');
+                    return;
+                }
+                await window.joinMultiplayerRoomByCode(code);
+            };
+
+            window.joinMultiplayerRoomByCode = async function (rawCode) {
+                if (!currentUser) {
+                    showToast('Zaloguj się przez Google, aby dołączyć do pokoju.');
+                    window.toggleMultiplayerModal(true);
+                    return;
+                }
+                const code = String(rawCode || '').trim().toUpperCase();
+                if (!code) return;
+
+                const snap = await safeMpRoomGet(code);
+                if (!snap || !snap.exists) {
+                    showToast(`Nie znaleziono pokoju o kodzie: ${code}`);
+                    return;
+                }
+
+                const existingData = snap.data() || {};
+                const myName = getDisplayNameForPlayer(currentUser, stats.customNickname);
+                const existingPlayer = existingData.players?.[currentUser.uid];
+
+                const updatedPlayers = {
+                    ...(existingData.players || {}),
+                    [currentUser.uid]: {
+                        uid: currentUser.uid,
+                        name: myName,
+                        photoURL: currentUser.photoURL || '',
+                        score: existingPlayer ? (existingPlayer.score || 0) : 0,
+                        guessed: existingPlayer ? (existingPlayer.guessed || 0) : 0,
+                        joinedAt: existingPlayer ? existingPlayer.joinedAt : Date.now()
+                    }
+                };
+
+                await safeMpRoomWrite(code, { players: updatedPlayers }, true);
+
+                mpState.active = true;
+                mpState.roomCode = code;
+                mpState.isHost = (existingData.hostUid === currentUser.uid);
+                mpState.roomData = { ...existingData, players: updatedPlayers };
+                mpState.lastSyncedRoundId = null;
+
+                subscribeToMpRoom(code);
+                renderMpModalAndHud();
+                showFloatingFeedbackPill(`Dołączono do pokoju: ${code}`, 'emerald', `Graczy w pokoju: ${Object.keys(updatedPlayers).length}`);
+            };
+
+            window.leaveMultiplayerRoom = async function (silent = false) {
+                const code = mpState.roomCode;
+                if (mpState.roomUnsubscribe) {
+                    mpState.roomUnsubscribe();
+                    mpState.roomUnsubscribe = null;
+                }
+                if (code && currentUser && mpState.roomData?.players) {
+                    const remainingPlayers = { ...mpState.roomData.players };
+                    delete remainingPlayers[currentUser.uid];
+                    const remUids = Object.keys(remainingPlayers);
+                    if (remUids.length === 0) {
+                        try { await getMpRoomRef(code).delete(); } catch (e) {}
+                    } else {
+                        const nextHost = (mpState.roomData.hostUid === currentUser.uid) ? remUids[0] : mpState.roomData.hostUid;
+                        await safeMpRoomWrite(code, {
+                            hostUid: nextHost,
+                            players: remainingPlayers
+                        }, false);
+                    }
+                }
+
+                mpState.active = false;
+                mpState.roomCode = null;
+                mpState.isHost = false;
+                mpState.roomData = null;
+                mpState.lastSyncedRoundId = null;
+
+                renderMpModalAndHud();
+                if (!silent) {
+                    showFloatingFeedbackPill('Opuszczono pokój Multiplayer', 'neutral');
+                }
+            };
+
+            window.copyMpRoomCode = function () {
+                if (!mpState.roomCode) return;
+                safeCopyTextToClipboard(mpState.roomCode);
+                showToast(`Skopiowano kod pokoju: ${mpState.roomCode}`);
+            };
+
+            window.copyMpRoomInviteLink = function () {
+                if (!mpState.roomCode) return;
+                const url = `${window.location.origin}${window.location.pathname}?room=${mpState.roomCode}`;
+                safeCopyTextToClipboard(url);
+                showToast('Skopiowano link zaproszenia do pokoju!');
+            };
+
+            window.hostStartNextMpRound = async function (fromModalBtn = false) {
+                if (!mpState.active || !mpState.roomCode || !mpState.isHost) return;
+                unlockAllAudioElementsForIOS();
+
+                if (fromModalBtn) {
+                    window.toggleMultiplayerModal(false);
+                }
+
+                // If host only has Demo tracks loaded, automatically load the default 900+ YouTube playlist first!
+                if (songsLibrary.length === 0 || songsLibrary.every(s => s.isDemo) || songsLibrary.every(s => s.sourceType === 'local')) {
+                    showFloatingFeedbackPill('Ładowanie playlisty dla pokoju...', 'emerald');
+                    await loadDefaultKluzekYouTubePlaylist();
+                    return;
+                }
+
+                showFloatingFeedbackPill('Synchronizacja kolejnego utworu...', 'neutral');
+
+                let pickedSong = null;
+                for (let tries = 0; tries < 8; tries++) {
+                    const poolIds = categoriesMap[activeCategory] || categoriesMap['WSZYSTKIE'] || [];
+                    if (poolIds.length === 0) break;
+                    let unplayedSet = unplayedPools[activeCategory];
+                    if (!unplayedSet || unplayedSet.size === 0) {
+                        unplayedSet = new Set(poolIds);
+                        unplayedPools[activeCategory] = unplayedSet;
+                    }
+                    const randId = pickRandomUnplayedSongId(unplayedSet, currentSong ? currentSong.id : null);
+                    if (randId) unplayedSet.delete(randId);
+                    const candidate = songsLibrary.find(s => s.id === randId) || songsLibrary[0];
+                    if (!candidate) continue;
+
+                    if (!candidate.url) {
+                        const backup = await resolvePlayableBackupStreamCascade(candidate, true);
+                        if (backup && backup.streamUrl) {
+                            candidate.url = backup.streamUrl;
+                            candidate.shortStreamUrl = backup.streamUrl;
+                            if (backup.corsStreamUrl) candidate.corsStreamUrl = backup.corsStreamUrl;
+                            if (backup.resolvedCleanTitle) {
+                                syncSongTitleWithResolvedBackup(candidate, backup.resolvedCleanTitle);
+                            }
+                        } else {
+                            removeBrokenSongFromLibrary(candidate, 'MP Host: Brak strumienia audio CDN');
+                            continue;
+                        }
+                    }
+
+                    if (candidate.url) {
+                        pickedSong = candidate;
+                        break;
+                    }
+                }
+
+                if (!pickedSong || !pickedSong.url) {
+                    mpState.isStartingNextRound = false;
+                    showToast('Nie udało się przygotować utworu dla pokoju.');
+                    return;
+                }
+
+                const samplePool = songsLibrary
+                    .filter(s => !s.isDemo)
+                    .map(s => s.cleanTitle);
+                // Make sure the current song's cleanTitle is in the titlePool sent to guests
+                const shuffledSample = [...new Set([pickedSong.cleanTitle, ...samplePool])].slice(0, 180);
+
+                const roundId = 'r_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
+                const prevRoundNum = mpState.roomData?.currentRound?.roundNumber || 0;
+
+                const roundPayload = {
+                    roundId,
+                    roundNumber: prevRoundNum + 1,
+                    status: 'playing',
+                    stageIndex: 0,
+                    stageVotes: [],
+                    nextVotes: [],
+                    guesses: [],
+                    winnerUid: null,
+                    winnerName: null,
+                    winnerStage: null,
+                    winnerPoints: 0,
+                    song: {
+                        id: pickedSong.id,
+                        cleanTitle: pickedSong.cleanTitle,
+                        rawFileName: pickedSong.rawFileName,
+                        category: pickedSong.category || 'Multiplayer',
+                        streamUrl: pickedSong.url,
+                        corsStreamUrl: pickedSong.corsStreamUrl || null,
+                        youtubeId: pickedSong.youtubeId || null,
+                        startOffset: pickedSong.startOffset || 0
+                    }
+                };
+
+                await safeMpRoomWrite(mpState.roomCode, {
+                    status: 'playing',
+                    playlistTitle: currentActivePlaylistMeta?.title || 'Playlista Online',
+                    titlePool: shuffledSample,
+                    currentRound: roundPayload
+                }, true);
+            };
+
+            window.__submitMpGuessResult = async function ({ isCorrect, isArtistMatch, text }) {
+                if (!mpState.active || !mpState.roomCode || !currentUser || !mpState.roomData?.currentRound) return;
+                const r = mpState.roomData.currentRound;
+                if (r.status !== 'playing') return;
+
+                const myName = getDisplayNameForPlayer(currentUser, stats.customNickname);
+                const newGuessEntry = {
+                    uid: currentUser.uid,
+                    name: myName,
+                    text,
+                    type: isCorrect ? 'correct' : (isArtistMatch ? 'artist_match' : 'wrong'),
+                    stage: currentAttemptIndex,
+                    ts: Date.now()
+                };
+
+                const updatedGuesses = [...(r.guesses || []), newGuessEntry];
+
+                if (isCorrect) {
+                    const pts = STAGE_BASE_POINTS[currentAttemptIndex] || 15;
+                    const playersMap = { ...(mpState.roomData.players || {}) };
+                    const meObj = playersMap[currentUser.uid] || { uid: currentUser.uid, name: myName, score: 0, guessed: 0 };
+                    meObj.score = (meObj.score || 0) + pts;
+                    meObj.guessed = (meObj.guessed || 0) + 1;
+                    playersMap[currentUser.uid] = meObj;
+
+                    await safeMpRoomWrite(mpState.roomCode, {
+                        players: playersMap,
+                        currentRound: {
+                            ...r,
+                            status: 'won',
+                            winnerUid: currentUser.uid,
+                            winnerName: myName,
+                            winnerStage: currentAttemptIndex,
+                            winnerPoints: pts,
+                            guesses: updatedGuesses
+                        }
+                    }, true);
+                } else {
+                    const currentVotes = new Set(r.stageVotes || []);
+                    currentVotes.add(currentUser.uid);
+                    const votesArr = Array.from(currentVotes);
+                    const totalPlayers = Math.max(1, Object.keys(mpState.roomData.players || {}).length);
+
+                    if (isArtistMatch) {
+                        showFloatingFeedbackPill('Dobry wykonawca! Szukaj innego tytułu', 'amber', `Gotowość etapu: ${votesArr.length}/${totalPlayers}`);
+                    } else if (votesArr.length < totalPlayers) {
+                        showFloatingFeedbackPill('Pudło! Czekamy na drugiego gracza...', 'neutral', `Gotowość: ${votesArr.length}/${totalPlayers}`);
+                    }
+
+                    await safeMpRoomWrite(mpState.roomCode, {
+                        currentRound: {
+                            ...r,
+                            stageVotes: votesArr,
+                            guesses: updatedGuesses
+                        }
+                    }, true);
+                }
+            };
+
+            window.__voteSkipMpStage = async function () {
+                if (!mpState.active || !mpState.roomCode || !currentUser || !mpState.roomData?.currentRound) return;
+                const r = mpState.roomData.currentRound;
+                if (r.status !== 'playing') return;
+
+                const currentVotes = new Set(r.stageVotes || []);
+                if (currentVotes.has(currentUser.uid)) {
+                    const totalP = Math.max(1, Object.keys(mpState.roomData.players || {}).length);
+                    showFloatingFeedbackPill(`Czekasz na drugiego gracza (${currentVotes.size}/${totalP})`, 'amber', 'Nadal możesz wpisać tytuł jeśli wpadnie Ci do głowy!');
+                    return;
+                }
+
+                currentVotes.add(currentUser.uid);
+                const votesArr = Array.from(currentVotes);
+                const totalPlayers = Math.max(1, Object.keys(mpState.roomData.players || {}).length);
+                const myName = getDisplayNameForPlayer(currentUser, stats.customNickname);
+                const stepLabels = ['1.5s', '3s', '6s', '10s', '15s', 'MAX'];
+
+                const updatedGuesses = [
+                    ...(r.guesses || []),
+                    {
+                        uid: currentUser.uid,
+                        name: myName,
+                        text: 'Pomiń',
+                        type: 'skip',
+                        stageLabel: stepLabels[currentAttemptIndex] || '',
+                        ts: Date.now()
+                    }
+                ];
+
+                if (votesArr.length < totalPlayers) {
+                    showFloatingFeedbackPill(`Głos za pominięciem (${votesArr.length}/${totalPlayers})`, 'neutral', 'Czekamy na drugiego gracza...');
+                }
+
+                await safeMpRoomWrite(mpState.roomCode, {
+                    currentRound: {
+                        ...r,
+                        stageVotes: votesArr,
+                        guesses: updatedGuesses
+                    }
+                }, true);
+            };
+
+            window.__voteNextMpRound = async function () {
+                if (!mpState.active || !mpState.roomCode || !currentUser || !mpState.roomData?.currentRound) return;
+                const r = mpState.roomData.currentRound;
+                const nextVotes = new Set(r.nextVotes || []);
+                if (nextVotes.has(currentUser.uid)) return;
+
+                nextVotes.add(currentUser.uid);
+                const votesArr = Array.from(nextVotes);
+
+                await safeMpRoomWrite(mpState.roomCode, {
+                    currentRound: {
+                        ...r,
+                        nextVotes: votesArr
+                    }
+                }, true);
             };
 
             // Prefetch & record per-song community stats in Firestore (`songStats` collection)
@@ -12023,13 +13276,6 @@
                     await fbDb.collection('songStats').doc(docId).set(payload, { merge: true });
                 } catch (e) {}
             };
-
-            function getDisplayNameForPlayer(userObj, customNick) {
-                const nick = String(customNick || '').trim();
-                if (nick) return nick;
-                if (userObj && userObj.displayName) return userObj.displayName;
-                return 'Gracz';
-            }
 
             function getCappedCustomMetadataForCloud() {
                 const entries = Object.entries(customSongMetadata || {});
@@ -12226,6 +13472,7 @@
                         loggedInView.classList.remove('flex');
                     }
                 }
+                renderMpModalAndHud();
             }
             window.__updateAccountUIFromStats = updateAccountUI;
 
@@ -12446,6 +13693,7 @@
                         }
 
                         rows = rawDocs
+                            .filter(doc => !doc.isMpRoom)
                             .map(doc => {
                                 const { score, guessed } = extractScoreAndHitsForPeriod(doc, lbState.period, keys);
                                 return {
@@ -12658,6 +13906,9 @@
             window.logoutGoogleAccount = async function () {
                 if (!fbAuth) return;
                 try {
+                    if (mpState.active) {
+                        await window.leaveMultiplayerRoom(true);
+                    }
                     await fbAuth.signOut();
                     hasCompletedInitialCloudSync = false;
                     const keys = getCurrentPeriodKeys();
@@ -12706,6 +13957,23 @@
                                 const firstName = getDisplayNameForPlayer(currentUser, stats.customNickname).split(' ')[0];
                                 showFloatingFeedbackPill(`Zalogowano: ${firstName}`, 'emerald');
                             }
+                            // Check if URL has ?room=CODE to auto-join!
+                            const params = new URLSearchParams(window.location.search);
+                            const roomParam = params.get('room');
+                            if (roomParam && !mpState.active) {
+                                const cleanCode = roomParam.trim().toUpperCase();
+                                window.history.replaceState({}, document.title, window.location.pathname);
+                                await window.joinMultiplayerRoomByCode(cleanCode);
+                                window.toggleMultiplayerModal(true);
+                            }
+                        } else {
+                            const params = new URLSearchParams(window.location.search);
+                            const roomParam = params.get('room');
+                            if (roomParam) {
+                                const jInput = document.getElementById('mpJoinCodeInput');
+                                if (jInput) jInput.value = roomParam.trim().toUpperCase();
+                                window.toggleMultiplayerModal(true);
+                            }
                         }
                     });
                 }
@@ -12718,6 +13986,8 @@
             startOnlinePreset,
             startCustomOnlineQuery,
             importOnlinePlaylistFromInput,
+            onOmnibarInput,
+            clearOmnibarInput,
             handleOmnibarSubmit,
             askAIConcierge,
             toggleMoreStartOptions,
