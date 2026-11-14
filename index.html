@@ -319,6 +319,60 @@
             animation: micPulseGlow 1.4s infinite;
         }
 
+        /* Floating Multiplayer Avatar Orbs & Winner Spotlight Animations */
+        @keyframes mpOrbFloat {
+            0%, 100% { transform: translate3d(0, 0px, 0); }
+            50% { transform: translate3d(0, -5px, 0); }
+        }
+        .mp-orb-float {
+            animation: mpOrbFloat var(--orb-dur, 4s) ease-in-out var(--orb-delay, 0s) infinite;
+            will-change: transform;
+        }
+
+        @keyframes mpCrownBob {
+            0%, 100% { transform: translate3d(-50%, 0px, 0) rotate(-4deg) scale(1); }
+            50% { transform: translate3d(-50%, -4px, 0) rotate(4deg) scale(1.08); }
+        }
+        .mp-crown-bob {
+            animation: mpCrownBob 2.1s ease-in-out infinite;
+        }
+
+        @keyframes mpWinnerHaloPulse {
+            0%, 100% { transform: scale(1); opacity: 0.7; }
+            50% { transform: scale(1.32); opacity: 0.08; }
+        }
+        .mp-winner-halo {
+            animation: mpWinnerHaloPulse 1.7s ease-out infinite;
+        }
+
+        @keyframes mpWinnerBannerPop {
+            0% { opacity: 0; transform: scale(0.92) translateY(8px); }
+            65% { opacity: 1; transform: scale(1.025) translateY(-1px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .mp-winner-banner-pop {
+            animation: mpWinnerBannerPop 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes mpTypingDot {
+            0%, 80%, 100% { transform: translateY(0); opacity: 0.35; }
+            40% { transform: translateY(-2.5px); opacity: 1; }
+        }
+        .mp-typing-dot {
+            animation: mpTypingDot 1.05s ease-in-out infinite;
+        }
+
+        @keyframes mpOrbShake {
+            0%, 100% { transform: translate3d(0, 0, 0); }
+            20% { transform: translate3d(-4px, 0, 0); }
+            45% { transform: translate3d(4px, 0, 0); }
+            70% { transform: translate3d(-3px, 0, 0); }
+            85% { transform: translate3d(2px, 0, 0); }
+        }
+        .mp-orb-shake {
+            animation: mpOrbShake 0.4s ease-in-out;
+        }
+
         /* Desktop hover effects ONLY on devices with a real mouse cursor */
         @media (hover: hover) and (pointer: fine) {
             .ui-pill:hover::before,
@@ -901,7 +955,7 @@
     <main class="relative z-10 flex-1 w-full max-w-2xl mx-auto px-4 py-2.5 sm:py-8 flex flex-col">
 
         <!-- ==================== VIEW 0: ULTRA-CLEAN START HUB ==================== -->
-        <div id="startView" class="w-full max-w-xl mx-auto my-auto flex flex-col items-center justify-center gap-5 sm:gap-6 py-4 sm:py-8 reveal-enter">
+        <div id="startView" class="w-full max-w-2xl mx-auto my-auto flex flex-col items-center justify-center gap-5 sm:gap-6 py-4 sm:py-8 reveal-enter">
             
             <!-- Minimalist Greeting -->
             <div class="text-center space-y-2">
@@ -915,30 +969,30 @@
                 </p>
             </div>
 
-            <!-- 1-CLICK HERO PLAY BUTTON + MULTIPLAYER + ACTIVE GAME RETURN -->
-            <div class="w-full flex flex-col sm:flex-row flex-wrap items-center justify-center gap-2.5">
-                <button onclick="loadDefaultKluzekYouTubePlaylist()" class="w-full sm:w-auto h-11 px-6 rounded-full bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-semibold text-xs sm:text-sm inline-flex items-center justify-center gap-2 whitespace-nowrap transition-[background-color,box-shadow,color] shadow-[0_0_30px_rgba(16,185,129,0.28)] hover:shadow-[0_0_45px_rgba(16,185,129,0.45)] shrink-0">
+            <!-- 1-CLICK HERO PLAY BUTTON + MULTIPLAYER + ACTIVE GAME RETURN (1 CLEAN ROW ON DESKTOP) -->
+            <div id="startHeroActionsRow" class="w-full flex flex-col sm:flex-row items-center justify-center gap-2.5">
+                <button onclick="loadDefaultKluzekYouTubePlaylist()" class="w-full sm:w-auto h-11 px-5 sm:px-4 md:px-5 rounded-full bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-semibold text-xs inline-flex items-center justify-center gap-2 whitespace-nowrap transition-[background-color,box-shadow,color] shadow-[0_0_30px_rgba(16,185,129,0.28)] hover:shadow-[0_0_45px_rgba(16,185,129,0.45)] shrink-0">
                     <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="currentColor">
                         <polygon points="6 4 20 12 6 20 6 4"></polygon>
                     </svg>
                     <span>Graj od razu · Bazowa Playlista (900+)</span>
                 </button>
 
-                <button onclick="toggleMultiplayerModal(true)" class="w-full sm:w-auto h-11 px-5 rounded-full ui-pill text-zinc-200 hover:text-white font-semibold text-xs sm:text-sm inline-flex items-center justify-center gap-2 whitespace-nowrap shrink-0" title="Graj na żywo w jednym pokoju ze znajomym">
+                <button onclick="toggleMultiplayerModal(true)" class="w-full sm:w-auto h-11 px-5 sm:px-4 md:px-5 rounded-full ui-pill text-zinc-200 hover:text-white font-semibold text-xs inline-flex items-center justify-center gap-2 whitespace-nowrap shrink-0" title="Graj na żywo w jednym pokoju ze znajomym">
                     <svg class="w-4 h-4 theme-accent-text shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                         <circle cx="9" cy="7" r="4"></circle>
                         <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
                         <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                     </svg>
-                    <span id="startMpBtnLabel">Multiplayer</span>
+                    <span id="startMpBtnLabel" class="truncate max-w-[125px]">Multiplayer</span>
                 </button>
 
-                <button id="resumeOrCurrentLibraryBtn" onclick="resumeSavedFolderOrCurrentGame()" class="hidden w-full sm:w-auto h-11 px-5 rounded-full ui-pill text-emerald-300 hover:text-white font-semibold text-xs sm:text-sm items-center justify-center gap-1.5 whitespace-nowrap shrink-0 border-emerald-500/40" title="Wróć do aktualnie rozpoczętej rozgrywki">
+                <button id="resumeOrCurrentLibraryBtn" onclick="resumeSavedFolderOrCurrentGame()" class="hidden w-full sm:w-auto h-11 px-5 sm:px-4 md:px-5 rounded-full spotlight-surface theme-accent-surface border text-emerald-300 hover:text-white hover:brightness-110 font-semibold text-xs items-center justify-center gap-1.5 whitespace-nowrap shrink-0 transition-all" title="Wróć do aktualnie rozpoczętej rozgrywki">
                     <svg class="w-3.5 h-3.5 theme-accent-text shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="9 18 15 12 9 6"></polyline>
                     </svg>
-                    <span id="resumeBtnTitle">Wróć do gry</span>
+                    <span id="resumeBtnTitle" class="truncate max-w-[155px]">Wróć do gry</span>
                     <span id="resumeBtnSubtitle" class="hidden"></span>
                 </button>
             </div>
@@ -1117,18 +1171,16 @@
         </div>
 
         <!-- ==================== VIEW 1: OPEN CENTERED GAME STAGE ==================== -->
-        <div id="gameView" class="hidden w-full max-w-lg mx-auto my-auto flex-col items-center gap-3.5 sm:gap-7">
+        <div id="gameView" class="hidden w-full max-w-lg mx-auto my-auto flex-col items-center gap-3 sm:gap-6">
 
-            <!-- LIVE MULTIPLAYER HUD BAR (Visible when inside a Multiplayer Room) -->
-            <div id="mpLiveHudBar" class="hidden w-full flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2 px-3 py-2 rounded-2xl bg-[#121215]/95 border theme-accent-border text-xs shadow-lg">
-                <div class="flex items-center justify-between sm:justify-start gap-2 shrink-0">
-                    <button onclick="toggleMultiplayerModal(true)" class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg theme-accent-badge border font-mono text-[11px] font-semibold shrink-0 hover:brightness-110 transition-colors" title="Kliknij, aby zobaczyć pokój lub skopiować kod">
-                        <span class="w-1.5 h-1.5 rounded-full theme-accent-bg animate-pulse"></span>
-                        <span id="mpHudRoomCode">POKÓJ</span>
-                    </button>
-                    <span id="mpHudCountMobile" class="sm:hidden text-[10px] font-mono text-zinc-500"></span>
-                </div>
-                <div id="mpHudPlayersList" class="scrollable-touch-area flex flex-wrap items-center justify-start gap-1.5 min-w-0 flex-1 max-h-24 overflow-y-auto py-0.5"></div>
+            <!-- BOXLESS FLOATING MULTIPLAYER AVATAR ORBS (Visible when inside a Multiplayer Room) -->
+            <div id="mpLiveHudBar" class="hidden w-full flex-col items-center gap-1 pb-0.5">
+                <button onclick="toggleMultiplayerModal(true)" class="h-6 px-2.5 rounded-full ui-pill text-[10px] font-mono text-zinc-400 hover:text-zinc-100 inline-flex items-center gap-1.5 transition-colors" title="Pokój Multiplayer — kliknij, aby otworzyć lub skopiować kod">
+                    <span class="w-1.5 h-1.5 rounded-full theme-accent-bg animate-pulse"></span>
+                    <span>POKÓJ <strong id="mpHudRoomCode" class="text-zinc-200">-----</strong></span>
+                    <span id="mpHudCountMobile" class="text-zinc-500"></span>
+                </button>
+                <div id="mpHudPlayersList" class="w-full flex flex-wrap items-end justify-center gap-5 sm:gap-7 pt-5 pb-1 min-h-[78px]"></div>
             </div>
 
             <!-- Open Player Stage -->
@@ -1140,7 +1192,7 @@
                         <span id="centerModeLabel" class="text-zinc-300 font-medium">Próba 1 z 6</span>
                         <span class="text-zinc-700">·</span>
                         <span id="stageLimitBigBadge" class="font-semibold theme-accent-text">1.5s</span>
-                        <span id="offsetActiveBadge" class="hidden text-[11px] text-zinc-500" title="Utwór startuje z pominięciem intro">(+0.0s)</span>
+                        <span id="offsetActiveBadge" class="hidden text-[11px] text-zinc-500" title="Utwór startuje z pominiciem intro">(+0.0s)</span>
                     </div>
 
                     <!-- Subtle Hint Pill (Revealed when user clicks the Audio Visualizer) -->
@@ -1273,7 +1325,31 @@
 
                 <!-- 4. BOXLESS, CENTERED POST-ROUND SONG REVEAL -->
                 <div id="roundResultCard" class="hidden w-full flex-col items-center text-center pt-1 space-y-4 sm:space-y-5">
-                    <div class="inline-flex flex-wrap items-center justify-center gap-2">
+
+                    <!-- Prominent Animated Multiplayer Winner Spotlight -->
+                    <div id="mpWinnerSpotlight" class="hidden w-full max-w-sm mx-auto rounded-2xl p-3 sm:p-3.5 border items-center justify-between gap-3 text-left">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <div class="relative shrink-0">
+                                <div id="mpWinnerAvatarHalo" class="absolute inset-0 rounded-full bg-emerald-400/35 mp-winner-halo"></div>
+                                <img id="mpWinnerAvatarImg" src="" alt="" referrerpolicy="no-referrer" class="hidden relative w-11 h-11 rounded-full object-cover border-2 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.5)]" />
+                                <div id="mpWinnerAvatarFallback" class="relative w-11 h-11 rounded-full bg-emerald-950 border-2 border-emerald-400 flex items-center justify-center text-sm font-bold text-emerald-300 shadow-[0_0_20px_rgba(16,185,129,0.5)]">G</div>
+                                <div class="absolute -top-3.5 left-1/2 text-amber-400 drop-shadow-[0_2px_6px_rgba(251,191,36,0.85)] mp-crown-bob">
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="min-w-0">
+                                <div id="mpWinnerKicker" class="text-[10px] font-mono uppercase tracking-wider text-emerald-400 font-semibold">Zwycięzca rundy</div>
+                                <div id="mpWinnerNameText" class="text-sm sm:text-base font-bold text-white truncate">Gracz</div>
+                            </div>
+                        </div>
+                        <div id="mpWinnerPointsChip" class="px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/45 text-emerald-300 font-mono font-bold text-xs shrink-0 shadow-[0_0_16px_rgba(16,185,129,0.25)]">
+                            +100 pkt
+                        </div>
+                    </div>
+
+                    <div id="resultStatusRow" class="inline-flex flex-wrap items-center justify-center gap-2">
                         <span id="resultStatusBadge" class="px-3 py-0.5 rounded-full text-[11px] font-mono font-semibold uppercase tracking-wide">
                             ODGADNIĘTO
                         </span>
@@ -1297,9 +1373,6 @@
                         <p id="resultArtistRow" class="text-sm sm:text-base font-medium text-zinc-400 truncate">
                             Wykonawca
                         </p>
-
-                        <!-- Subtle Community Song Stat ("Łechtanie ego") -->
-                        <p id="resultSocialStatRow" class="hidden text-[11px] sm:text-xs font-mono text-emerald-400/90 pt-1 leading-snug"></p>
 
                         <div id="resultFilenameViewport" class="marquee-viewport pt-0.5">
                             <p id="resultRawFilename" class="marquee-track text-[11px] text-zinc-600 font-mono">
@@ -2101,7 +2174,6 @@
         const SAVED_PLAYLISTS_STORAGE_KEY = 'kluzek_saved_playlists_v1';
         const RECENT_PLAYED_STORAGE_KEY = 'kluzek_recent_played_v1';
         const SCORED_SONGS_STORAGE_KEY = 'kluzek_scored_songs_v1';
-        const SONG_COMMUNITY_CACHE_KEY = 'kluzek_song_community_stats_v1';
         const IDB_NAME = 'kluzek_music_quiz_idb_v1';
         const IDB_VERSION = 1;
 
@@ -2142,8 +2214,6 @@
         let hasActiveGameSession = false;
         let lastRoundFinishedAtMs = 0;
         let currentHintLevel = 0;
-
-        let communitySongStatsCache = {};
 
         // Multiplayer Real-Time State
         const mpState = {
@@ -2355,130 +2425,6 @@
                 showFloatingFeedbackPill('Odkryto wszystkie 3 podpowiedzi', 'neutral');
             }
             invalidateLayoutRectCache();
-        }
-
-        // ==================== SOCIAL COMMUNITY SONG STATS ("ŁECHTANIE EGO") ====================
-        function loadCommunitySongStatsCache() {
-            try {
-                const raw = localStorage.getItem(SONG_COMMUNITY_CACHE_KEY);
-                if (raw) {
-                    const parsed = JSON.parse(raw);
-                    if (parsed && typeof parsed === 'object') {
-                        communitySongStatsCache = parsed;
-                    }
-                }
-            } catch (e) {
-                communitySongStatsCache = {};
-            }
-        }
-
-        function saveCommunitySongStatsCache() {
-            try {
-                const entries = Object.entries(communitySongStatsCache);
-                const trimmed = entries.length > 400 ? Object.fromEntries(entries.slice(-400)) : communitySongStatsCache;
-                localStorage.setItem(SONG_COMMUNITY_CACHE_KEY, JSON.stringify(trimmed));
-            } catch (e) {}
-        }
-
-        function getSongCommunityDocId(song) {
-            if (!song) return '';
-            if (song.youtubeId && !song.wasTitleSubstitutedByBackup) {
-                return `yt_${song.youtubeId}`;
-            }
-            const canon = getCanonicalSongKey(song.cleanTitle || song.rawFileName);
-            return canon ? `k_${canon.slice(0, 60)}` : `id_${song.id}`;
-        }
-
-        function computeDeterministicSongBaseline(docId) {
-            let hash = 2166136261;
-            const str = String(docId || 'kluzek');
-            for (let i = 0; i < str.length; i++) {
-                hash ^= str.charCodeAt(i);
-                hash = Math.imul(hash, 16777619);
-            }
-            const uHash = hash >>> 0;
-
-            const s0 = 3 + (uHash % 5);
-            const s1 = 4 + ((uHash >>> 3) % 6);
-            const s2 = 6 + ((uHash >>> 6) % 6);
-            const s3 = 6 + ((uHash >>> 9) % 5);
-            const s4 = 4 + ((uHash >>> 12) % 5);
-            const s5 = 3 + ((uHash >>> 15) % 4);
-            const fails = 6 + ((uHash >>> 18) % 8);
-            const plays = s0 + s1 + s2 + s3 + s4 + s5 + fails;
-
-            return { plays, s0, s1, s2, s3, s4, s5, fails };
-        }
-
-        function buildSocialEgoMessageForSong(song, won, attemptIdx) {
-            const docId = getSongCommunityDocId(song);
-            const base = computeDeterministicSongBaseline(docId);
-            const real = communitySongStatsCache[docId] || { plays: 0, s0: 0, s1: 0, s2: 0, s3: 0, s4: 0, s5: 0, fails: 0 };
-
-            const curAdd = {
-                s0: (won && attemptIdx === 0) ? 1 : 0,
-                s1: (won && attemptIdx === 1) ? 1 : 0,
-                s2: (won && attemptIdx === 2) ? 1 : 0,
-                s3: (won && attemptIdx === 3) ? 1 : 0,
-                s4: (won && attemptIdx === 4) ? 1 : 0,
-                s5: (won && attemptIdx === 5) ? 1 : 0,
-                fails: (!won) ? 1 : 0
-            };
-
-            const s0 = base.s0 + (real.s0 || 0) + curAdd.s0;
-            const s1 = base.s1 + (real.s1 || 0) + curAdd.s1;
-            const s2 = base.s2 + (real.s2 || 0) + curAdd.s2;
-            const s3 = base.s3 + (real.s3 || 0) + curAdd.s3;
-            const s4 = base.s4 + (real.s4 || 0) + curAdd.s4;
-            const s5 = base.s5 + (real.s5 || 0) + curAdd.s5;
-            const fails = base.fails + (real.fails || 0) + curAdd.fails;
-            const total = Math.max(1, s0 + s1 + s2 + s3 + s4 + s5 + fails);
-
-            const s0Pct = Math.max(2, Math.min(35, Math.round((s0 / total) * 100)));
-            const s01Pct = Math.max(s0Pct + 4, Math.min(55, Math.round(((s0 + s1) / total) * 100)));
-            const failPct = Math.max(8, Math.min(68, Math.round((fails / total) * 100)));
-
-            const slowerCounts = [
-                s1 + s2 + s3 + s4 + s5 + fails,
-                s2 + s3 + s4 + s5 + fails,
-                s3 + s4 + s5 + fails,
-                s4 + s5 + fails,
-                s5 + fails,
-                fails
-            ];
-            const fasterThanPct = Math.max(12, Math.min(98, Math.round(((slowerCounts[attemptIdx] || fails) / total) * 100)));
-
-            if (won) {
-                if (attemptIdx === 0) {
-                    const topPct = Math.max(1, Math.min(12, Math.round(s0Pct * 0.45)));
-                    return {
-                        text: `Tylko ${s0Pct}% graczy trafia to w 1.5s! Jesteś w top ${topPct}%!`,
-                        toneClass: 'text-emerald-400/95'
-                    };
-                }
-                if (attemptIdx === 1) {
-                    const topPct = Math.max(4, Math.min(22, Math.round(s01Pct * 0.52)));
-                    return {
-                        text: `Tylko ${s01Pct}% graczy odgaduje to do 3s! Jesteś w top ${topPct}%!`,
-                        toneClass: 'text-emerald-400/90'
-                    };
-                }
-                if (attemptIdx === 2 || attemptIdx === 3) {
-                    return {
-                        text: `Odgadnięte szybciej niż ${fasterThanPct}% graczy · Większość potrzebuje dłuższej próbki`,
-                        toneClass: 'text-zinc-300'
-                    };
-                }
-                return {
-                    text: `Uratowane w końcówce! ${failPct}% graczy całkowicie poległo na tym utworze`,
-                    toneClass: 'text-zinc-400'
-                };
-            } else {
-                return {
-                    text: `Trudny numer — aż ${failPct}% graczy też na nim poległo (w 1.5s trafia tylko ${s0Pct}%)`,
-                    toneClass: 'text-zinc-400'
-                };
-            }
         }
 
         // ==================== ANTI-FARMING & RANKED ELIGIBILITY GUARD ====================
@@ -2767,6 +2713,9 @@
 
         function onGuessInputBlur() {
             isGuessInputFocused = false;
+            if (typeof window.__notifyMpTypingState === 'function') {
+                window.__notifyMpTypingState(false);
+            }
             if (blurExitTimer) clearTimeout(blurExitTimer);
             blurExitTimer = setTimeout(() => {
                 blurExitTimer = null;
@@ -7237,7 +7186,7 @@
             if (hasOnlyDemo && savedDirectoryHandle) {
                 btnEl.classList.remove('hidden');
                 btnEl.classList.add('inline-flex');
-                titleEl.textContent = `Wznów folder (${savedDirectoryHandle.name || 'Muzyka'})`;
+                titleEl.textContent = `Wznów (${savedDirectoryHandle.name || 'Muzyka'})`;
             } else if (!hasOnlyDemo && songsLibrary.length > 0) {
                 btnEl.classList.remove('hidden');
                 btnEl.classList.add('inline-flex');
@@ -10449,10 +10398,10 @@
                 hintBanner.classList.add('hidden');
                 hintBanner.classList.remove('inline-flex');
             }
-            const socialStatRow = document.getElementById('resultSocialStatRow');
-            if (socialStatRow) {
-                socialStatRow.textContent = '';
-                socialStatRow.classList.add('hidden');
+            const winnerSpot = document.getElementById('mpWinnerSpotlight');
+            if (winnerSpot) {
+                winnerSpot.classList.add('hidden');
+                winnerSpot.classList.remove('flex', 'mp-winner-banner-pop');
             }
             const nextBtnLabel = document.getElementById('nextSongMainBtnLabel');
             if (nextBtnLabel) nextBtnLabel.textContent = 'Następny utwór';
@@ -10469,6 +10418,8 @@
             resultCard.classList.remove('flex', 'reveal-enter');
             const ptsBadge = document.getElementById('resultPointsBadge');
             if (ptsBadge) ptsBadge.classList.add('hidden');
+            const resStatusRow = document.getElementById('resultStatusRow');
+            if (resStatusRow) resStatusRow.classList.remove('hidden');
             document.getElementById('guessingControlsArea').classList.remove('hidden');
 
             updateSliderFillProgress(document.getElementById('fullTrackSeekSlider'), 0);
@@ -10521,10 +10472,6 @@
 
                 if (!pickedSong || myRoundToken !== currentRoundToken) return;
                 currentSong = pickedSong;
-
-                if (typeof window.__prefetchSongCommunityStats === 'function') {
-                    window.__prefetchSongCommunityStats(currentSong);
-                }
 
                 const offsetBadge = document.getElementById('offsetActiveBadge');
                 if (currentSong.startOffset && currentSong.startOffset > 0) {
@@ -11373,6 +11320,10 @@
             if (rawQuery.length > 0) clearBtn.classList.remove('hidden');
             else clearBtn.classList.add('hidden');
 
+            if (typeof window.__notifyMpTypingState === 'function') {
+                window.__notifyMpTypingState(rawQuery.trim().length > 0);
+            }
+
             updateGuessOrSkipButtonUI();
 
             filteredSuggestions = computeDeduplicatedSuggestions(rawQuery);
@@ -11524,6 +11475,9 @@
             highlightedSuggestionIndex = -1;
             document.getElementById('clearInputBtn').classList.add('hidden');
             document.getElementById('autocompleteDropdown').classList.add('hidden');
+            if (typeof window.__notifyMpTypingState === 'function') {
+                window.__notifyMpTypingState(false);
+            }
             updateGuessOrSkipButtonUI();
             if (shouldFocus && currentView === 'game' && !roundOver) {
                 input.focus();
@@ -11563,6 +11517,10 @@
             if (!rawGuess) {
                 skipAttempt();
                 return;
+            }
+
+            if (typeof window.__notifyMpTypingState === 'function') {
+                window.__notifyMpTypingState(false);
             }
 
             const playerCard = document.getElementById('mainPlayerCard');
@@ -11857,20 +11815,34 @@
             }
 
             if (won) {
-                setOutcomeScreenEffect('win', true);
                 if (mpRoundOverride && mpRoundOverride.winnerName) {
-                    showFloatingFeedbackPill(
-                        iWonInMp ? `Trafiłeś jako pierwszy!` : `Trafił: ${mpRoundOverride.winnerName}`,
-                        'emerald',
-                        `${currentSong.cleanTitle} (+${mpRoundOverride.winnerPoints || STAGE_BASE_POINTS[currentAttemptIndex] || 15} pkt)`
-                    );
-                } else if (rankCheck.eligible) {
-                    if (wasFuzzyAI) {
-                        showFloatingFeedbackPill('Rozpoznano tytuł!', 'emerald', `${currentSong.cleanTitle} (+${earnedPoints} pkt)`);
-                    } else if (stats.streak > 0 && stats.streak % 3 === 0) {
-                        showFloatingFeedbackPill(`Seria ${stats.streak} z rzędu!`, 'emerald', `+${earnedPoints} pkt`);
-                    } else if (currentAttemptIndex === 0) {
-                        showFloatingFeedbackPill(`Trafienie w 1.5s! +${earnedPoints} pkt`, 'emerald');
+                    if (iWonInMp) {
+                        setOutcomeScreenEffect('win', true);
+                        showFloatingFeedbackPill(
+                            'Trafiłeś jako pierwszy!',
+                            'emerald',
+                            `${currentSong.cleanTitle} (+${mpRoundOverride.winnerPoints || STAGE_BASE_POINTS[currentAttemptIndex] || 15} pkt)`
+                        );
+                    } else {
+                        // Friend won: don't flash personal green win edge, play soft reveal chime & highlight winner spotlight
+                        setOutcomeScreenEffect('none', false);
+                        playOutcomeSound(true, 1);
+                        showFloatingFeedbackPill(
+                            `Wygrał(a): ${mpRoundOverride.winnerName}`,
+                            'amber',
+                            `${currentSong.cleanTitle} (+${mpRoundOverride.winnerPoints || STAGE_BASE_POINTS[currentAttemptIndex] || 15} pkt)`
+                        );
+                    }
+                } else {
+                    setOutcomeScreenEffect('win', true);
+                    if (rankCheck.eligible) {
+                        if (wasFuzzyAI) {
+                            showFloatingFeedbackPill('Rozpoznano tytuł!', 'emerald', `${currentSong.cleanTitle} (+${earnedPoints} pkt)`);
+                        } else if (stats.streak > 0 && stats.streak % 3 === 0) {
+                            showFloatingFeedbackPill(`Seria ${stats.streak} z rzędu!`, 'emerald', `+${earnedPoints} pkt`);
+                        } else if (currentAttemptIndex === 0) {
+                            showFloatingFeedbackPill(`Trafienie w 1.5s! +${earnedPoints} pkt`, 'emerald');
+                        }
                     }
                 }
             } else {
@@ -11881,11 +11853,12 @@
 
             document.getElementById('guessingControlsArea').classList.add('hidden');
             const resultCard = document.getElementById('roundResultCard');
+            const statusRow = document.getElementById('resultStatusRow');
             const statusBadge = document.getElementById('resultStatusBadge');
             const pointsBadge = document.getElementById('resultPointsBadge');
             const flavorSub = document.getElementById('resultFlavorSubtitle');
             const nextBtn = document.getElementById('nextSongMainBtn');
-            const socialStatRow = document.getElementById('resultSocialStatRow');
+            const winnerSpot = document.getElementById('mpWinnerSpotlight');
 
             resultCard.classList.remove('hidden', 'reveal-enter');
             resultCard.classList.add('flex');
@@ -11896,14 +11869,68 @@
             document.getElementById('resultSongTitle').textContent = parsed.title;
             document.getElementById('resultArtistRow').textContent = parsed.artist;
 
-            if (socialStatRow && currentSong) {
-                const socialInfo = buildSocialEgoMessageForSong(currentSong, won, currentAttemptIndex);
-                socialStatRow.className = `text-[11px] sm:text-xs font-mono ${socialInfo.toneClass} pt-1 leading-snug`;
-                socialStatRow.textContent = socialInfo.text;
-                socialStatRow.classList.remove('hidden');
-            }
-            if (typeof window.__recordSongCommunityOutcome === 'function' && currentSong && !currentSong.isDemo && (!mpRoundOverride || iWonInMp)) {
-                window.__recordSongCommunityOutcome(currentSong, won, currentAttemptIndex);
+            // Prominent Animated Winner Spotlight in Multiplayer
+            if (winnerSpot) {
+                if (won && mpRoundOverride && mpRoundOverride.winnerName) {
+                    const wUid = mpRoundOverride.winnerUid;
+                    const wPlayer = mpState.roomData?.players?.[wUid] || {};
+                    const wName = mpRoundOverride.winnerName;
+                    const wPts = mpRoundOverride.winnerPoints || STAGE_BASE_POINTS[currentAttemptIndex] || 15;
+                    const stageDur = ATTEMPT_DURATIONS[currentAttemptIndex];
+                    const stageTimeText = isFinite(stageDur) ? `${stageDur % 1 === 0 ? stageDur.toFixed(0) : stageDur.toFixed(1)}s` : 'MAX';
+
+                    const wImg = document.getElementById('mpWinnerAvatarImg');
+                    const wFallback = document.getElementById('mpWinnerAvatarFallback');
+                    const wHalo = document.getElementById('mpWinnerAvatarHalo');
+                    const wKicker = document.getElementById('mpWinnerKicker');
+                    const wNameText = document.getElementById('mpWinnerNameText');
+                    const wPtsChip = document.getElementById('mpWinnerPointsChip');
+
+                    if (wPlayer.photoURL && wImg) {
+                        wImg.src = wPlayer.photoURL;
+                        wImg.classList.remove('hidden');
+                        if (wFallback) wFallback.classList.add('hidden');
+                    } else if (wFallback) {
+                        wFallback.textContent = (wName || 'G').charAt(0).toUpperCase();
+                        wFallback.classList.remove('hidden');
+                        if (wImg) wImg.classList.add('hidden');
+                    }
+
+                    if (iWonInMp) {
+                        winnerSpot.className = 'w-full max-w-sm mx-auto rounded-2xl p-3 sm:p-3.5 border border-emerald-400/50 bg-emerald-950/35 shadow-[0_0_32px_rgba(16,185,129,0.22)] flex items-center justify-between gap-3 text-left mp-winner-banner-pop';
+                        if (wHalo) wHalo.className = 'absolute inset-0 rounded-full bg-emerald-400/35 mp-winner-halo';
+                        if (wImg) wImg.className = 'relative w-11 h-11 rounded-full object-cover border-2 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.5)]';
+                        if (wFallback) wFallback.className = 'relative w-11 h-11 rounded-full bg-emerald-950 border-2 border-emerald-400 flex items-center justify-center text-sm font-bold text-emerald-300 shadow-[0_0_20px_rgba(16,185,129,0.5)]';
+                        if (wKicker) {
+                            wKicker.className = 'text-[10px] font-mono uppercase tracking-wider text-emerald-400 font-semibold';
+                            wKicker.textContent = `Trafiłeś jako pierwszy · ${stageTimeText}`;
+                        }
+                        if (wNameText) wNameText.textContent = wName;
+                        if (wPtsChip) {
+                            wPtsChip.className = 'px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/45 text-emerald-300 font-mono font-bold text-xs shrink-0 shadow-[0_0_16px_rgba(16,185,129,0.25)]';
+                            wPtsChip.textContent = `+${wPts} pkt`;
+                        }
+                    } else {
+                        winnerSpot.className = 'w-full max-w-sm mx-auto rounded-2xl p-3 sm:p-3.5 border border-amber-400/45 bg-amber-950/20 shadow-[0_0_32px_rgba(251,191,36,0.16)] flex items-center justify-between gap-3 text-left mp-winner-banner-pop';
+                        if (wHalo) wHalo.className = 'absolute inset-0 rounded-full bg-amber-400/30 mp-winner-halo';
+                        if (wImg) wImg.className = 'relative w-11 h-11 rounded-full object-cover border-2 border-amber-400 shadow-[0_0_20px_rgba(251,191,36,0.45)]';
+                        if (wFallback) wFallback.className = 'relative w-11 h-11 rounded-full bg-amber-950 border-2 border-amber-400 flex items-center justify-center text-sm font-bold text-amber-300 shadow-[0_0_20px_rgba(251,191,36,0.45)]';
+                        if (wKicker) {
+                            wKicker.className = 'text-[10px] font-mono uppercase tracking-wider text-amber-400 font-semibold';
+                            wKicker.textContent = `Najszybszy w pokoju · ${stageTimeText}`;
+                        }
+                        if (wNameText) wNameText.textContent = `Wygrał(a): ${wName}`;
+                        if (wPtsChip) {
+                            wPtsChip.className = 'px-3 py-1 rounded-full bg-amber-500/20 border border-amber-400/45 text-amber-300 font-mono font-bold text-xs shrink-0 shadow-[0_0_16px_rgba(251,191,36,0.2)]';
+                            wPtsChip.textContent = `+${wPts} pkt`;
+                        }
+                    }
+                    if (statusRow) statusRow.classList.add('hidden');
+                } else {
+                    winnerSpot.classList.add('hidden');
+                    winnerSpot.classList.remove('flex', 'mp-winner-banner-pop');
+                    if (statusRow) statusRow.classList.remove('hidden');
+                }
             }
 
             if (won) {
@@ -11936,7 +11963,7 @@
                 const flavorText = LOSE_FLAVOR_MESSAGES[Math.floor(Math.random() * LOSE_FLAVOR_MESSAGES.length)];
 
                 statusBadge.className = 'px-3 py-0.5 rounded-full text-[11px] font-mono font-semibold uppercase tracking-wide bg-red-500/15 text-red-400 border border-red-500/30';
-                statusBadge.textContent = 'NIE ODGADNIĘTO';
+                statusBadge.textContent = mpState.active ? 'NIKT NIE ODGADŁ' : 'NIE ODGADNIĘTO';
                 if (pointsBadge) pointsBadge.classList.add('hidden');
                 flavorSub.textContent = flavorText;
 
@@ -12004,7 +12031,16 @@
                 window.scrollTo(0, 0);
                 updateMobileVisualViewportDocking();
                 if (roundOver) {
-                    setOutcomeScreenEffect(roundWon ? 'win' : 'lose', false);
+                    const myUid = typeof window.__getCurrentUserUid === 'function' ? window.__getCurrentUserUid() : null;
+                    const mpWinnerUid = mpState.active ? mpState.roomData?.currentRound?.winnerUid : null;
+                    const showPersonalWinGlow = !mpState.active || !mpWinnerUid || mpWinnerUid === myUid;
+                    if (roundWon && showPersonalWinGlow) {
+                        setOutcomeScreenEffect('win', false);
+                    } else if (!roundWon) {
+                        setOutcomeScreenEffect('lose', false);
+                    } else {
+                        setOutcomeScreenEffect('none', false);
+                    }
                 }
                 gameView.classList.remove('hidden');
                 gameView.classList.add('flex');
@@ -12333,6 +12369,11 @@
                 hintBanner.classList.add('hidden');
                 hintBanner.classList.remove('inline-flex');
             }
+            const winnerSpot = document.getElementById('mpWinnerSpotlight');
+            if (winnerSpot) {
+                winnerSpot.classList.add('hidden');
+                winnerSpot.classList.remove('flex', 'mp-winner-banner-pop');
+            }
 
             await switchView('game');
 
@@ -12454,6 +12495,13 @@
                 cache: {}
             };
 
+            // Keyed Floating Orb Cache & Clock-Skew-Safe Event Tracking
+            const mpOrbCache = new Map();
+            const mpEventArrivalMap = new Map();
+            let mpOrbRefreshTimer = null;
+            let lastTypingSentMs = 0;
+            let lastTypingValueSent = false;
+
             window.__isFirebaseUserLoggedIn = () => Boolean(currentUser);
             window.__getCurrentUserUid = () => currentUser ? currentUser.uid : null;
             window.__invalidateLeaderboardCache = () => {
@@ -12521,6 +12569,269 @@
                 return null;
             }
 
+            window.__notifyMpTypingState = function (isTypingNow) {
+                if (!mpState.active || !mpState.roomCode || !currentUser) return;
+                if (roundOver && isTypingNow) return;
+                const nowMs = Date.now();
+                if (isTypingNow) {
+                    if (lastTypingValueSent && (nowMs - lastTypingSentMs < 2200)) return;
+                    lastTypingSentMs = nowMs;
+                    lastTypingValueSent = true;
+                    safeMpRoomWrite(mpState.roomCode, { typing: { [currentUser.uid]: nowMs } }, true);
+                } else {
+                    if (!lastTypingValueSent) return;
+                    lastTypingValueSent = false;
+                    lastTypingSentMs = 0;
+                    safeMpRoomWrite(mpState.roomCode, { typing: { [currentUser.uid]: 0 } }, true);
+                }
+            };
+
+            function getLocalArrivalTimeForEvent(eventKey) {
+                if (!mpEventArrivalMap.has(eventKey)) {
+                    mpEventArrivalMap.set(eventKey, performance.now());
+                    if (mpEventArrivalMap.size > 160) {
+                        const oldestKey = mpEventArrivalMap.keys().next().value;
+                        if (oldestKey) mpEventArrivalMap.delete(oldestKey);
+                    }
+                }
+                return mpEventArrivalMap.get(eventKey);
+            }
+
+            function renderMpFloatingOrbs(roomData, steadyPlayers, hudPlayersContainer) {
+                if (!hudPlayersContainer) return;
+
+                if (mpOrbRefreshTimer) {
+                    clearTimeout(mpOrbRefreshTimer);
+                    mpOrbRefreshTimer = null;
+                }
+
+                const curRound = roomData.currentRound || null;
+                const stageVotes = curRound?.stageVotes || [];
+                const nextVotes = curRound?.nextVotes || [];
+                const guesses = curRound?.guesses || [];
+                const typingMap = roomData.typing || {};
+                const isRoundPlaying = Boolean(curRound && curRound.status === 'playing');
+                const isRoundWon = Boolean(curRound && curRound.status === 'won');
+                const isRoundEnded = Boolean(curRound && (curRound.status === 'won' || curRound.status === 'failed'));
+
+                let topScore = 0;
+                for (const p of steadyPlayers) {
+                    if ((p.score || 0) > topScore) topScore = p.score || 0;
+                }
+
+                const activeUids = new Set(steadyPlayers.map(p => p.uid));
+                for (const [cachedUid, entry] of mpOrbCache.entries()) {
+                    if (!activeUids.has(cachedUid)) {
+                        if (entry.el && entry.el.parentNode) entry.el.remove();
+                        mpOrbCache.delete(cachedUid);
+                    }
+                }
+
+                const nowPerf = performance.now();
+                let earliestExpireMs = Infinity;
+
+                steadyPlayers.forEach((p, idx) => {
+                    let orbEntry = mpOrbCache.get(p.uid);
+                    if (!orbEntry) {
+                        const el = document.createElement('div');
+                        el.setAttribute('data-mp-uid', p.uid);
+                        const dur = (3.7 + (idx % 4) * 0.45).toFixed(2);
+                        const delay = -(idx * 1.15).toFixed(2);
+                        el.className = 'mp-orb-float relative flex flex-col items-center gap-1 select-none transition-all duration-300';
+                        el.style.setProperty('--orb-dur', `${dur}s`);
+                        el.style.setProperty('--orb-delay', `${delay}s`);
+
+                        el.innerHTML = `
+                            <div class="orb-top-bubble absolute -top-5 left-1/2 -translate-x-1/2 z-20 pointer-events-none whitespace-nowrap"></div>
+                            <div class="orb-circle-wrap relative transition-transform duration-300">
+                                <div class="orb-halo hidden absolute inset-0 rounded-full mp-winner-halo pointer-events-none"></div>
+                                <div class="orb-avatar-ring relative w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 border-zinc-700/80 bg-[#18181c] transition-all duration-300 flex items-center justify-center">
+                                    <img class="orb-img hidden w-full h-full object-cover" src="" alt="" referrerpolicy="no-referrer" />
+                                    <span class="orb-initial text-xs font-bold text-zinc-200"></span>
+                                </div>
+                                <div class="orb-rim-badge hidden absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full items-center justify-center border border-[#09090b] shadow-md z-10"></div>
+                                <div class="orb-score-pill absolute -bottom-1.5 left-1/2 -translate-x-1/2 px-1.5 py-[1px] rounded-full bg-[#09090b]/95 border border-zinc-800 text-[10px] font-mono font-semibold text-zinc-200 whitespace-nowrap shadow-md z-10">0</div>
+                            </div>
+                            <div class="orb-name-row pt-1 flex items-center justify-center gap-1 max-w-[78px]">
+                                <span class="orb-leader-dot hidden w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0" title="Lider pokoju"></span>
+                                <span class="orb-name text-[11px] font-medium truncate text-zinc-300"></span>
+                            </div>
+                        `;
+
+                        orbEntry = {
+                            el,
+                            topBubble: el.querySelector('.orb-top-bubble'),
+                            circleWrap: el.querySelector('.orb-circle-wrap'),
+                            halo: el.querySelector('.orb-halo'),
+                            avatarRing: el.querySelector('.orb-avatar-ring'),
+                            img: el.querySelector('.orb-img'),
+                            initial: el.querySelector('.orb-initial'),
+                            rimBadge: el.querySelector('.orb-rim-badge'),
+                            scorePill: el.querySelector('.orb-score-pill'),
+                            leaderDot: el.querySelector('.orb-leader-dot'),
+                            nameText: el.querySelector('.orb-name'),
+                            lastWrongGuessTs: 0
+                        };
+                        mpOrbCache.set(p.uid, orbEntry);
+                    }
+
+                    if (hudPlayersContainer.children[idx] !== orbEntry.el) {
+                        hudPlayersContainer.appendChild(orbEntry.el);
+                    }
+
+                    const isMe = Boolean(currentUser && p.uid === currentUser.uid);
+                    const isLeader = topScore > 0 && (p.score || 0) === topScore;
+                    const isRoundWinner = Boolean(isRoundWon && curRound.winnerUid === p.uid);
+                    const votedSkip = Boolean(isRoundPlaying && stageVotes.includes(p.uid));
+                    const votedNext = Boolean(isRoundEnded && nextVotes.includes(p.uid));
+
+                    // Typing indicator (clock-skew safe)
+                    let isTyping = false;
+                    const remoteTypingTs = typingMap[p.uid] || 0;
+                    const roundStartGuard = curRound?.startedAt || 0;
+                    if (isRoundPlaying && remoteTypingTs > 0 && remoteTypingTs >= roundStartGuard) {
+                        const tKey = `typing_${curRound.roundId}_${p.uid}_${remoteTypingTs}`;
+                        const tElapsed = nowPerf - getLocalArrivalTimeForEvent(tKey);
+                        if (tElapsed < 4200) {
+                            isTyping = true;
+                            earliestExpireMs = Math.min(earliestExpireMs, 4250 - tElapsed);
+                        }
+                    }
+
+                    // Latest non-skip guess by this player on current stage (clock-skew safe)
+                    let recentGuess = null;
+                    if (isRoundPlaying && guesses.length > 0) {
+                        for (let gIdx = guesses.length - 1; gIdx >= 0; gIdx--) {
+                            const g = guesses[gIdx];
+                            if (g.uid === p.uid && g.type !== 'skip' && g.stage === (curRound.stageIndex || 0)) {
+                                const gKey = `guess_${curRound.roundId}_${p.uid}_${g.ts}`;
+                                const gElapsed = nowPerf - getLocalArrivalTimeForEvent(gKey);
+                                if (gElapsed < 4000) {
+                                    recentGuess = g;
+                                    earliestExpireMs = Math.min(earliestExpireMs, 4050 - gElapsed);
+                                }
+                                break;
+                            }
+                        }
+                    }
+
+                    // Avatar & Fallback Initial
+                    if (p.photoURL) {
+                        if (orbEntry.img.getAttribute('src') !== p.photoURL) {
+                            orbEntry.img.src = p.photoURL;
+                        }
+                        orbEntry.img.classList.remove('hidden');
+                        orbEntry.initial.classList.add('hidden');
+                    } else {
+                        orbEntry.img.classList.add('hidden');
+                        orbEntry.initial.classList.remove('hidden');
+                        orbEntry.initial.textContent = (p.name || 'G').charAt(0).toUpperCase();
+                    }
+
+                    // Name & Score
+                    const firstName = (p.name || 'Gracz').split(' ')[0];
+                    orbEntry.nameText.textContent = firstName;
+                    orbEntry.scorePill.textContent = `${p.score || 0}`;
+
+                    if (isLeader && !isRoundWon) {
+                        orbEntry.leaderDot.classList.remove('hidden');
+                    } else {
+                        orbEntry.leaderDot.classList.add('hidden');
+                    }
+
+                    // Trigger shake once for a new wrong guess
+                    if (recentGuess && recentGuess.type === 'wrong' && recentGuess.ts !== orbEntry.lastWrongGuessTs) {
+                        orbEntry.lastWrongGuessTs = recentGuess.ts;
+                        orbEntry.circleWrap.classList.remove('mp-orb-shake');
+                        void orbEntry.circleWrap.offsetWidth;
+                        orbEntry.circleWrap.classList.add('mp-orb-shake');
+                    }
+
+                    // Reset visual classes before applying exact state
+                    orbEntry.topBubble.innerHTML = '';
+                    orbEntry.rimBadge.className = 'orb-rim-badge hidden absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full items-center justify-center border border-[#09090b] shadow-md z-10';
+                    orbEntry.rimBadge.innerHTML = '';
+                    orbEntry.halo.className = 'orb-halo hidden absolute inset-0 rounded-full mp-winner-halo pointer-events-none';
+
+                    if (isRoundWinner) {
+                        const winColorHex = isMe ? 'emerald' : 'amber';
+                        orbEntry.el.style.opacity = '1';
+                        orbEntry.circleWrap.style.transform = 'scale(1.22)';
+                        orbEntry.halo.className = `orb-halo absolute inset-0 rounded-full ${isMe ? 'bg-emerald-400/45' : 'bg-amber-400/40'} mp-winner-halo pointer-events-none`;
+                        orbEntry.avatarRing.className = `orb-avatar-ring relative w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 ${isMe ? 'border-emerald-400 shadow-[0_0_24px_rgba(16,185,129,0.75)]' : 'border-amber-400 shadow-[0_0_24px_rgba(251,191,36,0.7)]'} bg-[#18181c] transition-all duration-300 flex items-center justify-center`;
+                        orbEntry.scorePill.className = `orb-score-pill absolute -bottom-1.5 left-1/2 -translate-x-1/2 px-1.5 py-[1px] rounded-full bg-[#09090b] border ${isMe ? 'border-emerald-400/70 text-emerald-300' : 'border-amber-400/70 text-amber-300'} text-[10px] font-mono font-bold whitespace-nowrap shadow-md z-10`;
+                        orbEntry.nameText.className = `orb-name text-[11px] font-bold truncate ${isMe ? 'text-emerald-300' : 'text-amber-300'}`;
+
+                        const winPts = curRound.winnerPoints || 0;
+                        orbEntry.topBubble.innerHTML = `
+                            <div class="flex flex-col items-center gap-0.5">
+                                <div class="text-amber-400 drop-shadow-[0_2px_8px_rgba(251,191,36,0.9)] mp-crown-bob" style="transform: translateX(0);">
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"/>
+                                    </svg>
+                                </div>
+                                <span class="px-1.5 py-[1px] rounded-full ${isMe ? 'bg-emerald-500 text-zinc-950' : 'bg-amber-400 text-zinc-950'} font-mono font-bold text-[9px] shadow-lg">+${winPts}</span>
+                            </div>
+                        `;
+                    } else if (isRoundWon) {
+                        orbEntry.el.style.opacity = '0.62';
+                        orbEntry.circleWrap.style.transform = 'scale(0.92)';
+                        orbEntry.avatarRing.className = `orb-avatar-ring relative w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 ${votedNext ? 'border-emerald-400/80' : 'border-zinc-800'} bg-[#18181c] transition-all duration-300 flex items-center justify-center`;
+                        orbEntry.scorePill.className = 'orb-score-pill absolute -bottom-1.5 left-1/2 -translate-x-1/2 px-1.5 py-[1px] rounded-full bg-[#09090b]/95 border border-zinc-800 text-[10px] font-mono font-semibold text-zinc-400 whitespace-nowrap shadow-md z-10';
+                        orbEntry.nameText.className = 'orb-name text-[11px] font-medium truncate text-zinc-400';
+
+                        if (votedNext) {
+                            orbEntry.el.style.opacity = '1';
+                            orbEntry.rimBadge.className = 'orb-rim-badge flex absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full items-center justify-center bg-emerald-500 text-zinc-950 border border-[#09090b] shadow-md z-10';
+                            orbEntry.rimBadge.innerHTML = `<svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+                            orbEntry.topBubble.innerHTML = `<span class="px-1.5 py-[1px] rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-[9px] font-mono">Gotowy</span>`;
+                        }
+                    } else {
+                        orbEntry.el.style.opacity = '1';
+                        orbEntry.circleWrap.style.transform = 'scale(1)';
+                        orbEntry.nameText.className = `orb-name text-[11px] truncate ${isMe ? 'text-zinc-100 font-semibold' : 'text-zinc-400 font-medium'}`;
+                        orbEntry.scorePill.className = `orb-score-pill absolute -bottom-1.5 left-1/2 -translate-x-1/2 px-1.5 py-[1px] rounded-full bg-[#09090b]/95 border ${isMe ? 'border-emerald-500/45 text-emerald-300' : 'border-zinc-800 text-zinc-200'} text-[10px] font-mono font-semibold whitespace-nowrap shadow-md z-10`;
+
+                        if (votedNext) {
+                            orbEntry.avatarRing.className = 'orb-avatar-ring relative w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 border-emerald-400/80 shadow-[0_0_12px_rgba(16,185,129,0.3)] bg-[#18181c] transition-all duration-300 flex items-center justify-center';
+                            orbEntry.rimBadge.className = 'orb-rim-badge flex absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full items-center justify-center bg-emerald-500 text-zinc-950 border border-[#09090b] shadow-md z-10';
+                            orbEntry.rimBadge.innerHTML = `<svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+                            orbEntry.topBubble.innerHTML = `<span class="px-1.5 py-[1px] rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-[9px] font-mono">Gotowy</span>`;
+                        } else if (recentGuess && recentGuess.type === 'artist_match') {
+                            orbEntry.avatarRing.className = 'orb-avatar-ring relative w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 border-amber-400/85 shadow-[0_0_14px_rgba(251,191,36,0.35)] bg-[#18181c] transition-all duration-300 flex items-center justify-center';
+                            orbEntry.topBubble.innerHTML = `<span class="px-1.5 py-[1px] rounded-full bg-amber-500/20 border border-amber-400/45 text-amber-300 text-[9px] font-mono">Wykonawca!</span>`;
+                        } else if (recentGuess && recentGuess.type === 'wrong') {
+                            orbEntry.avatarRing.className = 'orb-avatar-ring relative w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 border-red-500/80 shadow-[0_0_12px_rgba(239,68,68,0.3)] bg-[#18181c] transition-all duration-300 flex items-center justify-center';
+                            orbEntry.topBubble.innerHTML = `<span class="px-1.5 py-[1px] rounded-full bg-red-500/20 border border-red-500/40 text-red-300 text-[9px] font-mono">Pudło</span>`;
+                        } else if (isTyping) {
+                            orbEntry.avatarRing.className = `orb-avatar-ring relative w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 ${isMe ? 'border-emerald-400/75' : 'border-zinc-400/75'} bg-[#18181c] transition-all duration-300 flex items-center justify-center`;
+                            orbEntry.topBubble.innerHTML = `
+                                <span class="px-2 py-1 rounded-full bg-[#18181c]/95 border border-zinc-700/80 inline-flex items-center gap-0.5 shadow-md">
+                                    <span class="w-1 h-1 rounded-full bg-zinc-200 mp-typing-dot" style="animation-delay: 0s;"></span>
+                                    <span class="w-1 h-1 rounded-full bg-zinc-200 mp-typing-dot" style="animation-delay: 0.16s;"></span>
+                                    <span class="w-1 h-1 rounded-full bg-zinc-200 mp-typing-dot" style="animation-delay: 0.32s;"></span>
+                                </span>
+                            `;
+                        } else if (votedSkip) {
+                            orbEntry.avatarRing.className = 'orb-avatar-ring relative w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 border-amber-400/75 shadow-[0_0_12px_rgba(251,191,36,0.2)] bg-[#18181c] transition-all duration-300 flex items-center justify-center';
+                            orbEntry.rimBadge.className = 'orb-rim-badge flex absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full items-center justify-center bg-amber-400 text-zinc-950 border border-[#09090b] shadow-md z-10';
+                            orbEntry.rimBadge.innerHTML = `<svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></svg>`;
+                            orbEntry.topBubble.innerHTML = `<span class="px-1.5 py-[1px] rounded-full bg-zinc-900/90 border border-zinc-700 text-zinc-300 text-[9px] font-mono">Pominął</span>`;
+                        } else {
+                            orbEntry.avatarRing.className = `orb-avatar-ring relative w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 ${isMe ? 'border-emerald-500/60 shadow-[0_0_12px_rgba(16,185,129,0.18)]' : 'border-zinc-700/80'} bg-[#18181c] transition-all duration-300 flex items-center justify-center`;
+                        }
+                    }
+                });
+
+                if (isFinite(earliestExpireMs) && earliestExpireMs > 0) {
+                    mpOrbRefreshTimer = setTimeout(() => {
+                        if (mpState.active && mpState.roomData) {
+                            renderMpFloatingOrbs(mpState.roomData, steadyPlayers, hudPlayersContainer);
+                        }
+                    }, Math.min(4600, Math.max(80, Math.ceil(earliestExpireMs))));
+                }
+            }
+
             function renderMpModalAndHud() {
                 const needLoginEl = document.getElementById('mpNeedLoginView');
                 const createJoinEl = document.getElementById('mpCreateOrJoinView');
@@ -12558,6 +12869,7 @@
                     if (createJoinEl) { createJoinEl.classList.remove('hidden'); createJoinEl.classList.add('flex'); }
                     if (activeRoomEl) { activeRoomEl.classList.add('hidden'); activeRoomEl.classList.remove('flex'); }
                     if (hudBar) { hudBar.classList.add('hidden'); hudBar.classList.remove('flex'); }
+                    mpOrbCache.clear();
                     return;
                 }
 
@@ -12566,7 +12878,8 @@
 
                 const roomData = mpState.roomData || {};
                 const playersMap = roomData.players || {};
-                const playerList = Object.values(playersMap).sort((a, b) => (b.score || 0) - (a.score || 0) || (a.joinedAt || 0) - (b.joinedAt || 0));
+                const modalSortedPlayers = Object.values(playersMap).sort((a, b) => (b.score || 0) - (a.score || 0) || (a.joinedAt || 0) - (b.joinedAt || 0));
+                const steadyOrbPlayers = Object.values(playersMap).sort((a, b) => (a.joinedAt || 0) - (b.joinedAt || 0));
 
                 const codeEl = document.getElementById('mpModalRoomCode');
                 const countEl = document.getElementById('mpModalPlayerCount');
@@ -12576,12 +12889,12 @@
                 const guestHint = document.getElementById('mpGuestWaitHint');
 
                 if (codeEl) codeEl.textContent = mpState.roomCode;
-                if (countEl) countEl.textContent = playerList.length;
+                if (countEl) countEl.textContent = modalSortedPlayers.length;
                 if (plBadgeEl) plBadgeEl.textContent = roomData.playlistTitle || 'Bazowa Playlista';
 
                 if (listEl) {
                     listEl.innerHTML = '';
-                    playerList.forEach(p => {
+                    modalSortedPlayers.forEach(p => {
                         const isHostPlayer = p.uid === roomData.hostUid;
                         const isMe = currentUser && p.uid === currentUser.uid;
                         const row = document.createElement('div');
@@ -12618,7 +12931,7 @@
                     }
                 }
 
-                // Live HUD Bar in Game View (All players always visible in order 1..N, zero emojis)
+                // Boxless Floating Avatar Orbs Stage
                 if (hudBar) {
                     hudBar.classList.remove('hidden');
                     hudBar.classList.add('flex');
@@ -12627,53 +12940,17 @@
                     const hudPlayers = document.getElementById('mpHudPlayersList');
                     if (hudCode) hudCode.textContent = mpState.roomCode;
                     if (hudCountMobile) {
-                        hudCountMobile.textContent = `${playerList.length} ${playerList.length === 1 ? 'gracz' : 'graczy'}`;
+                        hudCountMobile.textContent = `· ${steadyOrbPlayers.length} ${steadyOrbPlayers.length === 1 ? 'gracz' : 'graczy'}`;
                     }
-
                     if (hudPlayers) {
-                        hudPlayers.innerHTML = '';
-                        const curRound = roomData.currentRound || null;
-                        const stageVotes = curRound?.stageVotes || [];
-                        const nextVotes = curRound?.nextVotes || [];
-
-                        playerList.forEach((p, idx) => {
-                            const isMe = currentUser && p.uid === currentUser.uid;
-                            const votedSkip = curRound && curRound.status === 'playing' && stageVotes.includes(p.uid);
-                            const votedNext = curRound && (curRound.status === 'won' || curRound.status === 'failed') && nextVotes.includes(p.uid);
-                            const isWinner = curRound && curRound.status === 'won' && curRound.winnerUid === p.uid;
-
-                            let statusBadge = '';
-                            if (isWinner) {
-                                statusBadge = `<svg class="w-3 h-3 text-emerald-400 shrink-0" viewBox="0 0 24 24" fill="currentColor" aria-label="Zwycięzca rundy"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>`;
-                            } else if (votedSkip) {
-                                statusBadge = `<svg class="w-3 h-3 text-amber-400/75 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" title="Gotowy do pominięcia"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></svg>`;
-                            } else if (votedNext) {
-                                statusBadge = `<svg class="w-3 h-3 theme-accent-text shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" title="Gotowy na następny utwór"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
-                            }
-
-                            const rankPrefix = playerList.length > 1
-                                ? `<span class="text-[10px] font-mono ${idx === 0 ? 'theme-accent-text font-bold' : 'text-zinc-500'} shrink-0">${idx + 1}.</span>`
-                                : '';
-
-                            const chip = document.createElement('div');
-                            chip.className = `inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[11px] shrink-0 ${
-                                isMe ? 'bg-zinc-900 border-zinc-700 text-zinc-100' : 'bg-zinc-900/60 border-zinc-800 text-zinc-300'
-                            }`;
-                            chip.innerHTML = `
-                                ${rankPrefix}
-                                <span class="font-medium truncate max-w-[72px]">${escapeHtml((p.name || 'Gracz').split(' ')[0])}</span>
-                                <span class="font-mono font-semibold theme-accent-text">${p.score || 0}</span>
-                                ${statusBadge}
-                            `;
-                            hudPlayers.appendChild(chip);
-                        });
+                        renderMpFloatingOrbs(roomData, steadyOrbPlayers, hudPlayers);
                     }
                 }
 
                 // Update Next Song button label on result screen if in Multiplayer
                 const nextBtnLabel = document.getElementById('nextSongMainBtnLabel');
                 if (nextBtnLabel && mpState.active && roomData.currentRound && roundOver) {
-                    const totalPlayers = Math.max(1, playerList.length);
+                    const totalPlayers = Math.max(1, steadyOrbPlayers.length);
                     const nVotes = roomData.currentRound.nextVotes || [];
                     const iVotedNext = currentUser && nVotes.includes(currentUser.uid);
                     if (totalPlayers > 1) {
@@ -12736,6 +13013,8 @@
                 isPreparingRoundAudio = true;
                 pendingPlayRequestToken = -1;
                 currentHintLevel = 0;
+                lastTypingValueSent = false;
+                lastTypingSentMs = 0;
                 stopAudioPlaybackAndReset();
                 setOutcomeScreenEffect('none');
 
@@ -12753,11 +13032,13 @@
                     hintBanner.classList.add('hidden');
                     hintBanner.classList.remove('inline-flex');
                 }
-                const socialStatRow = document.getElementById('resultSocialStatRow');
-                if (socialStatRow) {
-                    socialStatRow.textContent = '';
-                    socialStatRow.classList.add('hidden');
+                const winnerSpot = document.getElementById('mpWinnerSpotlight');
+                if (winnerSpot) {
+                    winnerSpot.classList.add('hidden');
+                    winnerSpot.classList.remove('flex', 'mp-winner-banner-pop');
                 }
+                const resStatusRow = document.getElementById('resultStatusRow');
+                if (resStatusRow) resStatusRow.classList.remove('hidden');
 
                 if (Array.isArray(roomData?.titlePool)) {
                     await syncMpAutocompletePoolForGuest(roomData.titlePool, roomData.playlistTitle || 'Multiplayer');
@@ -12796,9 +13077,6 @@
                 }
 
                 currentSong = syncedSong;
-                if (typeof window.__prefetchSongCommunityStats === 'function') {
-                    window.__prefetchSongCommunityStats(currentSong);
-                }
 
                 clearGuessInput(false);
                 exitMobileKeyboardModeSmoothly(false);
@@ -12986,6 +13264,7 @@
                     status: 'lobby',
                     playlistTitle: currentActivePlaylistMeta?.title || 'Bazowa Playlista Hitów',
                     titlePool: songsLibrary.filter(s => !s.isDemo).slice(0, 160).map(s => s.cleanTitle),
+                    typing: {},
                     players: {
                         [currentUser.uid]: {
                             uid: currentUser.uid,
@@ -13072,6 +13351,10 @@
 
             window.leaveMultiplayerRoom = async function (silent = false) {
                 const code = mpState.roomCode;
+                if (mpOrbRefreshTimer) {
+                    clearTimeout(mpOrbRefreshTimer);
+                    mpOrbRefreshTimer = null;
+                }
                 if (mpState.roomUnsubscribe) {
                     mpState.roomUnsubscribe();
                     mpState.roomUnsubscribe = null;
@@ -13096,6 +13379,16 @@
                 mpState.isHost = false;
                 mpState.roomData = null;
                 mpState.lastSyncedRoundId = null;
+                mpOrbCache.clear();
+                mpEventArrivalMap.clear();
+                lastTypingValueSent = false;
+                lastTypingSentMs = 0;
+
+                const winnerSpot = document.getElementById('mpWinnerSpotlight');
+                if (winnerSpot) {
+                    winnerSpot.classList.add('hidden');
+                    winnerSpot.classList.remove('flex', 'mp-winner-banner-pop');
+                }
 
                 renderMpModalAndHud();
                 if (!silent) {
@@ -13180,10 +13473,12 @@
 
                 const roundId = 'r_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
                 const prevRoundNum = mpState.roomData?.currentRound?.roundNumber || 0;
+                const startedAtMs = Date.now();
 
                 const roundPayload = {
                     roundId,
                     roundNumber: prevRoundNum + 1,
+                    startedAt: startedAtMs,
                     status: 'playing',
                     stageIndex: 0,
                     stageVotes: [],
@@ -13240,6 +13535,7 @@
 
                     await safeMpRoomWrite(mpState.roomCode, {
                         players: playersMap,
+                        typing: { [currentUser.uid]: 0 },
                         currentRound: {
                             ...r,
                             status: 'won',
@@ -13263,6 +13559,7 @@
                     }
 
                     await safeMpRoomWrite(mpState.roomCode, {
+                        typing: { [currentUser.uid]: 0 },
                         currentRound: {
                             ...r,
                             stageVotes: votesArr,
@@ -13308,6 +13605,7 @@
                 }
 
                 await safeMpRoomWrite(mpState.roomCode, {
+                    typing: { [currentUser.uid]: 0 },
                     currentRound: {
                         ...r,
                         stageVotes: votesArr,
@@ -13331,63 +13629,6 @@
                         nextVotes: votesArr
                     }
                 }, true);
-            };
-
-            // Prefetch & record per-song community stats in Firestore (`songStats` collection)
-            window.__prefetchSongCommunityStats = async function (song) {
-                if (!fbDb || !song || song.isDemo) return;
-                const docId = getSongCommunityDocId(song);
-                if (!docId) return;
-                try {
-                    const snap = await fbDb.collection('songStats').doc(docId).get();
-                    if (snap.exists) {
-                        const data = snap.data() || {};
-                        communitySongStatsCache[docId] = {
-                            plays: data.plays || 0,
-                            s0: data.s0 || 0,
-                            s1: data.s1 || 0,
-                            s2: data.s2 || 0,
-                            s3: data.s3 || 0,
-                            s4: data.s4 || 0,
-                            s5: data.s5 || 0,
-                            fails: data.fails || 0
-                        };
-                        saveCommunitySongStatsCache();
-                    }
-                } catch (e) {}
-            };
-
-            window.__recordSongCommunityOutcome = async function (song, won, stageIdx) {
-                if (!song || song.isDemo) return;
-                const docId = getSongCommunityDocId(song);
-                if (!docId) return;
-
-                const cur = communitySongStatsCache[docId] || { plays: 0, s0: 0, s1: 0, s2: 0, s3: 0, s4: 0, s5: 0, fails: 0 };
-                cur.plays = (cur.plays || 0) + 1;
-                if (won && stageIdx >= 0 && stageIdx <= 5) {
-                    const key = `s${stageIdx}`;
-                    cur[key] = (cur[key] || 0) + 1;
-                } else {
-                    cur.fails = (cur.fails || 0) + 1;
-                }
-                communitySongStatsCache[docId] = cur;
-                saveCommunitySongStatsCache();
-
-                if (!fbDb) return;
-                try {
-                    const inc = firebase.firestore.FieldValue.increment(1);
-                    const payload = {
-                        title: song.cleanTitle || '',
-                        plays: inc,
-                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                    };
-                    if (won && stageIdx >= 0 && stageIdx <= 5) {
-                        payload[`s${stageIdx}`] = inc;
-                    } else {
-                        payload.fails = inc;
-                    }
-                    await fbDb.collection('songStats').doc(docId).set(payload, { merge: true });
-                } catch (e) {}
             };
 
             function getCappedCustomMetadataForCloud() {
@@ -14172,7 +14413,6 @@
             loadStatsFromStorage();
             loadRecentlyPlayedFromStorage();
             loadScoredSongsTodayFromStorage();
-            loadCommunitySongStatsCache();
             renderCloudQuickPillsOnStart();
             setupEventListeners();
             initInteractiveMouseFX();
