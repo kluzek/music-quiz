@@ -282,6 +282,11 @@
             transition: background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, color 0.2s ease;
         }
 
+        .spotlight-surface {
+            position: relative;
+            overflow: hidden;
+        }
+
         .ui-pill::before,
         .spotlight-surface::before {
             content: "";
@@ -329,29 +334,12 @@
             will-change: transform;
         }
 
-        @keyframes mpCrownBob {
-            0%, 100% { transform: translate3d(-50%, 0px, 0) rotate(-4deg) scale(1); }
-            50% { transform: translate3d(-50%, -4px, 0) rotate(4deg) scale(1.08); }
-        }
-        .mp-crown-bob {
-            animation: mpCrownBob 2.1s ease-in-out infinite;
-        }
-
         @keyframes mpWinnerHaloPulse {
-            0%, 100% { transform: scale(1); opacity: 0.7; }
+            0%, 100% { transform: scale(1); opacity: 0.65; }
             50% { transform: scale(1.32); opacity: 0.08; }
         }
         .mp-winner-halo {
             animation: mpWinnerHaloPulse 1.7s ease-out infinite;
-        }
-
-        @keyframes mpWinnerBannerPop {
-            0% { opacity: 0; transform: scale(0.92) translateY(8px); }
-            65% { opacity: 1; transform: scale(1.025) translateY(-1px); }
-            100% { opacity: 1; transform: scale(1) translateY(0); }
-        }
-        .mp-winner-banner-pop {
-            animation: mpWinnerBannerPop 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
         @keyframes mpTypingDot {
@@ -736,7 +724,7 @@
                     <input id="volumeSlider" type="range" min="0" max="1" step="0.01" value="0.8" style="--progress: 80%;" oninput="changeVolume(this.value)" class="w-16" title="Głośność" />
                 </div>
 
-                <!-- Header Multiplayer Button -->
+                <!-- Header Multiplayer Button (Single place for Room Code & Co-op Lobby) -->
                 <button id="headerMpBtn" onclick="toggleMultiplayerModal(true)" class="magnetic-item h-8 px-2.5 rounded-full ui-pill text-zinc-300 hover:text-white inline-flex items-center justify-center gap-1.5 text-xs font-medium shrink-0" title="Multiplayer na żywo ze znajomym">
                     <svg class="w-3.5 h-3.5 theme-accent-text shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
@@ -879,7 +867,7 @@
                         </div>
 
                         <div class="py-1">
-                            <button id="tabEditorBtn" onclick="closeStudioMenuPopover(); switchView(currentView === 'editor' ? 'game' : 'editor');" class="w-full px-3.5 py-2.5 sm:py-2 text-left text-xs text-zinc-200 hover:bg-[#18181c] flex items-center justify-between gap-2 transition-colors">
+                            <button id="tabEditorBtn" onclick="closeStudioMenuPopover(); switchView(currentView === 'editor' ? 'game' : 'editor');" class="hidden w-full px-3.5 py-2.5 sm:py-2 text-left text-xs text-zinc-200 hover:bg-[#18181c] flex items-center justify-between gap-2 transition-colors">
                                 <span class="flex items-center gap-2">
                                     <svg class="w-3.5 h-3.5 text-zinc-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <line x1="4" y1="21" x2="4" y2="14"></line>
@@ -988,11 +976,11 @@
                     <span id="startMpBtnLabel" class="truncate max-w-[125px]">Multiplayer</span>
                 </button>
 
-                <button id="resumeOrCurrentLibraryBtn" onclick="resumeSavedFolderOrCurrentGame()" class="hidden w-full sm:w-auto h-11 px-5 sm:px-4 md:px-5 rounded-full spotlight-surface theme-accent-surface border text-emerald-300 hover:text-white hover:brightness-110 font-semibold text-xs items-center justify-center gap-1.5 whitespace-nowrap shrink-0 transition-all" title="Wróć do aktualnie rozpoczętej rozgrywki">
-                    <svg class="w-3.5 h-3.5 theme-accent-text shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <button id="resumeOrCurrentLibraryBtn" onclick="resumeSavedFolderOrCurrentGame()" class="hidden w-full sm:w-auto h-11 px-5 sm:px-4 md:px-5 rounded-full ui-pill text-zinc-200 hover:text-white font-semibold text-xs items-center justify-center gap-2 whitespace-nowrap shrink-0" title="Wróć do aktualnie rozpoczętej rozgrywki">
+                    <span id="resumeBtnTitle" class="truncate max-w-[155px]">Wróć do gry</span>
+                    <svg class="w-4 h-4 theme-accent-text shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="9 18 15 12 9 6"></polyline>
                     </svg>
-                    <span id="resumeBtnTitle" class="truncate max-w-[155px]">Wróć do gry</span>
                     <span id="resumeBtnSubtitle" class="hidden"></span>
                 </button>
             </div>
@@ -1000,7 +988,7 @@
             <!-- UNIVERSAL OMNIBAR (With Clear X Button + Harmonious Dark Studio Start Button) -->
             <div class="w-full space-y-2">
                 <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-0 w-full">
-                    <div class="relative flex items-center w-full panel-card rounded-full p-1.5 pl-4 border border-zinc-800 focus-within:border-zinc-500 transition-colors shadow-2xl">
+                    <div class="relative flex items-center w-full panel-card rounded-full p-1.5 pl-4 border border-zinc-800 focus-within:border-zinc-500 transition-colors shadow-2xl overflow-hidden">
                         <!-- Search Icon -->
                         <svg class="w-4 h-4 text-zinc-400 shrink-0 mr-2.5 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="11" cy="11" r="8"></circle>
@@ -1043,7 +1031,7 @@
                         </button>
 
                         <!-- Omnibar Submit Button (Desktop inline - sleek studio emerald tint) -->
-                        <button type="button" onclick="handleOmnibarSubmit()" class="hidden sm:inline-flex h-10 px-4 rounded-full bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/35 font-semibold text-xs items-center gap-1.5 shrink-0 transition-colors whitespace-nowrap">
+                        <button type="button" onclick="handleOmnibarSubmit()" class="hidden sm:inline-flex relative overflow-hidden h-10 px-4 rounded-full bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/35 font-semibold text-xs items-center gap-1.5 shrink-0 transition-colors whitespace-nowrap">
                             <span>Uruchom</span>
                             <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                 <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -1173,13 +1161,8 @@
         <!-- ==================== VIEW 1: OPEN CENTERED GAME STAGE ==================== -->
         <div id="gameView" class="hidden w-full max-w-lg mx-auto my-auto flex-col items-center gap-3 sm:gap-6">
 
-            <!-- BOXLESS FLOATING MULTIPLAYER AVATAR ORBS (Visible when inside a Multiplayer Room) -->
-            <div id="mpLiveHudBar" class="hidden w-full flex-col items-center gap-1 pb-0.5">
-                <button onclick="toggleMultiplayerModal(true)" class="h-6 px-2.5 rounded-full ui-pill text-[10px] font-mono text-zinc-400 hover:text-zinc-100 inline-flex items-center gap-1.5 transition-colors" title="Pokój Multiplayer — kliknij, aby otworzyć lub skopiować kod">
-                    <span class="w-1.5 h-1.5 rounded-full theme-accent-bg animate-pulse"></span>
-                    <span>POKÓJ <strong id="mpHudRoomCode" class="text-zinc-200">-----</strong></span>
-                    <span id="mpHudCountMobile" class="text-zinc-500"></span>
-                </button>
+            <!-- BOXLESS FLOATING MULTIPLAYER AVATAR ORBS (No duplicate room button here) -->
+            <div id="mpLiveHudBar" class="hidden w-full flex-col items-center pb-0.5">
                 <div id="mpHudPlayersList" class="w-full flex flex-wrap items-end justify-center gap-5 sm:gap-7 pt-5 pb-1 min-h-[78px]"></div>
             </div>
 
@@ -1195,9 +1178,6 @@
                         <span id="offsetActiveBadge" class="hidden text-[11px] text-zinc-500" title="Utwór startuje z pominiciem intro">(+0.0s)</span>
                     </div>
 
-                    <!-- Subtle Hint Pill (Revealed when user clicks the Audio Visualizer) -->
-                    <div id="activeHintBanner" onclick="triggerVisualizerHint()" class="hidden px-3.5 py-1.5 rounded-2xl sm:rounded-full bg-[#18181c]/80 border border-[#27272a] hover:border-zinc-700 text-[11px] font-mono text-zinc-300 text-center max-w-full sm:max-w-md leading-snug cursor-pointer transition-colors items-center justify-center gap-2" title="Kliknij ponownie w wizualizator po kolejną podpowiedź"></div>
-
                     <div class="flex items-center justify-center gap-5">
                         <button id="restartSnippetBtn" onclick="restartFromBeginning()" class="magnetic-item w-10 h-10 rounded-full ui-pill text-zinc-400 hover:text-zinc-100 inline-flex items-center justify-center focus:outline-none" title="Odtwórz od początku [Klawisz R]">
                             <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1212,10 +1192,10 @@
                             </svg>
                         </button>
 
-                        <!-- Equalizer, Smooth Buffering Wave & Interactive Hint Trigger -->
-                        <button id="eqPillBox" type="button" onclick="triggerVisualizerHint()" class="magnetic-item w-10 h-10 rounded-full ui-pill inline-flex items-center justify-center focus:outline-none cursor-pointer relative" title="Kliknij po podpowiedź [Klawisz H] · Wizualizator audio">
+                        <!-- Equalizer & Smooth Buffering Wave -->
+                        <div id="eqPillBox" class="magnetic-item w-10 h-10 rounded-full ui-pill inline-flex items-center justify-center relative" title="Wizualizator audio">
                             <canvas id="eqCanvas" width="26" height="14" style="width: 26px; height: 14px;" class="opacity-95 pointer-events-none"></canvas>
-                        </button>
+                        </div>
                     </div>
                 </div>
 
@@ -1283,7 +1263,7 @@
                                     onkeydown="onSearchKeydown(event)"
                                     onfocus="onGuessInputFocus()"
                                     onblur="onGuessInputBlur()"
-                                    class="w-full h-12 pl-10 pr-[5.2rem] sm:pr-[9.8rem] rounded-full bg-zinc-900/95 border border-zinc-800/90 focus:border-[#3f3f46] text-zinc-100 placeholder-zinc-500 text-base sm:text-sm focus:outline-none transition-colors shadow-inner"
+                                    class="w-full h-12 pl-10 pr-[5.2rem] sm:pr-[9.8rem] rounded-full bg-zinc-900/95 border border-zinc-800/90 focus:border-[#3f3f46] text-zinc-100 placeholder-zinc-500 text-base sm:text-sm focus:outline-none transition-colors shadow-inner disabled:opacity-60 disabled:cursor-not-allowed"
                                 />
                                 <!-- Clear Text Button -->
                                 <button id="clearInputBtn" type="button" onpointerdown="event.preventDefault()" onclick="clearGuessInput(true)" class="hidden absolute right-[2.85rem] sm:right-[7.9rem] w-7 h-7 sm:w-6 sm:h-6 rounded-full text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/90 inline-flex items-center justify-center transition-colors z-10" title="Wyczyść wpisany tekst">
@@ -1325,29 +1305,6 @@
 
                 <!-- 4. BOXLESS, CENTERED POST-ROUND SONG REVEAL -->
                 <div id="roundResultCard" class="hidden w-full flex-col items-center text-center pt-1 space-y-4 sm:space-y-5">
-
-                    <!-- Prominent Animated Multiplayer Winner Spotlight -->
-                    <div id="mpWinnerSpotlight" class="hidden w-full max-w-sm mx-auto rounded-2xl p-3 sm:p-3.5 border items-center justify-between gap-3 text-left">
-                        <div class="flex items-center gap-3 min-w-0">
-                            <div class="relative shrink-0">
-                                <div id="mpWinnerAvatarHalo" class="absolute inset-0 rounded-full bg-emerald-400/35 mp-winner-halo"></div>
-                                <img id="mpWinnerAvatarImg" src="" alt="" referrerpolicy="no-referrer" class="hidden relative w-11 h-11 rounded-full object-cover border-2 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.5)]" />
-                                <div id="mpWinnerAvatarFallback" class="relative w-11 h-11 rounded-full bg-emerald-950 border-2 border-emerald-400 flex items-center justify-center text-sm font-bold text-emerald-300 shadow-[0_0_20px_rgba(16,185,129,0.5)]">G</div>
-                                <div class="absolute -top-3.5 left-1/2 text-amber-400 drop-shadow-[0_2px_6px_rgba(251,191,36,0.85)] mp-crown-bob">
-                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                                        <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"/>
-                                    </svg>
-                                </div>
-                            </div>
-                            <div class="min-w-0">
-                                <div id="mpWinnerKicker" class="text-[10px] font-mono uppercase tracking-wider text-emerald-400 font-semibold">Zwycięzca rundy</div>
-                                <div id="mpWinnerNameText" class="text-sm sm:text-base font-bold text-white truncate">Gracz</div>
-                            </div>
-                        </div>
-                        <div id="mpWinnerPointsChip" class="px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/45 text-emerald-300 font-mono font-bold text-xs shrink-0 shadow-[0_0_16px_rgba(16,185,129,0.25)]">
-                            +100 pkt
-                        </div>
-                    </div>
 
                     <div id="resultStatusRow" class="inline-flex flex-wrap items-center justify-center gap-2">
                         <span id="resultStatusBadge" class="px-3 py-0.5 rounded-full text-[11px] font-mono font-semibold uppercase tracking-wide">
@@ -1418,9 +1375,9 @@
                                 <span>YouTube</span>
                             </button>
 
-                            <span class="text-zinc-800">·</span>
+                            <span id="editStartDot" class="hidden text-zinc-800">·</span>
 
-                            <button onclick="openCurrentSongInEditor()" class="hover:text-zinc-200 inline-flex items-center gap-1 transition-colors" title="Edytuj czas startu tego utworu">
+                            <button id="editStartBtn" onclick="openCurrentSongInEditor()" class="hidden hover:text-zinc-200 inline-flex items-center gap-1 transition-colors" title="Edytuj czas startu tego utworu">
                                 <span>Edytuj start</span>
                             </button>
                         </div>
@@ -1619,7 +1576,6 @@
             <span><span class="font-mono text-zinc-500">Spacja</span> Graj / Pauza</span>
             <span><span class="font-mono text-zinc-500">R</span> Od początku</span>
             <span><span class="font-mono text-zinc-500">S</span> Pomiń próbę</span>
-            <span><span class="font-mono text-zinc-500">H</span> Podpowiedź</span>
             <span><span class="font-mono text-zinc-500">K</span> Kategorie</span>
             <span><span class="font-mono text-zinc-500">L</span> Logi Dev</span>
             <span><span class="font-mono text-zinc-500">Enter</span> Zatwierdź / Dalej</span>
@@ -1643,7 +1599,7 @@
                     <h2 class="text-base font-semibold text-zinc-100">Multiplayer na żywo</h2>
                 </div>
                 <p class="text-xs text-zinc-400">
-                    Słuchacie tej samej piosenki w tym samym czasie, widzicie swoje odpowiedzi na żywo i wspólnie pomijacie etapy (1/2 → 2/2).
+                    Słuchacie tej samej piosenki w tym samym czasie, każdy ma po jednym ruchu na etap i każdy może zgadnąć utwór aż do końca rundy.
                 </p>
             </div>
 
@@ -1968,7 +1924,7 @@
 
             <div class="text-center space-y-1 px-6">
                 <h2 class="text-base font-semibold text-zinc-100">Zasady gry i punktacji</h2>
-                <p class="text-xs text-zinc-500">Punktacja, Multiplayer, podpowiedzi i skróty</p>
+                <p class="text-xs text-zinc-500">Punktacja, Multiplayer i skróty klawiszowe</p>
             </div>
 
             <div class="space-y-3 text-xs text-zinc-300 leading-relaxed">
@@ -1976,12 +1932,11 @@
                     <div class="text-zinc-200 font-semibold">Punktacja za trafienie:</div>
                     <div>• <span class="text-emerald-400">1.5s: +100 pkt</span>, <span class="text-zinc-300">3s: +75</span>, <span class="text-zinc-300">6s: +55</span>, <span class="text-zinc-300">10s: +40</span>, <span class="text-zinc-300">15s: +25</span>, <span class="text-zinc-300">MAX: +15</span></div>
                     <div>• <span class="text-zinc-200">Seria</span>: od 2. trafienia z rzędu do +50 pkt bonusu za utwór.</div>
-                    <div>• <span class="text-zinc-200">Multiplayer</span>: gracie ten sam utwór na żywo, widzicie swoje odpowiedzi, a pominięcie etapu wymaga zgodności graczy (1/2 → 2/2).</div>
+                    <div>• <span class="text-zinc-200">Multiplayer</span>: w każdym etapie każdy ma po 1 strzale albo 1 skipnięciu. Gdy ktoś zgadnie wcześniej, pozostali grają dalej aż do końca rundy!</div>
                 </div>
 
                 <ul class="space-y-1.5 list-disc list-inside text-zinc-400">
                     <li>Kliknij <strong>KLUZEK</strong> u góry, aby zmienić źródło muzyki.</li>
-                    <li>Kliknij <strong>kółko wizualizatora audio</strong> (po prawej od przycisku Play lub klawisz <strong>H</strong>), aby odkryć kolejno do 3 podpowiedzi.</li>
                     <li>Gdy utwór się buforuje, szare kropki wizualizatora płynnie falują, a pomijanie prób jest zablokowane do pełnej gotowości audio.</li>
                 </ul>
             </div>
@@ -2179,7 +2134,6 @@
 
         const TARGET_120HZ_FRAME_MS = 1000 / 120;
 
-        const SILENT_IOS_UNLOCK_WAV = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA';
         let iosAudioUnlocked = false;
         let isExplicitCopyAllowed = false;
 
@@ -2213,7 +2167,6 @@
         let isEditorTestRound = false;
         let hasActiveGameSession = false;
         let lastRoundFinishedAtMs = 0;
-        let currentHintLevel = 0;
 
         // Multiplayer Real-Time State
         const mpState = {
@@ -2227,6 +2180,11 @@
             lastSyncedRoundStatus: null,
             isAdvancingStage: false,
             isStartingNextRound: false,
+            isSubmittingAction: false,
+            isJoiningOrCreating: false,
+            awardedRoundId: null,
+            celebratedWinRoundId: null,
+            localTypingUntilMs: 0,
             useUsersCollectionFallback: false
         };
 
@@ -2319,9 +2277,12 @@
             if (shouldFocus) input.focus();
         }
 
-        // ==================== LOADING BARRIER & BALANCED PROGRESSIVE HINTS ====================
+        // ==================== LOADING BARRIER & MULTIPLAYER ACTION LOCKS ====================
         function isSongLoadingBarrierActive() {
             if (roundOver) return false;
+            if (mpState.active && (!mpState.roomData || mpState.roomData.status === 'lobby' || !mpState.roomData.currentRound)) {
+                return false;
+            }
             if (isPreparingRoundAudio) return true;
             if (!currentSong) return true;
             if (!audioEl.src) return true;
@@ -2329,102 +2290,57 @@
             return false;
         }
 
-        function formatWordCountPL(count) {
-            if (count === 1) return '1 słowo';
-            const mod10 = count % 10;
-            const mod100 = count % 100;
-            if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return `${count} słowa`;
-            return `${count} słów`;
+        function hasLocalPlayerGuessedInCurrentMpRound() {
+            if (!mpState.active || !mpState.roomData || !mpState.roomData.currentRound) return false;
+            const myUid = typeof window.__getCurrentUserUid === 'function' ? window.__getCurrentUserUid() : null;
+            if (!myUid) return false;
+            const r = mpState.roomData.currentRound;
+            return Boolean((r.winners && r.winners[myUid]) || (r.winnerUid === myUid && r.status === 'won'));
         }
 
-        function formatCharCountPL(count) {
-            if (count === 1) return '1 znak';
-            const mod10 = count % 10;
-            const mod100 = count % 100;
-            if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return `${count} znaki`;
-            return `${count} znaków`;
+        function hasLocalPlayerActedInCurrentMpStage() {
+            if (!mpState.active || !mpState.roomData || !mpState.roomData.currentRound) return false;
+            if (mpState.isSubmittingAction) return true;
+            const myUid = typeof window.__getCurrentUserUid === 'function' ? window.__getCurrentUserUid() : null;
+            if (!myUid) return false;
+            const r = mpState.roomData.currentRound;
+            if (r.winners && r.winners[myUid]) return true;
+            if (r.stageActions && r.stageActions[myUid]) return true;
+            if (Array.isArray(r.stageVotes) && r.stageVotes.includes(myUid)) return true;
+            return false;
         }
 
-        function buildHintTextForLevel(song, level) {
-            if (!song) return '';
-            const parsed = parseArtistAndTrackTitle(song.cleanTitle);
-            const cleanArtist = stripTrackClutterForMatching(parsed.artist);
-            const cleanTitle = stripTrackClutterForMatching(parsed.title) || song.cleanTitle;
-
-            const hasRealArtist = cleanArtist && cleanArtist !== 'Utwór z biblioteki' && cleanArtist !== 'Nieznany wykonawca';
-            const titleWords = cleanTitle.split(/\s+/).filter(Boolean);
-            const artistWords = hasRealArtist ? cleanArtist.split(/\s+/).filter(Boolean) : [];
-            const titleCharCount = cleanTitle.replace(/\s+/g, '').length;
-
-            // Poziom 1/3: Zero liter — wyłącznie struktura (liczba słów i znaków)
-            if (level === 1) {
-                if (hasRealArtist) {
-                    return `Podpowiedź 1/3 · Wykonawca: ${formatWordCountPL(artistWords.length)} · Tytuł: ${formatWordCountPL(titleWords.length)} (${formatCharCountPL(titleCharCount)})`;
-                }
-                return `Podpowiedź 1/3 · Tytuł: ${formatWordCountPL(titleWords.length)} (${formatCharCountPL(titleCharCount)})`;
+        function getMpStageRemainingAndActedCounts() {
+            if (!mpState.active || !mpState.roomData || !mpState.roomData.currentRound) {
+                return { remainingCount: 1, actedCount: 0 };
             }
+            const r = mpState.roomData.currentRound;
+            const playersObj = mpState.roomData.players || {};
+            const winnersObj = r.winners || {};
+            const stageActionsObj = r.stageActions || {};
+            const stageVotesArr = Array.isArray(r.stageVotes) ? r.stageVotes : [];
 
-            const firstTitleMatch = cleanTitle.match(/[A-Za-z0-9ĄĆĘŁŃÓŚŹŻąćęłńóśźż]/);
-            const firstTitleChar = firstTitleMatch ? firstTitleMatch[0].toUpperCase() : cleanTitle.charAt(0).toUpperCase();
-
-            // Poziom 2/3: Tylko pierwsza litera tytułu + struktura (bez liter wykonawcy)
-            if (level === 2) {
-                return `Podpowiedź 2/3 · Tytuł zaczyna się na „${firstTitleChar}...” (${formatWordCountPL(titleWords.length)}, ${formatCharCountPL(titleCharCount)})`;
-            }
-
-            // Poziom 3/3: Pierwsza litera wykonawcy + oszczędna maska tytułu (~25% znaków)
-            let alphaCounter = 0;
-            const maskedTitle = cleanTitle
-                .split('')
-                .map((ch) => {
-                    if (ch === ' ' || ch === '-' || ch === "'" || ch === '.' || ch === ',') return ch;
-                    const idx = alphaCounter++;
-                    if (idx === 0 || (titleCharCount >= 5 && idx % 4 === 0)) {
-                        return ch;
-                    }
-                    return '•';
-                })
-                .join('');
-
-            if (hasRealArtist) {
-                const firstArtistMatch = cleanArtist.match(/[A-Za-z0-9ĄĆĘŁŃÓŚŹŻąćęłńóśźż]/);
-                const firstArtistChar = firstArtistMatch ? firstArtistMatch[0].toUpperCase() : cleanArtist.charAt(0).toUpperCase();
-                return `Podpowiedź 3/3 · Wykonawca na „${firstArtistChar}...” (${formatWordCountPL(artistWords.length)}) · Tytuł: „${maskedTitle}”`;
-            }
-            return `Podpowiedź 3/3 · Tytuł: „${maskedTitle}”`;
+            const remainingUids = Object.keys(playersObj).filter(uid => !winnersObj[uid]);
+            const actedUids = remainingUids.filter(uid => Boolean(stageActionsObj[uid]) || stageVotesArr.includes(uid));
+            return {
+                remainingCount: Math.max(1, remainingUids.length),
+                actedCount: actedUids.length
+            };
         }
 
-        function triggerVisualizerHint() {
-            unlockAllAudioElementsForIOS();
-            if (currentView !== 'game' || !currentSong) return;
+        function updateEditorAccessVisibility() {
+            const hasLocalFiles = songsLibrary.some(s => s.sourceType === 'local' && !s.isDemo);
+            const isCurrentSongLocal = Boolean(currentSong && currentSong.sourceType === 'local' && !currentSong.isDemo && !mpState.active);
 
-            if (roundOver) {
-                showFloatingFeedbackPill('Runda zakończona', 'neutral', currentSong.cleanTitle);
-                return;
-            }
+            const editStartBtn = document.getElementById('editStartBtn');
+            const editStartDot = document.getElementById('editStartDot');
+            if (editStartBtn) editStartBtn.classList.toggle('hidden', !isCurrentSongLocal);
+            if (editStartDot) editStartDot.classList.toggle('hidden', !isCurrentSongLocal);
 
-            if (isSongLoadingBarrierActive()) {
-                showFloatingFeedbackPill('Utwór jeszcze się ładuje...', 'neutral', 'Poczekaj chwilę na bufor audio');
-                return;
+            const tabEditorBtn = document.getElementById('tabEditorBtn');
+            if (tabEditorBtn) {
+                tabEditorBtn.classList.toggle('hidden', !(hasLocalFiles || currentView === 'editor'));
             }
-
-            const prevLevel = currentHintLevel;
-            if (currentHintLevel < 3) {
-                currentHintLevel++;
-            }
-
-            const hintStr = buildHintTextForLevel(currentSong, currentHintLevel);
-            const bannerEl = document.getElementById('activeHintBanner');
-            if (bannerEl) {
-                bannerEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-400/70 shrink-0"></span><span class="break-words">${escapeHtml(hintStr)}</span>`;
-                bannerEl.classList.remove('hidden');
-                bannerEl.classList.add('inline-flex');
-            }
-
-            if (prevLevel >= 3) {
-                showFloatingFeedbackPill('Odkryto wszystkie 3 podpowiedzi', 'neutral');
-            }
-            invalidateLayoutRectCache();
         }
 
         // ==================== ANTI-FARMING & RANKED ELIGIBILITY GUARD ====================
@@ -2699,6 +2615,11 @@
         }
 
         function onGuessInputFocus() {
+            if (hasLocalPlayerActedInCurrentMpStage()) {
+                const guessInput = document.getElementById('guessInput');
+                if (guessInput) guessInput.blur();
+                return;
+            }
             if (blurExitTimer) {
                 clearTimeout(blurExitTimer);
                 blurExitTimer = null;
@@ -2713,6 +2634,7 @@
 
         function onGuessInputBlur() {
             isGuessInputFocused = false;
+            mpState.localTypingUntilMs = 0;
             if (typeof window.__notifyMpTypingState === 'function') {
                 window.__notifyMpTypingState(false);
             }
@@ -3127,7 +3049,7 @@
             if (!cleanSpoken) return;
 
             const input = document.getElementById('guessInput');
-            if (!input) return;
+            if (!input || input.disabled) return;
 
             input.value = cleanSpoken;
             document.getElementById('clearInputBtn').classList.remove('hidden');
@@ -3148,7 +3070,7 @@
 
         function toggleVoiceGuess() {
             unlockAllAudioElementsForIOS();
-            if (roundOver || !currentSong) return;
+            if (roundOver || !currentSong || hasLocalPlayerActedInCurrentMpStage()) return;
 
             if (activeSpeechRec && activeSpeechMode === 'guess') {
                 const input = document.getElementById('guessInput');
@@ -3246,7 +3168,7 @@
                 }
 
                 const input = document.getElementById('guessInput');
-                if (input) {
+                if (input && !input.disabled) {
                     input.value = combined;
                     onSearchInput();
                 }
@@ -3315,6 +3237,10 @@
 
         async function startDemoModeFromMenu() {
             unlockAllAudioElementsForIOS();
+            if (mpState.active) {
+                showToast('W pokoju Multiplayer gramy na stacjach online lub playlistach.');
+                return;
+            }
             hasActiveGameSession = true;
             generateDemoSynthLibrary();
             updateResumeButtonLabels();
@@ -4160,6 +4086,7 @@
             uiScatterMap: new Map(),
             magnetStateMap: new Map(),
             rectCache: new Map(),
+            orbRectCache: [],
             rectCacheDirty: true,
             lastRectCacheTime: 0
         };
@@ -4195,6 +4122,26 @@
                     top: rect.top - mag.y,
                     width: rect.width,
                     height: rect.height
+                });
+            }
+
+            // Also cache Multiplayer player orbs so they attract to the cursor like buttons
+            mouseFX.orbRectCache = [];
+            const orbNodes = document.querySelectorAll('#mpHudPlayersList .orb-circle-wrap');
+            for (let i = 0; i < orbNodes.length; i++) {
+                const el = orbNodes[i];
+                if (!el || el.offsetParent === null) continue;
+                const rect = el.getBoundingClientRect();
+                if (rect.width === 0 || rect.height === 0) continue;
+                const mag = mouseFX.magnetStateMap.get(el) || { x: 0, y: 0 };
+                mouseFX.orbRectCache.push({
+                    el,
+                    left: rect.left - mag.x,
+                    top: rect.top - mag.y,
+                    width: rect.width,
+                    height: rect.height,
+                    edgeRadius: 145,
+                    maxOffset: 10.5
                 });
             }
         }
@@ -4835,6 +4782,61 @@
             }
         }
 
+        function applyMagneticStepToElement(el, cachedRect, edgeRadius, maxOffset, isShaking, magnetLerp) {
+            if (!el) return;
+            let magState = mouseFX.magnetStateMap.get(el);
+            if (!magState) {
+                magState = { x: 0, y: 0 };
+                mouseFX.magnetStateMap.set(el, magState);
+            }
+
+            let targetX = 0;
+            let targetY = 0;
+
+            if (!isShaking && mouseFX.active && mouseFX.insideWindow && cachedRect) {
+                const restLeft = cachedRect.left;
+                const restTop = cachedRect.top;
+                const restRight = restLeft + cachedRect.width;
+                const restBottom = restTop + cachedRect.height;
+                const restCx = restLeft + cachedRect.width * 0.5;
+                const restCy = restTop + cachedRect.height * 0.5;
+
+                const edgeDx = Math.max(restLeft - mouseFX.x, 0, mouseFX.x - restRight);
+                const edgeDy = Math.max((restTop || 0) - mouseFX.y, 0, mouseFX.y - restBottom);
+                const edgeDist = Math.hypot(edgeDx, edgeDy);
+
+                if (edgeDist < edgeRadius) {
+                    const u = 1 - edgeDist / edgeRadius;
+                    const smoothFalloff = u * u * u;
+
+                    const dx = mouseFX.x - restCx;
+                    const dy = mouseFX.y - restCy;
+
+                    const normX = Math.max(-1, Math.min(1, dx / (cachedRect.width * 0.5 + edgeRadius * 0.65)));
+                    const normY = Math.max(-1, Math.min(1, dy / (cachedRect.height * 0.5 + edgeRadius * 0.65)));
+
+                    targetX = normX * maxOffset * smoothFalloff;
+                    targetY = normY * maxOffset * smoothFalloff;
+                }
+            }
+
+            magState.x += (targetX - magState.x) * magnetLerp;
+            magState.y += (targetY - magState.y) * magnetLerp;
+
+            if (Math.abs(magState.x) < 0.02 && Math.abs(targetX) === 0) magState.x = 0;
+            if (Math.abs(magState.y) < 0.02 && Math.abs(targetY) === 0) magState.y = 0;
+
+            const baseScale = parseFloat(el.dataset.baseScale || '1');
+            const scalePart = baseScale !== 1 ? ` scale(${baseScale})` : '';
+
+            if (Math.abs(magState.x) < 0.03 && Math.abs(magState.y) < 0.03) {
+                const restTransform = baseScale !== 1 ? `scale(${baseScale})` : '';
+                if (el.style.transform !== restTransform) el.style.transform = restTransform;
+            } else {
+                el.style.transform = `translate(${magState.x.toFixed(2)}px, ${magState.y.toFixed(2)}px)${scalePart}`;
+            }
+        }
+
         function updateMagneticAndScatterPhysics(nowMs, isShaking, step120 = 1.0) {
             if (isTouchMobileDevice) return;
             refreshLayoutRectCacheIfNeeded(nowMs, isShaking);
@@ -4845,53 +4847,13 @@
                 const cached = mouseFX.rectCache.get(cfg.id);
                 const el = cached ? cached.el : document.getElementById(cfg.id);
                 if (!el) continue;
+                applyMagneticStepToElement(el, cached, cfg.edgeRadius, cfg.maxOffset, isShaking, magnetLerp);
+            }
 
-                let magState = mouseFX.magnetStateMap.get(el);
-                if (!magState) {
-                    magState = { x: 0, y: 0 };
-                    mouseFX.magnetStateMap.set(el, magState);
-                }
-
-                let targetX = 0;
-                let targetY = 0;
-
-                if (!isShaking && mouseFX.active && mouseFX.insideWindow && cached) {
-                    const restLeft = cached.left;
-                    const restTop = cached.top;
-                    const restRight = restLeft + cached.width;
-                    const restBottom = restTop + cached.height;
-                    const restCx = restLeft + cached.width * 0.5;
-                    const restCy = restTop + cached.height * 0.5;
-
-                    const edgeDx = Math.max(restLeft - mouseFX.x, 0, mouseFX.x - restRight);
-                    const edgeDy = Math.max((restTop || 0) - mouseFX.y, 0, mouseFX.y - restBottom);
-                    const edgeDist = Math.hypot(edgeDx, edgeDy);
-
-                    if (edgeDist < cfg.edgeRadius) {
-                        const u = 1 - edgeDist / cfg.edgeRadius;
-                        const smoothFalloff = u * u * u;
-
-                        const dx = mouseFX.x - restCx;
-                        const dy = mouseFX.y - restCy;
-
-                        const normX = Math.max(-1, Math.min(1, dx / (cached.width * 0.5 + cfg.edgeRadius * 0.65)));
-                        const normY = Math.max(-1, Math.min(1, dy / (cached.height * 0.5 + cfg.edgeRadius * 0.65)));
-
-                        targetX = normX * cfg.maxOffset * smoothFalloff;
-                        targetY = normY * cfg.maxOffset * smoothFalloff;
-                    }
-                }
-
-                magState.x += (targetX - magState.x) * magnetLerp;
-                magState.y += (targetY - magState.y) * magnetLerp;
-
-                if (Math.abs(magState.x) < 0.02 && Math.abs(targetX) === 0) magState.x = 0;
-                if (Math.abs(magState.y) < 0.02 && Math.abs(targetY) === 0) magState.y = 0;
-
-                if (Math.abs(magState.x) < 0.03 && Math.abs(magState.y) < 0.03) {
-                    if (el.style.transform) el.style.transform = '';
-                } else {
-                    el.style.transform = `translate(${magState.x.toFixed(2)}px, ${magState.y.toFixed(2)}px)`;
+            if (mouseFX.orbRectCache && mouseFX.orbRectCache.length > 0) {
+                for (let i = 0; i < mouseFX.orbRectCache.length; i++) {
+                    const orbItem = mouseFX.orbRectCache[i];
+                    applyMagneticStepToElement(orbItem.el, orbItem, orbItem.edgeRadius, orbItem.maxOffset, isShaking, magnetLerp);
                 }
             }
         }
@@ -5275,6 +5237,9 @@
 
         function isCurrentAudioBuffering() {
             if (currentView !== 'game') return false;
+            if (mpState.active && (!mpState.roomData || mpState.roomData.status === 'lobby' || !mpState.roomData.currentRound)) {
+                return false;
+            }
             if (isPreparingRoundAudio) return true;
             if (!currentSong) return true;
             if (!audioEl.src) return true;
@@ -5628,6 +5593,7 @@
 
         function syncSongTitleWithResolvedBackup(song, resolvedCleanTitle) {
             if (!song || !resolvedCleanTitle) return;
+            if (mpState.active && song.isSyncedFromMpRoom) return;
             const hasManualOverride = Boolean(
                 customSongMetadata[song.rawFileName] ||
                 (song.youtubeId && customSongMetadata[`yt_${song.youtubeId}`])
@@ -6088,6 +6054,11 @@
             activeCategory = 'WSZYSTKIE';
             rebuildCategoriesAndPools();
             updateResumeButtonLabels();
+            updateEditorAccessVisibility();
+
+            if (mpState.active && mpState.isHost && typeof window.__syncMpRoomPlaylistMeta === 'function') {
+                window.__syncMpRoomPlaylistMeta(badgeLabel);
+            }
         }
 
         // ==================== BULLETPROOF YOUTUBE 900+ PLAYLIST CRAWLER & IMPORTER ====================
@@ -6519,6 +6490,7 @@
             updateHeaderActiveCategoryPill();
             populateEditorCategoryDropdown();
             updateResumeButtonLabels();
+            updateEditorAccessVisibility();
 
             const catModal = document.getElementById('categoryModal');
             if (catModal && !catModal.classList.contains('hidden')) {
@@ -6905,11 +6877,7 @@
 
             applyOnlineSongsToLibrary(builtSongs, categoryLabel, true);
             await switchView('game');
-            if (mpState.active && mpState.isHost) {
-                await window.hostStartNextMpRound(true);
-            } else if (!mpState.active) {
-                await startNewRound();
-            }
+            await startNewRound();
             showFloatingFeedbackPill(`Wczytano: ${categoryLabel}`, 'emerald', `Start z ${songsLibrary.length} utw. (reszta dociąga się w tle)`);
         }
 
@@ -7156,7 +7124,7 @@
 
         async function resumeSavedFolderOrCurrentGame() {
             unlockAllAudioElementsForIOS();
-            if (savedDirectoryHandle && songsLibrary.every(s => s.isDemo)) {
+            if (savedDirectoryHandle && songsLibrary.every(s => s.isDemo) && !mpState.active) {
                 try {
                     let perm = await savedDirectoryHandle.queryPermission({ mode: 'read' });
                     if (perm !== 'granted' && typeof savedDirectoryHandle.requestPermission === 'function') {
@@ -7183,7 +7151,7 @@
 
             const hasOnlyDemo = songsLibrary.length === 0 || songsLibrary.every(s => s.isDemo);
 
-            if (hasOnlyDemo && savedDirectoryHandle) {
+            if (hasOnlyDemo && savedDirectoryHandle && !mpState.active) {
                 btnEl.classList.remove('hidden');
                 btnEl.classList.add('inline-flex');
                 titleEl.textContent = `Wznów (${savedDirectoryHandle.name || 'Muzyka'})`;
@@ -7191,7 +7159,7 @@
                 btnEl.classList.remove('hidden');
                 btnEl.classList.add('inline-flex');
                 titleEl.textContent = `Wróć do gry (${songsLibrary.length})`;
-            } else if (hasActiveGameSession && songsLibrary.length > 0) {
+            } else if ((hasActiveGameSession && songsLibrary.length > 0) || mpState.active) {
                 btnEl.classList.remove('hidden');
                 btnEl.classList.add('inline-flex');
                 titleEl.textContent = `Wróć do gry`;
@@ -7205,6 +7173,7 @@
         function toggleStudioMenuPopover() {
             const pop = document.getElementById('studioMenuPopover');
             if (!pop) return;
+            updateEditorAccessVisibility();
             pop.classList.toggle('hidden');
         }
 
@@ -7261,8 +7230,8 @@
                 titleColor = 'text-emerald-300';
             } else if (tone === 'amber') {
                 borderAndGlow = 'border-[#3f3f46] shadow-[0_12px_32px_rgba(0,0,0,0.75)]';
-                badgeHtml = `<span class="w-1.5 h-1.5 rounded-full bg-amber-400/75 shrink-0"></span>`;
-                titleColor = 'text-zinc-200';
+                badgeHtml = `<span class="w-2 h-2 rounded-full bg-zinc-300 shrink-0"></span>`;
+                titleColor = 'text-zinc-100';
             } else if (tone === 'red') {
                 borderAndGlow = 'border-red-500/60 shadow-[0_10px_30px_rgba(239,68,68,0.22)]';
                 badgeHtml = `<span class="w-2 h-2 rounded-full bg-red-400 shadow-[0_0_8px_#f87171] shrink-0"></span>`;
@@ -7493,7 +7462,7 @@
                     song.shortStreamUrl = backup.streamUrl;
                     if (backup.corsStreamUrl) song.corsStreamUrl = backup.corsStreamUrl;
                     song.backupProvider = backup.provider;
-                    if (backup.resolvedCleanTitle) {
+                    if (backup.resolvedCleanTitle && !song.isSyncedFromMpRoom) {
                         syncSongTitleWithResolvedBackup(song, backup.resolvedCleanTitle);
                     }
                     recordDevFallbackTrack(song, 'Auto-parowanie strumienia audio CDN', backup.matchedQuery, backup.provider, backup.streamUrl);
@@ -7584,6 +7553,10 @@
 
         async function triggerFolderSelect() {
             unlockAllAudioElementsForIOS();
+            if (mpState.active) {
+                showToast('W pokoju Multiplayer gramy na stacjach online lub playlistach z linków.');
+                return;
+            }
             if (!savedDirectoryHandle) {
                 savedDirectoryHandle = await loadDirectoryHandleFromIDB();
             }
@@ -9329,6 +9302,7 @@
             });
 
             rebuildCategoriesAndPools();
+            updateEditorAccessVisibility();
             startNewRound();
         }
 
@@ -9409,7 +9383,7 @@
 
             if (guessInputEl) {
                 guessInputEl.addEventListener('click', () => {
-                    if (isTouchMobileDevice && currentView === 'game' && !roundOver) {
+                    if (isTouchMobileDevice && currentView === 'game' && !roundOver && !guessInputEl.disabled) {
                         enterMobileKeyboardModeSmoothly();
                     }
                 });
@@ -9580,6 +9554,7 @@
             const dropOverlay = document.getElementById('dropOverlay');
             window.addEventListener('dragover', (e) => {
                 e.preventDefault();
+                if (mpState.active) return;
                 dropOverlay.classList.remove('hidden');
                 dropOverlay.classList.add('flex');
             });
@@ -9594,6 +9569,7 @@
                 e.preventDefault();
                 dropOverlay.classList.add('hidden');
                 dropOverlay.classList.remove('flex');
+                if (mpState.active) return;
 
                 infiniteRadioState.enabled = false;
                 currentActivePlaylistMeta = { id: 'local_drop', type: 'local', title: 'Pliki lokalne' };
@@ -9654,9 +9630,6 @@
                 } else if (e.code === 'KeyS' && currentView === 'game' && !roundOver) {
                     e.preventDefault();
                     skipAttempt();
-                } else if (e.code === 'KeyH' && currentView === 'game' && !roundOver) {
-                    e.preventDefault();
-                    triggerVisualizerHint();
                 } else if (e.code === 'KeyK') {
                     e.preventDefault();
                     const catModal = document.getElementById('categoryModal');
@@ -9932,6 +9905,7 @@
                 updateHeaderActiveCategoryPill();
                 populateEditorCategoryDropdown();
                 updateResumeButtonLabels();
+                updateEditorAccessVisibility();
                 if (currentView === 'editor') renderEditorList();
                 renderStats();
 
@@ -9994,6 +9968,7 @@
 
             rebuildCategoriesAndPools();
             updateResumeButtonLabels();
+            updateEditorAccessVisibility();
             if (currentView === 'editor') renderEditorList();
             await startNewRound();
 
@@ -10368,11 +10343,21 @@
             unlockAllAudioElementsForIOS();
             stopActiveVoiceRecognition();
 
-            // If inside an active Multiplayer room, clicking "Następny utwór" votes for the next round!
-            if (mpState.active && mpState.roomData && mpState.roomData.status === 'playing') {
-                if (typeof window.__voteNextMpRound === 'function') {
-                    await window.__voteNextMpRound();
+            // Strict Multiplayer Guard: Never run local solo rounds while in a Multiplayer room!
+            if (mpState.active) {
+                if (mpState.roomData && mpState.roomData.status === 'playing' && roundOver) {
+                    if (typeof window.__voteNextMpRound === 'function') {
+                        await window.__voteNextMpRound();
+                    }
+                    return;
                 }
+                if (mpState.isHost) {
+                    if (typeof window.hostStartNextMpRound === 'function') {
+                        await window.hostStartNextMpRound(false);
+                    }
+                    return;
+                }
+                showFloatingFeedbackPill('Czekamy aż Host uruchomi rundę...', 'neutral');
                 return;
             }
 
@@ -10380,7 +10365,6 @@
             isEditorTestRound = false;
             isPreparingRoundAudio = true;
             pendingPlayRequestToken = -1;
-            currentHintLevel = 0;
             stopAudioPlaybackAndReset();
             setOutcomeScreenEffect('none');
 
@@ -10392,24 +10376,16 @@
             isUserScrubbingMain = false;
             lastMainSeekCommitMs = 0;
 
-            const hintBanner = document.getElementById('activeHintBanner');
-            if (hintBanner) {
-                hintBanner.textContent = '';
-                hintBanner.classList.add('hidden');
-                hintBanner.classList.remove('inline-flex');
-            }
-            const winnerSpot = document.getElementById('mpWinnerSpotlight');
-            if (winnerSpot) {
-                winnerSpot.classList.add('hidden');
-                winnerSpot.classList.remove('flex', 'mp-winner-banner-pop');
-            }
             const nextBtnLabel = document.getElementById('nextSongMainBtnLabel');
             if (nextBtnLabel) nextBtnLabel.textContent = 'Następny utwór';
 
             clearGuessInput(false);
             const guessInputEl = document.getElementById('guessInput');
-            if (guessInputEl && document.activeElement === guessInputEl) {
-                guessInputEl.blur();
+            if (guessInputEl) {
+                guessInputEl.disabled = false;
+                if (document.activeElement === guessInputEl) {
+                    guessInputEl.blur();
+                }
             }
             exitMobileKeyboardModeSmoothly(false);
 
@@ -10472,6 +10448,7 @@
 
                 if (!pickedSong || myRoundToken !== currentRoundToken) return;
                 currentSong = pickedSong;
+                updateEditorAccessVisibility();
 
                 const offsetBadge = document.getElementById('offsetActiveBadge');
                 if (currentSong.startOffset && currentSong.startOffset > 0) {
@@ -10516,6 +10493,10 @@
         }
 
         function getCurrentSkipStageLabel() {
+            if (mpState.active && (!mpState.roomData || mpState.roomData.status === 'lobby' || !mpState.roomData.currentRound)) {
+                return mpState.isHost ? 'Rozpocznij grę' : 'Czekam na Hosta...';
+            }
+
             const dur = ATTEMPT_DURATIONS[currentAttemptIndex];
             let baseSkipLabel = '';
             if (!isFinite(dur)) {
@@ -10532,19 +10513,15 @@
             }
 
             if (mpState.active && mpState.roomData && mpState.roomData.currentRound) {
-                const playersObj = mpState.roomData.players || {};
-                const totalPlayers = Math.max(1, Object.keys(playersObj).length);
-                const votes = mpState.roomData.currentRound.stageVotes || [];
-                const myUid = typeof window.__getCurrentUserUid === 'function' ? window.__getCurrentUserUid() : null;
-                const iVoted = myUid && votes.includes(myUid);
-
-                if (totalPlayers > 1) {
-                    if (iVoted) {
-                        return `Czekam (${votes.length}/${totalPlayers})...`;
-                    }
-                    if (votes.length > 0) {
-                        return `${baseSkipLabel} · ${votes.length}/${totalPlayers}`;
-                    }
+                const { remainingCount, actedCount } = getMpStageRemainingAndActedCounts();
+                if (hasLocalPlayerGuessedInCurrentMpRound()) {
+                    return `Odgadnięto · Czekam (${actedCount}/${remainingCount})`;
+                }
+                if (hasLocalPlayerActedInCurrentMpStage()) {
+                    return `Czekam (${actedCount}/${remainingCount})...`;
+                }
+                if (remainingCount > 1 && actedCount > 0) {
+                    return `${baseSkipLabel} · ${actedCount}/${remainingCount}`;
                 }
             }
             return baseSkipLabel;
@@ -10556,28 +10533,57 @@
             const skipBtnLabel = document.getElementById('skipBtnLabel');
             const skipBtnIcon = document.getElementById('skipBtnIcon');
             const submitBtn = document.getElementById('submitGuessBtn');
+            const voiceBtn = document.getElementById('voiceGuessBtn');
             if (!skipBtn || !skipBtnLabel) return;
 
             const prevLabelText = skipBtnLabel.textContent;
+            const isMpLobby = Boolean(mpState.active && (!mpState.roomData || mpState.roomData.status === 'lobby' || !mpState.roomData.currentRound));
+            const iGuessedMp = hasLocalPlayerGuessedInCurrentMpRound();
+            const iActedMp = hasLocalPlayerActedInCurrentMpStage();
+            const isInputLocked = isMpLobby || iGuessedMp || iActedMp;
+
+            if (input) {
+                if (isMpLobby) {
+                    input.disabled = true;
+                    input.setAttribute('placeholder', mpState.isHost ? 'Kliknij Play lub Rozpocznij grę...' : 'Czekamy aż Host rozpocznie pierwszą rundę...');
+                } else if (iGuessedMp) {
+                    input.disabled = true;
+                    input.setAttribute('placeholder', 'Odgadłeś utwór! Czekamy aż reszta dokończy rundę...');
+                } else if (iActedMp) {
+                    input.disabled = true;
+                    input.setAttribute('placeholder', 'Wykonano ruch · Czekamy na pozostałych graczy...');
+                } else {
+                    input.disabled = false;
+                    if (!input.getAttribute('placeholder')?.includes('Słucham')) {
+                        input.setAttribute('placeholder', 'Wpisz lub powiedz tytuł utworu...');
+                    }
+                }
+            }
+
+            if (voiceBtn) {
+                voiceBtn.classList.toggle('opacity-40', isInputLocked);
+                voiceBtn.classList.toggle('pointer-events-none', isInputLocked);
+            }
+
             const isBlockedByLoading = isSongLoadingBarrierActive();
-            const hasText = Boolean(input && input.value.trim().length > 0);
+            const hasText = Boolean(input && !input.disabled && input.value.trim().length > 0);
             const skipText = getCurrentSkipStageLabel();
 
-            const myUid = typeof window.__getCurrentUserUid === 'function' ? window.__getCurrentUserUid() : null;
-            const iAlreadyVotedSkip = Boolean(
-                !hasText &&
-                mpState.active &&
-                mpState.roomData?.currentRound?.stageVotes &&
-                myUid &&
-                mpState.roomData.currentRound.stageVotes.includes(myUid)
-            );
-
             if (submitBtn) {
-                submitBtn.classList.toggle('opacity-50', isBlockedByLoading);
+                const disableSubmit = isBlockedByLoading || isInputLocked;
+                submitBtn.classList.toggle('opacity-40', disableSubmit);
+                submitBtn.classList.toggle('pointer-events-none', isInputLocked);
                 submitBtn.classList.toggle('cursor-wait', isBlockedByLoading);
             }
 
-            if (isBlockedByLoading) {
+            if (isMpLobby) {
+                skipBtnLabel.textContent = skipText;
+                if (mpState.isHost) {
+                    skipBtn.className = 'magnetic-item w-full sm:w-auto h-12 px-5 rounded-full bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-semibold text-xs inline-flex items-center justify-center gap-1.5 shrink-0 whitespace-nowrap transition-all shadow-lg';
+                } else {
+                    skipBtn.className = 'magnetic-item w-full sm:w-auto h-12 px-5 rounded-full ui-pill text-zinc-500 font-medium text-xs inline-flex items-center justify-center gap-1.5 shrink-0 whitespace-nowrap opacity-65 pointer-events-none';
+                }
+            } else if (isBlockedByLoading) {
                 skipBtnLabel.textContent = hasText && isTouchMobileDevice ? 'Zgadnij (Ładowanie...)' : 'Ładowanie...';
                 skipBtn.className = 'magnetic-item w-full sm:w-auto h-12 px-5 rounded-full ui-pill text-zinc-500 font-medium text-xs inline-flex items-center justify-center gap-1.5 shrink-0 whitespace-nowrap transition-[background-color,border-color,color,opacity,box-shadow] opacity-55 cursor-wait';
                 if (skipBtnIcon) {
@@ -10587,19 +10593,26 @@
                         <line x1="19" y1="5" x2="19" y2="19"></line>
                     `;
                 }
+            } else if (iGuessedMp) {
+                skipBtnLabel.textContent = skipText;
+                skipBtn.className = 'magnetic-item w-full sm:w-auto h-12 px-5 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 font-semibold text-xs inline-flex items-center justify-center gap-1.5 shrink-0 whitespace-nowrap pointer-events-none';
+                if (skipBtnIcon) {
+                    skipBtnIcon.className = 'w-3.5 h-3.5 text-emerald-400 shrink-0';
+                    skipBtnIcon.innerHTML = `<polyline points="20 6 9 17 4 12"></polyline>`;
+                }
+            } else if (iActedMp) {
+                skipBtnLabel.textContent = skipText;
+                skipBtn.className = 'magnetic-item w-full sm:w-auto h-12 px-5 rounded-full bg-[#18181c] border border-[#3f3f46] text-zinc-400 font-medium text-xs inline-flex items-center justify-center gap-1.5 shrink-0 whitespace-nowrap opacity-75 pointer-events-none';
+                if (skipBtnIcon) {
+                    skipBtnIcon.className = 'w-3.5 h-3.5 text-zinc-400 shrink-0';
+                    skipBtnIcon.innerHTML = `<circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>`;
+                }
             } else if (hasText && isTouchMobileDevice) {
                 skipBtnLabel.textContent = 'Zgadnij';
                 skipBtn.className = 'magnetic-item w-full sm:w-auto h-12 px-5 rounded-full bg-zinc-100 text-zinc-950 font-semibold text-xs inline-flex items-center justify-center gap-1.5 shrink-0 whitespace-nowrap transition-[background-color,border-color,color,opacity,box-shadow] shadow-lg';
                 if (skipBtnIcon) {
                     skipBtnIcon.className = 'w-3.5 h-3.5 text-zinc-900 shrink-0';
                     skipBtnIcon.innerHTML = `<polyline points="20 6 9 17 4 12"></polyline>`;
-                }
-            } else if (iAlreadyVotedSkip) {
-                skipBtnLabel.textContent = skipText;
-                skipBtn.className = 'magnetic-item w-full sm:w-auto h-12 px-5 rounded-full bg-[#18181c] border border-[#3f3f46] text-zinc-200 font-medium text-xs inline-flex items-center justify-center gap-1.5 shrink-0 whitespace-nowrap transition-[background-color,border-color,color,opacity,box-shadow]';
-                if (skipBtnIcon) {
-                    skipBtnIcon.className = 'w-3.5 h-3.5 text-amber-400/75 shrink-0';
-                    skipBtnIcon.innerHTML = `<circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>`;
                 }
             } else {
                 skipBtnLabel.textContent = skipText;
@@ -10625,6 +10638,19 @@
             const segmentedBar = document.getElementById('segmentedTimelineContainer');
             const freeSeekBox = document.getElementById('freeSeekContainer');
             const unlockedFill = document.getElementById('unlockedBarFill');
+
+            if (mpState.active && (!mpState.roomData || mpState.roomData.status === 'lobby' || !mpState.roomData.currentRound)) {
+                centerLabel.textContent = 'Poczekalnia pokoju';
+                maxTimeLabel.textContent = '15.0s';
+                if (stageLimitBadge) stageLimitBadge.textContent = mpState.isHost ? 'START' : 'GOTOWY';
+                segmentedBar.classList.remove('hidden');
+                freeSeekBox.classList.add('hidden');
+                freeSeekBox.classList.remove('flex');
+                unlockedFill.style.width = '10%';
+                updateGuessOrSkipButtonUI();
+                invalidateLayoutRectCache();
+                return;
+            }
 
             if (roundOver) {
                 centerLabel.textContent = currentSong ? currentSong.category : '';
@@ -10694,8 +10720,8 @@
                             barTone = 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]';
                             textTone = 'text-emerald-400 font-semibold';
                         } else if (item.type === 'artist_match') {
-                            barTone = roundOver && !roundWon ? 'bg-red-500/75' : 'bg-amber-400/65';
-                            textTone = roundOver && !roundWon ? 'text-red-400/80' : 'text-amber-300/75';
+                            barTone = roundOver && !roundWon ? 'bg-red-500/75' : 'bg-zinc-500';
+                            textTone = roundOver && !roundWon ? 'text-red-400/80' : 'text-zinc-300';
                         } else if (item.type === 'wrong') {
                             barTone = 'bg-red-500/75';
                             textTone = 'text-red-400/80';
@@ -10719,11 +10745,13 @@
             if (!container || !trailWrapper) return;
             container.innerHTML = '';
 
-            // In Multiplayer: remove old stage skips completely & collapse current-stage skips into 1 sleek pill
+            // In Multiplayer: clean pills without yellow colors, and without spoiling the song title while others are still playing!
             if (mpState.active && mpState.roomData && mpState.roomData.currentRound) {
-                const mpGuesses = mpState.roomData.currentRound.guesses || [];
-                const stepLabels = ['1.5s', '3s', '6s', '10s', '15s', 'MAX'];
-                const activeStageLabel = stepLabels[currentAttemptIndex] || '';
+                const r = mpState.roomData.currentRound;
+                const mpGuesses = r.guesses || [];
+                const myUid = typeof window.__getCurrentUserUid === 'function' ? window.__getCurrentUserUid() : null;
+                const iAlreadyGuessed = hasLocalPlayerGuessedInCurrentMpRound();
+                const canSeeAnswer = roundOver || iAlreadyGuessed;
 
                 const currentStageSkips = [];
                 const seenSkipUids = new Set();
@@ -10731,10 +10759,7 @@
                     for (let i = 0; i < mpGuesses.length; i++) {
                         const g = mpGuesses[i];
                         if (g.type !== 'skip') continue;
-                        const isCurrentStage = (typeof g.stage === 'number')
-                            ? g.stage === currentAttemptIndex
-                            : g.stageLabel === activeStageLabel;
-                        if (!isCurrentStage) continue;
+                        if (typeof g.stage === 'number' && g.stage !== currentAttemptIndex) continue;
                         const dedupeKey = g.uid || g.name || String(i);
                         if (seenSkipUids.has(dedupeKey)) continue;
                         seenSkipUids.add(dedupeKey);
@@ -10761,19 +10786,22 @@
                     const pill = document.createElement('div');
                     const playerName = g.name || 'Gracz';
                     if (g.type === 'correct') {
+                        const displayCorrectText = (canSeeAnswer || (myUid && g.uid === myUid))
+                            ? g.text
+                            : `Odgadł(a) utwór! ${g.points ? `(+${g.points} pkt)` : ''}`.trim();
                         pill.className = 'px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/35 text-emerald-300 inline-flex items-center gap-1.5 text-xs max-w-full';
                         pill.innerHTML = `
                             <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0"></span>
                             <span class="font-semibold shrink-0">${escapeHtml(playerName)}:</span>
-                            <span class="truncate">${escapeHtml(g.text)}</span>
+                            <span class="truncate">${escapeHtml(displayCorrectText)}</span>
                         `;
                     } else if (g.type === 'artist_match') {
-                        pill.className = 'px-3 py-1 rounded-full bg-zinc-900/85 border border-[#27272a] text-zinc-300 inline-flex items-center gap-1.5 text-xs max-w-full';
+                        pill.className = 'px-3 py-1 rounded-full bg-zinc-900/85 border border-zinc-700 text-zinc-200 inline-flex items-center gap-1.5 text-xs max-w-full';
                         pill.innerHTML = `
-                            <span class="w-1.5 h-1.5 rounded-full bg-amber-400/70 shrink-0"></span>
+                            <span class="w-1.5 h-1.5 rounded-full bg-zinc-300 shrink-0"></span>
                             <span class="font-semibold shrink-0">${escapeHtml(playerName)}:</span>
                             <span class="truncate">${escapeHtml(g.text)}</span>
-                            <span class="text-[10px] font-mono text-amber-300/70 shrink-0">(Wykonawca)</span>
+                            <span class="text-[10px] font-mono text-zinc-400 shrink-0">(Wykonawca)</span>
                         `;
                     } else {
                         pill.className = 'px-3 py-1 rounded-full bg-zinc-900/85 border border-zinc-800/80 text-zinc-300 inline-flex items-center gap-1.5 text-xs max-w-full';
@@ -10787,7 +10815,7 @@
                 });
 
                 if (currentStageSkips.length > 0) {
-                    const totalPlayers = Math.max(1, Object.keys(mpState.roomData.players || {}).length);
+                    const { remainingCount } = getMpStageRemainingAndActedCounts();
                     const skipNames = currentStageSkips
                         .map(s => (s.name || 'Gracz').split(' ')[0])
                         .join(', ');
@@ -10795,7 +10823,7 @@
                     skipPill.className = 'px-2.5 py-1 rounded-full bg-zinc-900/70 border border-zinc-800 text-zinc-400 inline-flex items-center gap-1.5 text-[11px] font-mono max-w-full';
                     skipPill.innerHTML = `
                         <svg class="w-3 h-3 text-zinc-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></svg>
-                        <span class="truncate">Pominęli (${currentStageSkips.length}/${totalPlayers}): ${escapeHtml(skipNames)}</span>
+                        <span class="truncate">Pominęli (${currentStageSkips.length}/${remainingCount}): ${escapeHtml(skipNames)}</span>
                     `;
                     container.appendChild(skipPill);
                 }
@@ -10821,11 +10849,11 @@
             meaningfulAttempts.forEach(item => {
                 const pill = document.createElement('div');
                 if (item.type === 'artist_match') {
-                    pill.className = 'px-3 py-1 rounded-full bg-zinc-900/85 border border-[#27272a] text-zinc-300 inline-flex items-center gap-1.5 text-xs max-w-full';
+                    pill.className = 'px-3 py-1 rounded-full bg-zinc-900/85 border border-zinc-700 text-zinc-200 inline-flex items-center gap-1.5 text-xs max-w-full';
                     pill.innerHTML = `
-                        <span class="w-1.5 h-1.5 rounded-full bg-amber-400/70 shrink-0"></span>
+                        <span class="w-1.5 h-1.5 rounded-full bg-zinc-300 shrink-0"></span>
                         <span class="truncate">${escapeHtml(item.text)}</span>
-                        <span class="text-[10px] font-mono text-amber-300/70 shrink-0">(Ten wykonawca)</span>
+                        <span class="text-[10px] font-mono text-zinc-400 shrink-0">(Ten wykonawca)</span>
                     `;
                 } else {
                     pill.className = 'px-3 py-1 rounded-full bg-zinc-900/80 text-zinc-400 inline-flex items-center gap-1.5 text-xs max-w-full';
@@ -10881,6 +10909,14 @@
 
         function handleMainPlayButton() {
             unlockAllAudioElementsForIOS();
+            if (mpState.active && (!mpState.roomData || mpState.roomData.status === 'lobby' || !mpState.roomData.currentRound)) {
+                if (mpState.isHost && typeof window.hostStartNextMpRound === 'function') {
+                    window.hostStartNextMpRound(true);
+                } else {
+                    showFloatingFeedbackPill('Czekamy aż Host rozpocznie pierwszą rundę...', 'neutral');
+                }
+                return;
+            }
             if (!currentSong) return;
 
             if (isPreparingRoundAudio) {
@@ -11315,13 +11351,16 @@
         function onSearchInput() {
             const input = document.getElementById('guessInput');
             const clearBtn = document.getElementById('clearInputBtn');
+            if (!input || input.disabled) return;
 
             const rawQuery = input.value;
             if (rawQuery.length > 0) clearBtn.classList.remove('hidden');
             else clearBtn.classList.add('hidden');
 
+            const isTypingNow = rawQuery.trim().length > 0;
+            mpState.localTypingUntilMs = isTypingNow ? (performance.now() + 4200) : 0;
             if (typeof window.__notifyMpTypingState === 'function') {
-                window.__notifyMpTypingState(rawQuery.trim().length > 0);
+                window.__notifyMpTypingState(isTypingNow);
             }
 
             updateGuessOrSkipButtonUI();
@@ -11419,11 +11458,15 @@
                 blurExitTimer = null;
             }
             const input = document.getElementById('guessInput');
-            if (!input || !song) return;
+            if (!input || !song || input.disabled) return;
             input.value = song.cleanTitle;
             document.getElementById('clearInputBtn').classList.remove('hidden');
             document.getElementById('autocompleteDropdown').classList.add('hidden');
             highlightedSuggestionIndex = -1;
+            mpState.localTypingUntilMs = performance.now() + 4200;
+            if (typeof window.__notifyMpTypingState === 'function') {
+                window.__notifyMpTypingState(true);
+            }
             updateGuessOrSkipButtonUI();
             if (!isTouchMobileDevice) {
                 input.focus();
@@ -11473,13 +11516,14 @@
             if (!input) return;
             input.value = '';
             highlightedSuggestionIndex = -1;
+            mpState.localTypingUntilMs = 0;
             document.getElementById('clearInputBtn').classList.add('hidden');
             document.getElementById('autocompleteDropdown').classList.add('hidden');
             if (typeof window.__notifyMpTypingState === 'function') {
                 window.__notifyMpTypingState(false);
             }
             updateGuessOrSkipButtonUI();
-            if (shouldFocus && currentView === 'game' && !roundOver) {
+            if (shouldFocus && currentView === 'game' && !roundOver && !input.disabled) {
                 input.focus();
                 if (isTouchMobileDevice) {
                     onSearchInput();
@@ -11487,10 +11531,26 @@
             }
         }
 
-        // Unified handler: blocks if song is still loading; if anything is typed -> submitGuess(), if empty -> skipAttempt()
         function handleGuessOrSkip() {
+            if (mpState.active && (!mpState.roomData || mpState.roomData.status === 'lobby' || !mpState.roomData.currentRound)) {
+                if (mpState.isHost && typeof window.hostStartNextMpRound === 'function') {
+                    window.hostStartNextMpRound(true);
+                } else {
+                    showFloatingFeedbackPill('Czekamy aż Host rozpocznie pierwszą rundę...', 'neutral');
+                }
+                return;
+            }
             if (isSongLoadingBarrierActive()) {
                 showFloatingFeedbackPill('Utwór jeszcze się ładuje...', 'neutral', 'Poczekaj ułamek sekundy na bufor audio');
+                return;
+            }
+            if (hasLocalPlayerActedInCurrentMpStage()) {
+                const { remainingCount, actedCount } = getMpStageRemainingAndActedCounts();
+                if (hasLocalPlayerGuessedInCurrentMpRound()) {
+                    showFloatingFeedbackPill('Już odgadłeś ten utwór!', 'emerald', `Czekamy aż reszta dokończy rundę (${actedCount}/${remainingCount})`);
+                } else {
+                    showFloatingFeedbackPill(`Już wykonałeś ruch w tej próbie (${actedCount}/${remainingCount})`, 'neutral', 'Czekamy na pozostałych graczy...');
+                }
                 return;
             }
             const input = document.getElementById('guessInput');
@@ -11512,6 +11572,12 @@
                 return;
             }
 
+            if (hasLocalPlayerActedInCurrentMpStage()) {
+                const { remainingCount, actedCount } = getMpStageRemainingAndActedCounts();
+                showFloatingFeedbackPill(`Czekamy na pozostałych graczy (${actedCount}/${remainingCount})`, 'neutral');
+                return;
+            }
+
             const input = document.getElementById('guessInput');
             const rawGuess = input ? input.value.trim() : '';
             if (!rawGuess) {
@@ -11519,6 +11585,7 @@
                 return;
             }
 
+            mpState.localTypingUntilMs = 0;
             if (typeof window.__notifyMpTypingState === 'function') {
                 window.__notifyMpTypingState(false);
             }
@@ -11556,8 +11623,15 @@
             }
 
             // Multiplayer Live Branch
-            if (mpState.active && mpState.roomData && mpState.roomData.status === 'playing') {
+            if (mpState.active) {
+                if (!mpState.roomData || mpState.roomData.status !== 'playing' || !mpState.roomData.currentRound) {
+                    return;
+                }
                 if (aiEval.isCorrect) {
+                    attemptHistory[currentAttemptIndex] = {
+                        type: 'correct',
+                        text: currentSong.cleanTitle
+                    };
                     clearGuessInput(false);
                     exitMobileKeyboardModeSmoothly(true, preSubmitTop);
                     if (typeof window.__submitMpGuessResult === 'function') {
@@ -11589,6 +11663,11 @@
                     const displayWrongText = (guessedSongObj && bestMatchedEntry && bestMatchedEntry.score >= 82)
                         ? guessedSongObj.cleanTitle
                         : rawGuess;
+
+                    attemptHistory[currentAttemptIndex] = {
+                        type: isArtistMatch ? 'artist_match' : 'wrong',
+                        text: displayWrongText
+                    };
 
                     const controlsBox = document.getElementById('guessingControlsArea');
                     controlsBox.classList.remove('shake-error');
@@ -11683,8 +11762,14 @@
                 return;
             }
 
+            if (hasLocalPlayerActedInCurrentMpStage()) {
+                const { remainingCount, actedCount } = getMpStageRemainingAndActedCounts();
+                showFloatingFeedbackPill(`Czekamy na pozostałych graczy (${actedCount}/${remainingCount})`, 'neutral');
+                return;
+            }
+
             const input = document.getElementById('guessInput');
-            if (input && input.value.trim().length > 0) {
+            if (input && !input.disabled && input.value.trim().length > 0) {
                 submitGuess();
                 return;
             }
@@ -11702,8 +11787,15 @@
                 input.blur();
             }
 
-            // Multiplayer Live Skip Voting (1/2 -> 2/2)
-            if (mpState.active && mpState.roomData && mpState.roomData.status === 'playing') {
+            // Multiplayer Live Skip Voting (1 action per stage)
+            if (mpState.active) {
+                if (!mpState.roomData || mpState.roomData.status !== 'playing' || !mpState.roomData.currentRound) {
+                    return;
+                }
+                attemptHistory[currentAttemptIndex] = {
+                    type: 'skip',
+                    text: 'Pominięto'
+                };
                 clearGuessInput(false);
                 exitMobileKeyboardModeSmoothly(true, preSkipTop);
                 if (typeof window.__voteSkipMpStage === 'function') {
@@ -11747,6 +11839,67 @@
             }
         }
 
+        function awardPlayerRoundStatsOnce(won, stageIdxForPoints, explicitPoints = null) {
+            syncPeriodRollover(stats);
+            const isLoggedIn = typeof window.__isFirebaseUserLoggedIn === 'function' && window.__isFirebaseUserLoggedIn();
+            const rankCheck = checkRoundRankedEligibility(currentSong);
+
+            let earnedPoints = 0;
+            let streakBonus = 0;
+
+            if (!rankCheck.eligible) {
+                return { eligible: false, reason: rankCheck.reason, earnedPoints: 0, streakBonus: 0 };
+            }
+
+            stats.totalPlayed = (stats.totalPlayed || 0) + 1;
+            if (!isLoggedIn) {
+                stats.guestSession = true;
+                stats.guestTotalDelta = (stats.guestTotalDelta || 0) + 1;
+            }
+
+            if (won) {
+                markSongAsScoredToday(currentSong);
+                stats.guessed = (stats.guessed || 0) + 1;
+                stats.streak = (stats.streak || 0) + 1;
+                if (stats.streak > (stats.bestStreak || 0)) {
+                    stats.bestStreak = stats.streak;
+                }
+                if (stageIdxForPoints === 0) {
+                    stats.snipers = (stats.snipers || 0) + 1;
+                    if (!isLoggedIn) stats.guestSnipersDelta = (stats.guestSnipersDelta || 0) + 1;
+                }
+
+                if (typeof explicitPoints === 'number' && explicitPoints > 0) {
+                    earnedPoints = explicitPoints;
+                } else {
+                    const basePts = STAGE_BASE_POINTS[stageIdxForPoints] || 15;
+                    streakBonus = stats.streak >= 2 ? Math.min(50, (stats.streak - 1) * 5) : 0;
+                    earnedPoints = basePts + streakBonus;
+                }
+
+                stats.score = (stats.score || 0) + earnedPoints;
+                stats.dayScore = (stats.dayScore || 0) + earnedPoints;
+                stats.dayGuessed = (stats.dayGuessed || 0) + 1;
+                stats.weekScore = (stats.weekScore || 0) + earnedPoints;
+                stats.weekGuessed = (stats.weekGuessed || 0) + 1;
+                stats.monthScore = (stats.monthScore || 0) + earnedPoints;
+                stats.monthGuessed = (stats.monthGuessed || 0) + 1;
+
+                if (!isLoggedIn) {
+                    stats.guestScoreDelta = (stats.guestScoreDelta || 0) + earnedPoints;
+                    stats.guestGuessedDelta = (stats.guestGuessedDelta || 0) + 1;
+                }
+            } else {
+                stats.streak = 0;
+            }
+
+            if (typeof window.__invalidateLeaderboardCache === 'function') {
+                window.__invalidateLeaderboardCache();
+            }
+            saveStatsToStorage();
+            return { eligible: true, reason: '', earnedPoints, streakBonus };
+        }
+
         function finishRound(won, wasFuzzyAI = false, preFinishTop = null, mpRoundOverride = null) {
             roundOver = true;
             roundWon = won;
@@ -11754,84 +11907,41 @@
             pausedAtStageLimit = false;
             clearScheduledSnippetStop();
 
-            const hintBanner = document.getElementById('activeHintBanner');
-            if (hintBanner) {
-                hintBanner.classList.add('hidden');
-                hintBanner.classList.remove('inline-flex');
-            }
-
-            syncPeriodRollover(stats);
-            const isLoggedIn = typeof window.__isFirebaseUserLoggedIn === 'function' && window.__isFirebaseUserLoggedIn();
             const myUid = typeof window.__getCurrentUserUid === 'function' ? window.__getCurrentUserUid() : null;
-            const iWonInMp = !mpRoundOverride || (mpRoundOverride.winnerUid && mpRoundOverride.winnerUid === myUid);
-            const rankCheck = checkRoundRankedEligibility(currentSong);
+            const mpWinnersMap = mpRoundOverride?.winners || {};
+            const myMpWinEntry = (myUid && mpWinnersMap[myUid]) ? mpWinnersMap[myUid] : null;
+            const iWonInMp = !mpRoundOverride
+                ? won
+                : Boolean(myMpWinEntry || (mpRoundOverride.winnerUid && mpRoundOverride.winnerUid === myUid));
 
-            let earnedPoints = 0;
+            const myStageIdx = myMpWinEntry
+                ? (typeof myMpWinEntry.stageIndex === 'number' ? myMpWinEntry.stageIndex : currentAttemptIndex)
+                : currentAttemptIndex;
+
+            let earnedPoints = myMpWinEntry ? (myMpWinEntry.points || 0) : 0;
             let streakBonus = 0;
+            let rankCheck = checkRoundRankedEligibility(currentSong);
 
-            if (rankCheck.eligible) {
-                stats.totalPlayed = (stats.totalPlayed || 0) + 1;
-                if (!isLoggedIn) {
-                    stats.guestSession = true;
-                    stats.guestTotalDelta = (stats.guestTotalDelta || 0) + 1;
+            const roundUniqueId = mpRoundOverride?.roundId || (currentSong ? currentSong.id + '_' + Date.now() : 'solo');
+            if (!mpRoundOverride || mpState.awardedRoundId !== mpRoundOverride.roundId) {
+                if (mpRoundOverride && mpRoundOverride.roundId) {
+                    mpState.awardedRoundId = mpRoundOverride.roundId;
                 }
-
-                if (won && iWonInMp) {
-                    markSongAsScoredToday(currentSong);
-                    stats.guessed = (stats.guessed || 0) + 1;
-                    stats.streak = (stats.streak || 0) + 1;
-                    if (stats.streak > (stats.bestStreak || 0)) {
-                        stats.bestStreak = stats.streak;
-                    }
-                    if (currentAttemptIndex === 0) {
-                        stats.snipers = (stats.snipers || 0) + 1;
-                        if (!isLoggedIn) stats.guestSnipersDelta = (stats.guestSnipersDelta || 0) + 1;
-                    }
-
-                    const basePts = STAGE_BASE_POINTS[currentAttemptIndex] || 15;
-                    streakBonus = stats.streak >= 2 ? Math.min(50, (stats.streak - 1) * 5) : 0;
-                    earnedPoints = basePts + streakBonus;
-
-                    stats.score = (stats.score || 0) + earnedPoints;
-                    stats.dayScore = (stats.dayScore || 0) + earnedPoints;
-                    stats.dayGuessed = (stats.dayGuessed || 0) + 1;
-                    stats.weekScore = (stats.weekScore || 0) + earnedPoints;
-                    stats.weekGuessed = (stats.weekGuessed || 0) + 1;
-                    stats.monthScore = (stats.monthScore || 0) + earnedPoints;
-                    stats.monthGuessed = (stats.monthGuessed || 0) + 1;
-
-                    if (!isLoggedIn) {
-                        stats.guestScoreDelta = (stats.guestScoreDelta || 0) + earnedPoints;
-                        stats.guestGuessedDelta = (stats.guestGuessedDelta || 0) + 1;
-                    }
-                } else if (!won) {
-                    stats.streak = 0;
-                }
-
-                if (typeof window.__invalidateLeaderboardCache === 'function') {
-                    window.__invalidateLeaderboardCache();
-                }
-                saveStatsToStorage();
+                const awardRes = awardPlayerRoundStatsOnce(won && iWonInMp, myStageIdx, myMpWinEntry ? myMpWinEntry.points : null);
+                rankCheck = { eligible: awardRes.eligible, reason: awardRes.reason };
+                earnedPoints = awardRes.earnedPoints || earnedPoints;
+                streakBonus = awardRes.streakBonus || 0;
             }
+
+            const alreadyCelebratedMidRound = Boolean(mpRoundOverride && mpState.celebratedWinRoundId === mpRoundOverride.roundId);
 
             if (won) {
-                if (mpRoundOverride && mpRoundOverride.winnerName) {
+                if (mpRoundOverride) {
                     if (iWonInMp) {
-                        setOutcomeScreenEffect('win', true);
-                        showFloatingFeedbackPill(
-                            'Trafiłeś jako pierwszy!',
-                            'emerald',
-                            `${currentSong.cleanTitle} (+${mpRoundOverride.winnerPoints || STAGE_BASE_POINTS[currentAttemptIndex] || 15} pkt)`
-                        );
+                        setOutcomeScreenEffect('win', !alreadyCelebratedMidRound);
                     } else {
-                        // Friend won: don't flash personal green win edge, play soft reveal chime & highlight winner spotlight
                         setOutcomeScreenEffect('none', false);
                         playOutcomeSound(true, 1);
-                        showFloatingFeedbackPill(
-                            `Wygrał(a): ${mpRoundOverride.winnerName}`,
-                            'amber',
-                            `${currentSong.cleanTitle} (+${mpRoundOverride.winnerPoints || STAGE_BASE_POINTS[currentAttemptIndex] || 15} pkt)`
-                        );
                     }
                 } else {
                     setOutcomeScreenEffect('win', true);
@@ -11849,7 +11959,7 @@
                 setOutcomeScreenEffect('lose', true);
             }
 
-            recordRoundInSessionHistory(currentSong, won && iWonInMp, currentAttemptIndex);
+            recordRoundInSessionHistory(currentSong, won && iWonInMp, myStageIdx);
 
             document.getElementById('guessingControlsArea').classList.add('hidden');
             const resultCard = document.getElementById('roundResultCard');
@@ -11858,7 +11968,8 @@
             const pointsBadge = document.getElementById('resultPointsBadge');
             const flavorSub = document.getElementById('resultFlavorSubtitle');
             const nextBtn = document.getElementById('nextSongMainBtn');
-            const winnerSpot = document.getElementById('mpWinnerSpotlight');
+
+            if (statusRow) statusRow.classList.remove('hidden');
 
             resultCard.classList.remove('hidden', 'reveal-enter');
             resultCard.classList.add('flex');
@@ -11869,94 +11980,47 @@
             document.getElementById('resultSongTitle').textContent = parsed.title;
             document.getElementById('resultArtistRow').textContent = parsed.artist;
 
-            // Prominent Animated Winner Spotlight in Multiplayer
-            if (winnerSpot) {
-                if (won && mpRoundOverride && mpRoundOverride.winnerName) {
-                    const wUid = mpRoundOverride.winnerUid;
-                    const wPlayer = mpState.roomData?.players?.[wUid] || {};
-                    const wName = mpRoundOverride.winnerName;
-                    const wPts = mpRoundOverride.winnerPoints || STAGE_BASE_POINTS[currentAttemptIndex] || 15;
-                    const stageDur = ATTEMPT_DURATIONS[currentAttemptIndex];
-                    const stageTimeText = isFinite(stageDur) ? `${stageDur % 1 === 0 ? stageDur.toFixed(0) : stageDur.toFixed(1)}s` : 'MAX';
-
-                    const wImg = document.getElementById('mpWinnerAvatarImg');
-                    const wFallback = document.getElementById('mpWinnerAvatarFallback');
-                    const wHalo = document.getElementById('mpWinnerAvatarHalo');
-                    const wKicker = document.getElementById('mpWinnerKicker');
-                    const wNameText = document.getElementById('mpWinnerNameText');
-                    const wPtsChip = document.getElementById('mpWinnerPointsChip');
-
-                    if (wPlayer.photoURL && wImg) {
-                        wImg.src = wPlayer.photoURL;
-                        wImg.classList.remove('hidden');
-                        if (wFallback) wFallback.classList.add('hidden');
-                    } else if (wFallback) {
-                        wFallback.textContent = (wName || 'G').charAt(0).toUpperCase();
-                        wFallback.classList.remove('hidden');
-                        if (wImg) wImg.classList.add('hidden');
-                    }
-
-                    if (iWonInMp) {
-                        winnerSpot.className = 'w-full max-w-sm mx-auto rounded-2xl p-3 sm:p-3.5 border border-emerald-400/50 bg-emerald-950/35 shadow-[0_0_32px_rgba(16,185,129,0.22)] flex items-center justify-between gap-3 text-left mp-winner-banner-pop';
-                        if (wHalo) wHalo.className = 'absolute inset-0 rounded-full bg-emerald-400/35 mp-winner-halo';
-                        if (wImg) wImg.className = 'relative w-11 h-11 rounded-full object-cover border-2 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.5)]';
-                        if (wFallback) wFallback.className = 'relative w-11 h-11 rounded-full bg-emerald-950 border-2 border-emerald-400 flex items-center justify-center text-sm font-bold text-emerald-300 shadow-[0_0_20px_rgba(16,185,129,0.5)]';
-                        if (wKicker) {
-                            wKicker.className = 'text-[10px] font-mono uppercase tracking-wider text-emerald-400 font-semibold';
-                            wKicker.textContent = `Trafiłeś jako pierwszy · ${stageTimeText}`;
-                        }
-                        if (wNameText) wNameText.textContent = wName;
-                        if (wPtsChip) {
-                            wPtsChip.className = 'px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/45 text-emerald-300 font-mono font-bold text-xs shrink-0 shadow-[0_0_16px_rgba(16,185,129,0.25)]';
-                            wPtsChip.textContent = `+${wPts} pkt`;
-                        }
-                    } else {
-                        winnerSpot.className = 'w-full max-w-sm mx-auto rounded-2xl p-3 sm:p-3.5 border border-amber-400/45 bg-amber-950/20 shadow-[0_0_32px_rgba(251,191,36,0.16)] flex items-center justify-between gap-3 text-left mp-winner-banner-pop';
-                        if (wHalo) wHalo.className = 'absolute inset-0 rounded-full bg-amber-400/30 mp-winner-halo';
-                        if (wImg) wImg.className = 'relative w-11 h-11 rounded-full object-cover border-2 border-amber-400 shadow-[0_0_20px_rgba(251,191,36,0.45)]';
-                        if (wFallback) wFallback.className = 'relative w-11 h-11 rounded-full bg-amber-950 border-2 border-amber-400 flex items-center justify-center text-sm font-bold text-amber-300 shadow-[0_0_20px_rgba(251,191,36,0.45)]';
-                        if (wKicker) {
-                            wKicker.className = 'text-[10px] font-mono uppercase tracking-wider text-amber-400 font-semibold';
-                            wKicker.textContent = `Najszybszy w pokoju · ${stageTimeText}`;
-                        }
-                        if (wNameText) wNameText.textContent = `Wygrał(a): ${wName}`;
-                        if (wPtsChip) {
-                            wPtsChip.className = 'px-3 py-1 rounded-full bg-amber-500/20 border border-amber-400/45 text-amber-300 font-mono font-bold text-xs shrink-0 shadow-[0_0_16px_rgba(251,191,36,0.2)]';
-                            wPtsChip.textContent = `+${wPts} pkt`;
-                        }
-                    }
-                    if (statusRow) statusRow.classList.add('hidden');
-                } else {
-                    winnerSpot.classList.add('hidden');
-                    winnerSpot.classList.remove('flex', 'mp-winner-banner-pop');
-                    if (statusRow) statusRow.classList.remove('hidden');
-                }
-            }
-
             if (won) {
-                const stagePool = WIN_FLAVOR_BY_STAGE[currentAttemptIndex] || WIN_FLAVOR_BY_STAGE[3];
-                const flavorText = mpRoundOverride && mpRoundOverride.winnerName
-                    ? `Najszybszy w pokoju: ${mpRoundOverride.winnerName}`
-                    : stagePool[Math.floor(Math.random() * stagePool.length)];
+                const winnerEntries = Object.values(mpWinnersMap).sort((a, b) => (a.order || 1) - (b.order || 1));
+                const winnerNames = winnerEntries.length > 0
+                    ? winnerEntries.map(w => (w.name || 'Gracz').split(' ')[0]).join(', ')
+                    : (mpRoundOverride?.winnerName || '');
 
-                statusBadge.className = 'px-3 py-0.5 rounded-full text-[11px] font-mono font-semibold uppercase tracking-wide bg-emerald-500/15 text-emerald-300 border border-emerald-500/30';
-                statusBadge.textContent = mpRoundOverride && mpRoundOverride.winnerName && !iWonInMp
-                    ? `TRAFIŁ: ${mpRoundOverride.winnerName.toUpperCase()} (${currentAttemptIndex + 1}/6)`
-                    : `ODGADNIĘTO (${currentAttemptIndex + 1}/6)`;
-                if (pointsBadge) {
-                    if (mpRoundOverride && mpRoundOverride.winnerPoints) {
-                        pointsBadge.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-mono font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30';
-                        pointsBadge.textContent = `+${mpRoundOverride.winnerPoints} pkt`;
-                    } else if (rankCheck.eligible) {
-                        pointsBadge.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-mono font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30';
-                        pointsBadge.textContent = streakBonus > 0 ? `+${earnedPoints} pkt (seria +${streakBonus})` : `+${earnedPoints} pkt`;
+                if (mpRoundOverride) {
+                    if (iWonInMp) {
+                        statusBadge.className = 'px-3 py-0.5 rounded-full text-[11px] font-mono font-semibold uppercase tracking-wide bg-emerald-500/15 text-emerald-300 border border-emerald-500/30';
+                        statusBadge.textContent = `ODGADNIĘTO (${myStageIdx + 1}/6)`;
+                        if (pointsBadge) {
+                            pointsBadge.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-mono font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30';
+                            pointsBadge.textContent = `+${myMpWinEntry ? myMpWinEntry.points : (mpRoundOverride.winnerPoints || earnedPoints || 15)} pkt`;
+                            pointsBadge.classList.remove('hidden');
+                        }
+                        flavorSub.textContent = winnerEntries.length > 1
+                            ? `Odgadli: ${winnerNames}`
+                            : (WIN_FLAVOR_BY_STAGE[myStageIdx] || WIN_FLAVOR_BY_STAGE[0])[0];
                     } else {
-                        pointsBadge.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-mono font-medium bg-zinc-800/80 text-zinc-400 border border-zinc-700';
-                        pointsBadge.textContent = `Trening (${rankCheck.reason})`;
+                        statusBadge.className = 'px-3 py-0.5 rounded-full text-[11px] font-mono font-semibold uppercase tracking-wide bg-emerald-500/15 text-emerald-300 border border-emerald-500/30';
+                        statusBadge.textContent = `ODGADŁ(A): ${winnerNames.toUpperCase()}`;
+                        if (pointsBadge) pointsBadge.classList.add('hidden');
+                        flavorSub.textContent = 'Posłuchaj do końca i przejdź dalej';
                     }
-                    pointsBadge.classList.remove('hidden');
+                } else {
+                    const stagePool = WIN_FLAVOR_BY_STAGE[currentAttemptIndex] || WIN_FLAVOR_BY_STAGE[3];
+                    const flavorText = stagePool[Math.floor(Math.random() * stagePool.length)];
+                    statusBadge.className = 'px-3 py-0.5 rounded-full text-[11px] font-mono font-semibold uppercase tracking-wide bg-emerald-500/15 text-emerald-300 border border-emerald-500/30';
+                    statusBadge.textContent = `ODGADNIĘTO (${currentAttemptIndex + 1}/6)`;
+                    if (pointsBadge) {
+                        if (rankCheck.eligible) {
+                            pointsBadge.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-mono font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30';
+                            pointsBadge.textContent = streakBonus > 0 ? `+${earnedPoints} pkt (seria +${streakBonus})` : `+${earnedPoints} pkt`;
+                        } else {
+                            pointsBadge.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-mono font-medium bg-zinc-800/80 text-zinc-400 border border-zinc-700';
+                            pointsBadge.textContent = `Trening (${rankCheck.reason})`;
+                        }
+                        pointsBadge.classList.remove('hidden');
+                    }
+                    flavorSub.textContent = flavorText;
                 }
-                flavorSub.textContent = flavorText;
 
                 nextBtn.className = 'magnetic-item w-full sm:w-auto h-12 px-8 rounded-full bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-semibold text-sm inline-flex items-center justify-center gap-2.5 transition-[background-color,box-shadow,color] duration-200 shadow-[0_0_30px_rgba(16,185,129,0.3)] whitespace-nowrap';
             } else {
@@ -11971,6 +12035,7 @@
             }
 
             updateFavoriteButtonUI();
+            updateEditorAccessVisibility();
             ensureAudioVisualizerConnected();
             activateFullSongPlaybackForMaxOrEnd();
 
@@ -12031,10 +12096,8 @@
                 window.scrollTo(0, 0);
                 updateMobileVisualViewportDocking();
                 if (roundOver) {
-                    const myUid = typeof window.__getCurrentUserUid === 'function' ? window.__getCurrentUserUid() : null;
-                    const mpWinnerUid = mpState.active ? mpState.roomData?.currentRound?.winnerUid : null;
-                    const showPersonalWinGlow = !mpState.active || !mpWinnerUid || mpWinnerUid === myUid;
-                    if (roundWon && showPersonalWinGlow) {
+                    const iGuessed = !mpState.active || hasLocalPlayerGuessedInCurrentMpRound();
+                    if (roundWon && iGuessed) {
                         setOutcomeScreenEffect('win', false);
                     } else if (!roundWon) {
                         setOutcomeScreenEffect('lose', false);
@@ -12046,20 +12109,23 @@
                 gameView.classList.add('flex');
                 if (menuToggleLabel) menuToggleLabel.textContent = 'Biblioteka i czasy startu';
 
-                if (currentSong) {
+                if (currentSong && (!mpState.active || mpState.roomData?.status === 'playing')) {
                     isPreparingRoundAudio = true;
                     updateGuessOrSkipButtonUI();
                     await prepareSongForPlayback(currentSong, currentRoundToken);
                     isPreparingRoundAudio = false;
                     updateAttemptTimelineUI();
                     updateMarqueeIfNeeded();
+                } else {
+                    updateAttemptTimelineUI();
                 }
             }
+            updateEditorAccessVisibility();
             invalidateLayoutRectCache();
         }
 
         function openCurrentSongInEditor() {
-            if (!currentSong) return;
+            if (!currentSong || currentSong.sourceType !== 'local' || mpState.active) return;
             switchView('editor');
             selectSongInEditor(currentSong.id);
         }
@@ -12350,11 +12416,14 @@
 
         async function playSongInGameFromEditor() {
             unlockAllAudioElementsForIOS();
+            if (mpState.active) {
+                showToast('W trakcie gry Multiplayer nie można uruchamiać testów z edytora.');
+                return;
+            }
             const song = songsLibrary.find(s => s.id === editorSelectedSongId);
             if (!song) return;
             ++currentRoundToken;
             isEditorTestRound = true;
-            currentHintLevel = 0;
             setOutcomeScreenEffect('none');
             currentSong = song;
             currentAttemptIndex = 0;
@@ -12362,18 +12431,6 @@
             roundOver = false;
             roundWon = false;
             pausedAtStageLimit = false;
-
-            const hintBanner = document.getElementById('activeHintBanner');
-            if (hintBanner) {
-                hintBanner.textContent = '';
-                hintBanner.classList.add('hidden');
-                hintBanner.classList.remove('inline-flex');
-            }
-            const winnerSpot = document.getElementById('mpWinnerSpotlight');
-            if (winnerSpot) {
-                winnerSpot.classList.add('hidden');
-                winnerSpot.classList.remove('flex', 'mp-winner-banner-pop');
-            }
 
             await switchView('game');
 
@@ -12569,12 +12626,130 @@
                 return null;
             }
 
+            async function safeMpRoomTransaction(roomCode, updateFn) {
+                if (!fbDb || !roomCode) return null;
+                const runOnce = async () => {
+                    const ref = getMpRoomRef(roomCode);
+                    return await fbDb.runTransaction(async (tx) => {
+                        const snap = await tx.get(ref);
+                        if (!snap.exists) return null;
+                        const data = snap.data() || {};
+                        const nextData = updateFn(data);
+                        if (nextData) {
+                            tx.set(ref, nextData, { merge: false });
+                        }
+                        return nextData || data;
+                    });
+                };
+
+                try {
+                    return await runOnce();
+                } catch (err) {
+                    const isPerm = err && (err.code === 'permission-denied' || String(err.message || '').toLowerCase().includes('permission'));
+                    if (isPerm && !mpState.useUsersCollectionFallback) {
+                        mpState.useUsersCollectionFallback = true;
+                        try {
+                            return await runOnce();
+                        } catch (e2) {}
+                    }
+                    return null;
+                }
+            }
+
+            function evaluateAndApplyMpRoundTransitionsInPlace(roomData) {
+                const r = roomData.currentRound;
+                if (!r) return roomData;
+
+                const playersObj = roomData.players || {};
+                const allPlayerUids = Object.keys(playersObj);
+                if (allPlayerUids.length === 0) return roomData;
+
+                if (!r.winners || typeof r.winners !== 'object') r.winners = {};
+                if (!r.stageActions || typeof r.stageActions !== 'object') r.stageActions = {};
+
+                if (r.status === 'playing') {
+                    const remainingUids = allPlayerUids.filter(uid => !r.winners[uid]);
+
+                    if (remainingUids.length === 0) {
+                        r.status = 'won';
+                        r.endedAt = Date.now();
+                        r.stageActions = {};
+                        r.stageVotes = [];
+                        r.guesses = (r.guesses || []).filter(g => g.type !== 'skip');
+                    } else {
+                        const everyoneRemainingActed = remainingUids.every(uid =>
+                            Boolean(r.stageActions[uid]) || (Array.isArray(r.stageVotes) && r.stageVotes.includes(uid))
+                        );
+
+                        if (everyoneRemainingActed) {
+                            if ((r.stageIndex || 0) >= 5) {
+                                const hasAnyWinner = Object.keys(r.winners).length > 0 || Boolean(r.winnerUid);
+                                r.status = hasAnyWinner ? 'won' : 'failed';
+                                r.endedAt = Date.now();
+                                r.stageActions = {};
+                                r.stageVotes = [];
+                                r.guesses = (r.guesses || []).filter(g => g.type !== 'skip');
+                            } else {
+                                r.stageIndex = (r.stageIndex || 0) + 1;
+                                r.stageActions = {};
+                                r.stageVotes = [];
+                                r.guesses = (r.guesses || []).filter(g => g.type !== 'skip');
+                            }
+                        } else {
+                            r.stageVotes = remainingUids.filter(uid =>
+                                Boolean(r.stageActions[uid]) || (Array.isArray(r.stageVotes) && r.stageVotes.includes(uid))
+                            );
+                        }
+                    }
+                }
+                return roomData;
+            }
+
+            function getEligibleNextRoundVoters(roomData) {
+                const playersObj = roomData?.players || {};
+                const allPlayers = Object.values(playersObj);
+                const r = roomData?.currentRound;
+                if (!r || allPlayers.length <= 1) {
+                    return allPlayers.map(p => p.uid);
+                }
+                const endedAt = r.endedAt || 0;
+                if (endedAt > 0) {
+                    const presentBeforeEnd = allPlayers.filter(p => !p.joinedAt || p.joinedAt <= endedAt + 1500).map(p => p.uid);
+                    if (presentBeforeEnd.length > 0) return presentBeforeEnd;
+                }
+                if (Array.isArray(r.participantUids) && r.participantUids.length > 0) {
+                    const activeParticipants = r.participantUids.filter(uid => Boolean(playersObj[uid]));
+                    if (activeParticipants.length > 0) return activeParticipants;
+                }
+                return allPlayers.map(p => p.uid);
+            }
+
+            window.__syncMpRoomPlaylistMeta = async function (playlistTitle) {
+                if (!mpState.active || !mpState.roomCode || !mpState.isHost) return;
+                const samplePool = songsLibrary
+                    .filter(s => !s.isDemo)
+                    .slice(0, 180)
+                    .map(s => s.cleanTitle);
+                await safeMpRoomWrite(mpState.roomCode, {
+                    playlistTitle: playlistTitle || currentActivePlaylistMeta?.title || 'Playlista Online',
+                    titlePool: samplePool
+                }, true);
+            };
+
             window.__notifyMpTypingState = function (isTypingNow) {
                 if (!mpState.active || !mpState.roomCode || !currentUser) return;
                 if (roundOver && isTypingNow) return;
+
+                // Update local roomData immediately so the typing player sees their own 3 dots with 0ms latency!
+                if (mpState.roomData) {
+                    if (!mpState.roomData.typing) mpState.roomData.typing = {};
+                    mpState.roomData.typing[currentUser.uid] = isTypingNow ? Date.now() : 0;
+                    renderMpModalAndHud();
+                }
+
                 const nowMs = Date.now();
                 if (isTypingNow) {
-                    if (lastTypingValueSent && (nowMs - lastTypingSentMs < 2200)) return;
+                    if (lastTypingValueSent && (nowMs - lastTypingSentMs < 1800)) return;
                     lastTypingSentMs = nowMs;
                     lastTypingValueSent = true;
                     safeMpRoomWrite(mpState.roomCode, { typing: { [currentUser.uid]: nowMs } }, true);
@@ -12597,6 +12772,29 @@
                 return mpEventArrivalMap.get(eventKey);
             }
 
+            function clearMpOrbsDomAndCache() {
+                if (mpOrbRefreshTimer) {
+                    clearTimeout(mpOrbRefreshTimer);
+                    mpOrbRefreshTimer = null;
+                }
+                mpOrbCache.clear();
+                const hudPlayers = document.getElementById('mpHudPlayersList');
+                if (hudPlayers) hudPlayers.innerHTML = '';
+                invalidateLayoutRectCache();
+            }
+
+            function deduplicatePlayersList(playersMap) {
+                const rawList = Object.values(playersMap || {});
+                const byUid = new Map();
+                for (const p of rawList) {
+                    if (!p || !p.uid) continue;
+                    if (!byUid.has(p.uid)) {
+                        byUid.set(p.uid, p);
+                    }
+                }
+                return Array.from(byUid.values());
+            }
+
             function renderMpFloatingOrbs(roomData, steadyPlayers, hudPlayersContainer) {
                 if (!hudPlayersContainer) return;
 
@@ -12606,18 +12804,14 @@
                 }
 
                 const curRound = roomData.currentRound || null;
+                const winnersMap = curRound?.winners || {};
+                const stageActionsMap = curRound?.stageActions || {};
                 const stageVotes = curRound?.stageVotes || [];
                 const nextVotes = curRound?.nextVotes || [];
                 const guesses = curRound?.guesses || [];
                 const typingMap = roomData.typing || {};
                 const isRoundPlaying = Boolean(curRound && curRound.status === 'playing');
-                const isRoundWon = Boolean(curRound && curRound.status === 'won');
                 const isRoundEnded = Boolean(curRound && (curRound.status === 'won' || curRound.status === 'failed'));
-
-                let topScore = 0;
-                for (const p of steadyPlayers) {
-                    if ((p.score || 0) > topScore) topScore = p.score || 0;
-                }
 
                 const activeUids = new Set(steadyPlayers.map(p => p.uid));
                 for (const [cachedUid, entry] of mpOrbCache.entries()) {
@@ -12626,6 +12820,15 @@
                         mpOrbCache.delete(cachedUid);
                     }
                 }
+
+                // Remove any stray DOM nodes in hudPlayersContainer not matching mpOrbCache
+                Array.from(hudPlayersContainer.children).forEach(child => {
+                    const uidAttr = child.getAttribute('data-mp-uid');
+                    const cached = uidAttr ? mpOrbCache.get(uidAttr) : null;
+                    if (!uidAttr || !activeUids.has(uidAttr) || (cached && cached.el !== child)) {
+                        child.remove();
+                    }
+                });
 
                 const nowPerf = performance.now();
                 let earliestExpireMs = Infinity;
@@ -12637,15 +12840,15 @@
                         el.setAttribute('data-mp-uid', p.uid);
                         const dur = (3.7 + (idx % 4) * 0.45).toFixed(2);
                         const delay = -(idx * 1.15).toFixed(2);
-                        el.className = 'mp-orb-float relative flex flex-col items-center gap-1 select-none transition-all duration-300';
+                        el.className = 'mp-orb-float relative flex flex-col items-center gap-1 select-none transition-opacity duration-300';
                         el.style.setProperty('--orb-dur', `${dur}s`);
                         el.style.setProperty('--orb-delay', `${delay}s`);
 
                         el.innerHTML = `
                             <div class="orb-top-bubble absolute -top-5 left-1/2 -translate-x-1/2 z-20 pointer-events-none whitespace-nowrap"></div>
-                            <div class="orb-circle-wrap relative transition-transform duration-300">
+                            <div class="orb-circle-wrap magnetic-item relative" data-base-scale="1">
                                 <div class="orb-halo hidden absolute inset-0 rounded-full mp-winner-halo pointer-events-none"></div>
-                                <div class="orb-avatar-ring relative w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 border-zinc-700/80 bg-[#18181c] transition-all duration-300 flex items-center justify-center">
+                                <div class="orb-avatar-ring relative w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 border-zinc-700/80 bg-[#18181c] transition-colors duration-300 flex items-center justify-center">
                                     <img class="orb-img hidden w-full h-full object-cover" src="" alt="" referrerpolicy="no-referrer" />
                                     <span class="orb-initial text-xs font-bold text-zinc-200"></span>
                                 </div>
@@ -12653,7 +12856,6 @@
                                 <div class="orb-score-pill absolute -bottom-1.5 left-1/2 -translate-x-1/2 px-1.5 py-[1px] rounded-full bg-[#09090b]/95 border border-zinc-800 text-[10px] font-mono font-semibold text-zinc-200 whitespace-nowrap shadow-md z-10">0</div>
                             </div>
                             <div class="orb-name-row pt-1 flex items-center justify-center gap-1 max-w-[78px]">
-                                <span class="orb-leader-dot hidden w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0" title="Lider pokoju"></span>
                                 <span class="orb-name text-[11px] font-medium truncate text-zinc-300"></span>
                             </div>
                         `;
@@ -12668,47 +12870,55 @@
                             initial: el.querySelector('.orb-initial'),
                             rimBadge: el.querySelector('.orb-rim-badge'),
                             scorePill: el.querySelector('.orb-score-pill'),
-                            leaderDot: el.querySelector('.orb-leader-dot'),
                             nameText: el.querySelector('.orb-name'),
                             lastWrongGuessTs: 0
                         };
                         mpOrbCache.set(p.uid, orbEntry);
+                        invalidateLayoutRectCache();
                     }
 
                     if (hudPlayersContainer.children[idx] !== orbEntry.el) {
                         hudPlayersContainer.appendChild(orbEntry.el);
+                        invalidateLayoutRectCache();
                     }
 
                     const isMe = Boolean(currentUser && p.uid === currentUser.uid);
-                    const isLeader = topScore > 0 && (p.score || 0) === topScore;
-                    const isRoundWinner = Boolean(isRoundWon && curRound.winnerUid === p.uid);
-                    const votedSkip = Boolean(isRoundPlaying && stageVotes.includes(p.uid));
+                    const winEntry = winnersMap[p.uid] || (curRound?.winnerUid === p.uid ? { points: curRound.winnerPoints || 0 } : null);
+                    const hasGuessedSong = Boolean(winEntry);
+                    const actedInStage = Boolean(isRoundPlaying && !hasGuessedSong && (stageActionsMap[p.uid] || stageVotes.includes(p.uid)));
                     const votedNext = Boolean(isRoundEnded && nextVotes.includes(p.uid));
 
-                    // Typing indicator (clock-skew safe)
+                    // Typing indicator: local user sees their own typing immediately, remote users via arrival timer
                     let isTyping = false;
-                    const remoteTypingTs = typingMap[p.uid] || 0;
-                    const roundStartGuard = curRound?.startedAt || 0;
-                    if (isRoundPlaying && remoteTypingTs > 0 && remoteTypingTs >= roundStartGuard) {
-                        const tKey = `typing_${curRound.roundId}_${p.uid}_${remoteTypingTs}`;
-                        const tElapsed = nowPerf - getLocalArrivalTimeForEvent(tKey);
-                        if (tElapsed < 4200) {
+                    if (isRoundPlaying && !hasGuessedSong && !actedInStage) {
+                        if (isMe && mpState.localTypingUntilMs > nowPerf) {
                             isTyping = true;
-                            earliestExpireMs = Math.min(earliestExpireMs, 4250 - tElapsed);
+                            earliestExpireMs = Math.min(earliestExpireMs, mpState.localTypingUntilMs - nowPerf + 40);
+                        } else {
+                            const remoteTypingTs = typingMap[p.uid] || 0;
+                            const roundStartGuard = curRound?.startedAt || 0;
+                            if (remoteTypingTs > 0 && remoteTypingTs >= roundStartGuard) {
+                                const tKey = `typing_${curRound.roundId}_${p.uid}_${remoteTypingTs}`;
+                                const tElapsed = nowPerf - getLocalArrivalTimeForEvent(tKey);
+                                if (tElapsed < 4200) {
+                                    isTyping = true;
+                                    earliestExpireMs = Math.min(earliestExpireMs, 4250 - tElapsed);
+                                }
+                            }
                         }
                     }
 
-                    // Latest non-skip guess by this player on current stage (clock-skew safe)
+                    // Latest non-skip guess by this player on current stage
                     let recentGuess = null;
-                    if (isRoundPlaying && guesses.length > 0) {
+                    if (isRoundPlaying && !hasGuessedSong && guesses.length > 0) {
                         for (let gIdx = guesses.length - 1; gIdx >= 0; gIdx--) {
                             const g = guesses[gIdx];
                             if (g.uid === p.uid && g.type !== 'skip' && g.stage === (curRound.stageIndex || 0)) {
                                 const gKey = `guess_${curRound.roundId}_${p.uid}_${g.ts}`;
                                 const gElapsed = nowPerf - getLocalArrivalTimeForEvent(gKey);
-                                if (gElapsed < 4000) {
+                                if (gElapsed < 3600) {
                                     recentGuess = g;
-                                    earliestExpireMs = Math.min(earliestExpireMs, 4050 - gElapsed);
+                                    earliestExpireMs = Math.min(earliestExpireMs, 3650 - gElapsed);
                                 }
                                 break;
                             }
@@ -12728,83 +12938,60 @@
                         orbEntry.initial.textContent = (p.name || 'G').charAt(0).toUpperCase();
                     }
 
-                    // Name & Score
                     const firstName = (p.name || 'Gracz').split(' ')[0];
                     orbEntry.nameText.textContent = firstName;
                     orbEntry.scorePill.textContent = `${p.score || 0}`;
 
-                    if (isLeader && !isRoundWon) {
-                        orbEntry.leaderDot.classList.remove('hidden');
-                    } else {
-                        orbEntry.leaderDot.classList.add('hidden');
-                    }
-
-                    // Trigger shake once for a new wrong guess
                     if (recentGuess && recentGuess.type === 'wrong' && recentGuess.ts !== orbEntry.lastWrongGuessTs) {
                         orbEntry.lastWrongGuessTs = recentGuess.ts;
-                        orbEntry.circleWrap.classList.remove('mp-orb-shake');
-                        void orbEntry.circleWrap.offsetWidth;
-                        orbEntry.circleWrap.classList.add('mp-orb-shake');
+                        orbEntry.avatarRing.classList.remove('mp-orb-shake');
+                        void orbEntry.avatarRing.offsetWidth;
+                        orbEntry.avatarRing.classList.add('mp-orb-shake');
                     }
 
-                    // Reset visual classes before applying exact state
                     orbEntry.topBubble.innerHTML = '';
                     orbEntry.rimBadge.className = 'orb-rim-badge hidden absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full items-center justify-center border border-[#09090b] shadow-md z-10';
                     orbEntry.rimBadge.innerHTML = '';
                     orbEntry.halo.className = 'orb-halo hidden absolute inset-0 rounded-full mp-winner-halo pointer-events-none';
 
-                    if (isRoundWinner) {
-                        const winColorHex = isMe ? 'emerald' : 'amber';
+                    // Pure Green for anyone who guessed right; dimmed for non-guessers when round is over; no yellow anywhere!
+                    if (hasGuessedSong) {
                         orbEntry.el.style.opacity = '1';
-                        orbEntry.circleWrap.style.transform = 'scale(1.22)';
-                        orbEntry.halo.className = `orb-halo absolute inset-0 rounded-full ${isMe ? 'bg-emerald-400/45' : 'bg-amber-400/40'} mp-winner-halo pointer-events-none`;
-                        orbEntry.avatarRing.className = `orb-avatar-ring relative w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 ${isMe ? 'border-emerald-400 shadow-[0_0_24px_rgba(16,185,129,0.75)]' : 'border-amber-400 shadow-[0_0_24px_rgba(251,191,36,0.7)]'} bg-[#18181c] transition-all duration-300 flex items-center justify-center`;
-                        orbEntry.scorePill.className = `orb-score-pill absolute -bottom-1.5 left-1/2 -translate-x-1/2 px-1.5 py-[1px] rounded-full bg-[#09090b] border ${isMe ? 'border-emerald-400/70 text-emerald-300' : 'border-amber-400/70 text-amber-300'} text-[10px] font-mono font-bold whitespace-nowrap shadow-md z-10`;
-                        orbEntry.nameText.className = `orb-name text-[11px] font-bold truncate ${isMe ? 'text-emerald-300' : 'text-amber-300'}`;
+                        orbEntry.circleWrap.dataset.baseScale = '1.12';
+                        orbEntry.halo.className = 'orb-halo absolute inset-0 rounded-full bg-emerald-400/40 mp-winner-halo pointer-events-none';
+                        orbEntry.avatarRing.className = 'orb-avatar-ring relative w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 border-emerald-400 shadow-[0_0_24px_rgba(16,185,129,0.75)] bg-[#18181c] transition-colors duration-300 flex items-center justify-center';
+                        orbEntry.scorePill.className = 'orb-score-pill absolute -bottom-1.5 left-1/2 -translate-x-1/2 px-1.5 py-[1px] rounded-full bg-[#09090b] border border-emerald-400/70 text-emerald-300 text-[10px] font-mono font-bold whitespace-nowrap shadow-md z-10';
+                        orbEntry.nameText.className = 'orb-name text-[11px] font-bold truncate text-emerald-300';
 
-                        const winPts = curRound.winnerPoints || 0;
+                        const winPts = winEntry.points || curRound.winnerPoints || 0;
                         orbEntry.topBubble.innerHTML = `
-                            <div class="flex flex-col items-center gap-0.5">
-                                <div class="text-amber-400 drop-shadow-[0_2px_8px_rgba(251,191,36,0.9)] mp-crown-bob" style="transform: translateX(0);">
-                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                                        <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"/>
-                                    </svg>
-                                </div>
-                                <span class="px-1.5 py-[1px] rounded-full ${isMe ? 'bg-emerald-500 text-zinc-950' : 'bg-amber-400 text-zinc-950'} font-mono font-bold text-[9px] shadow-lg">+${winPts}</span>
-                            </div>
+                            <span class="px-1.5 py-[1px] rounded-full bg-emerald-500 text-zinc-950 font-mono font-bold text-[9px] shadow-lg">+${winPts}</span>
                         `;
-                    } else if (isRoundWon) {
-                        orbEntry.el.style.opacity = '0.62';
-                        orbEntry.circleWrap.style.transform = 'scale(0.92)';
-                        orbEntry.avatarRing.className = `orb-avatar-ring relative w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 ${votedNext ? 'border-emerald-400/80' : 'border-zinc-800'} bg-[#18181c] transition-all duration-300 flex items-center justify-center`;
-                        orbEntry.scorePill.className = 'orb-score-pill absolute -bottom-1.5 left-1/2 -translate-x-1/2 px-1.5 py-[1px] rounded-full bg-[#09090b]/95 border border-zinc-800 text-[10px] font-mono font-semibold text-zinc-400 whitespace-nowrap shadow-md z-10';
-                        orbEntry.nameText.className = 'orb-name text-[11px] font-medium truncate text-zinc-400';
 
                         if (votedNext) {
-                            orbEntry.el.style.opacity = '1';
+                            orbEntry.rimBadge.className = 'orb-rim-badge flex absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full items-center justify-center bg-emerald-500 text-zinc-950 border border-[#09090b] shadow-md z-10';
+                            orbEntry.rimBadge.innerHTML = `<svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+                        }
+                    } else if (isRoundEnded) {
+                        orbEntry.el.style.opacity = votedNext ? '0.85' : '0.45';
+                        orbEntry.circleWrap.dataset.baseScale = '0.92';
+                        orbEntry.avatarRing.className = `orb-avatar-ring relative w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 ${votedNext ? 'border-emerald-400/75' : 'border-zinc-800'} bg-[#18181c] transition-colors duration-300 flex items-center justify-center`;
+                        orbEntry.scorePill.className = 'orb-score-pill absolute -bottom-1.5 left-1/2 -translate-x-1/2 px-1.5 py-[1px] rounded-full bg-[#09090b]/95 border border-zinc-800 text-[10px] font-mono font-semibold text-zinc-500 whitespace-nowrap shadow-md z-10';
+                        orbEntry.nameText.className = 'orb-name text-[11px] font-medium truncate text-zinc-500';
+
+                        if (votedNext) {
                             orbEntry.rimBadge.className = 'orb-rim-badge flex absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full items-center justify-center bg-emerald-500 text-zinc-950 border border-[#09090b] shadow-md z-10';
                             orbEntry.rimBadge.innerHTML = `<svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
                             orbEntry.topBubble.innerHTML = `<span class="px-1.5 py-[1px] rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-[9px] font-mono">Gotowy</span>`;
                         }
                     } else {
                         orbEntry.el.style.opacity = '1';
-                        orbEntry.circleWrap.style.transform = 'scale(1)';
+                        orbEntry.circleWrap.dataset.baseScale = '1';
                         orbEntry.nameText.className = `orb-name text-[11px] truncate ${isMe ? 'text-zinc-100 font-semibold' : 'text-zinc-400 font-medium'}`;
                         orbEntry.scorePill.className = `orb-score-pill absolute -bottom-1.5 left-1/2 -translate-x-1/2 px-1.5 py-[1px] rounded-full bg-[#09090b]/95 border ${isMe ? 'border-emerald-500/45 text-emerald-300' : 'border-zinc-800 text-zinc-200'} text-[10px] font-mono font-semibold whitespace-nowrap shadow-md z-10`;
 
-                        if (votedNext) {
-                            orbEntry.avatarRing.className = 'orb-avatar-ring relative w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 border-emerald-400/80 shadow-[0_0_12px_rgba(16,185,129,0.3)] bg-[#18181c] transition-all duration-300 flex items-center justify-center';
-                            orbEntry.rimBadge.className = 'orb-rim-badge flex absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full items-center justify-center bg-emerald-500 text-zinc-950 border border-[#09090b] shadow-md z-10';
-                            orbEntry.rimBadge.innerHTML = `<svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
-                            orbEntry.topBubble.innerHTML = `<span class="px-1.5 py-[1px] rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-[9px] font-mono">Gotowy</span>`;
-                        } else if (recentGuess && recentGuess.type === 'artist_match') {
-                            orbEntry.avatarRing.className = 'orb-avatar-ring relative w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 border-amber-400/85 shadow-[0_0_14px_rgba(251,191,36,0.35)] bg-[#18181c] transition-all duration-300 flex items-center justify-center';
-                            orbEntry.topBubble.innerHTML = `<span class="px-1.5 py-[1px] rounded-full bg-amber-500/20 border border-amber-400/45 text-amber-300 text-[9px] font-mono">Wykonawca!</span>`;
-                        } else if (recentGuess && recentGuess.type === 'wrong') {
-                            orbEntry.avatarRing.className = 'orb-avatar-ring relative w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 border-red-500/80 shadow-[0_0_12px_rgba(239,68,68,0.3)] bg-[#18181c] transition-all duration-300 flex items-center justify-center';
-                            orbEntry.topBubble.innerHTML = `<span class="px-1.5 py-[1px] rounded-full bg-red-500/20 border border-red-500/40 text-red-300 text-[9px] font-mono">Pudło</span>`;
-                        } else if (isTyping) {
-                            orbEntry.avatarRing.className = `orb-avatar-ring relative w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 ${isMe ? 'border-emerald-400/75' : 'border-zinc-400/75'} bg-[#18181c] transition-all duration-300 flex items-center justify-center`;
+                        if (isTyping) {
+                            orbEntry.avatarRing.className = `orb-avatar-ring relative w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 ${isMe ? 'border-emerald-400/75' : 'border-zinc-400/75'} bg-[#18181c] transition-colors duration-300 flex items-center justify-center`;
                             orbEntry.topBubble.innerHTML = `
                                 <span class="px-2 py-1 rounded-full bg-[#18181c]/95 border border-zinc-700/80 inline-flex items-center gap-0.5 shadow-md">
                                     <span class="w-1 h-1 rounded-full bg-zinc-200 mp-typing-dot" style="animation-delay: 0s;"></span>
@@ -12812,14 +12999,26 @@
                                     <span class="w-1 h-1 rounded-full bg-zinc-200 mp-typing-dot" style="animation-delay: 0.32s;"></span>
                                 </span>
                             `;
-                        } else if (votedSkip) {
-                            orbEntry.avatarRing.className = 'orb-avatar-ring relative w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 border-amber-400/75 shadow-[0_0_12px_rgba(251,191,36,0.2)] bg-[#18181c] transition-all duration-300 flex items-center justify-center';
-                            orbEntry.rimBadge.className = 'orb-rim-badge flex absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full items-center justify-center bg-amber-400 text-zinc-950 border border-[#09090b] shadow-md z-10';
+                        } else if (recentGuess && recentGuess.type === 'artist_match') {
+                            orbEntry.avatarRing.className = 'orb-avatar-ring relative w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 border-zinc-400 bg-[#18181c] transition-colors duration-300 flex items-center justify-center';
+                            orbEntry.topBubble.innerHTML = `<span class="px-1.5 py-[1px] rounded-full bg-zinc-800 border border-zinc-600 text-zinc-200 text-[9px] font-mono">Wykonawca</span>`;
+                        } else if (recentGuess && recentGuess.type === 'wrong') {
+                            orbEntry.avatarRing.className = 'orb-avatar-ring relative w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 border-red-500/80 shadow-[0_0_12px_rgba(239,68,68,0.3)] bg-[#18181c] transition-colors duration-300 flex items-center justify-center';
+                            orbEntry.topBubble.innerHTML = `<span class="px-1.5 py-[1px] rounded-full bg-red-500/20 border border-red-500/40 text-red-300 text-[9px] font-mono">Pudło</span>`;
+                        } else if (actedInStage) {
+                            orbEntry.avatarRing.className = 'orb-avatar-ring relative w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 border-zinc-500 bg-[#18181c] transition-colors duration-300 flex items-center justify-center';
+                            orbEntry.rimBadge.className = 'orb-rim-badge flex absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full items-center justify-center bg-zinc-700 text-zinc-100 border border-[#09090b] shadow-md z-10';
                             orbEntry.rimBadge.innerHTML = `<svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></svg>`;
-                            orbEntry.topBubble.innerHTML = `<span class="px-1.5 py-[1px] rounded-full bg-zinc-900/90 border border-zinc-700 text-zinc-300 text-[9px] font-mono">Pominął</span>`;
+                            orbEntry.topBubble.innerHTML = `<span class="px-1.5 py-[1px] rounded-full bg-zinc-900/90 border border-zinc-700 text-zinc-300 text-[9px] font-mono">Czeka</span>`;
                         } else {
-                            orbEntry.avatarRing.className = `orb-avatar-ring relative w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 ${isMe ? 'border-emerald-500/60 shadow-[0_0_12px_rgba(16,185,129,0.18)]' : 'border-zinc-700/80'} bg-[#18181c] transition-all duration-300 flex items-center justify-center`;
+                            orbEntry.avatarRing.className = `orb-avatar-ring relative w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 ${isMe ? 'border-emerald-500/60 shadow-[0_0_12px_rgba(16,185,129,0.18)]' : 'border-zinc-700/80'} bg-[#18181c] transition-colors duration-300 flex items-center justify-center`;
                         }
+                    }
+
+                    // Apply scale immediately if mouse magnet isn't active
+                    if (isTouchMobileDevice || !mouseFX.active) {
+                        const sc = parseFloat(orbEntry.circleWrap.dataset.baseScale || '1');
+                        orbEntry.circleWrap.style.transform = sc !== 1 ? `scale(${sc})` : '';
                     }
                 });
 
@@ -12842,7 +13041,13 @@
                 const hudBar = document.getElementById('mpLiveHudBar');
 
                 if (headerMpLabel) {
-                    headerMpLabel.textContent = mpState.active && mpState.roomCode ? mpState.roomCode : 'Co-op';
+                    if (mpState.active && mpState.roomCode) {
+                        headerMpLabel.textContent = mpState.roomCode;
+                        headerMpLabel.className = 'inline text-[11px] font-mono font-bold';
+                    } else {
+                        headerMpLabel.textContent = 'Co-op';
+                        headerMpLabel.className = 'hidden sm:inline text-[11px] font-mono';
+                    }
                 }
                 if (headerMpBtn) {
                     if (mpState.active) {
@@ -12869,7 +13074,7 @@
                     if (createJoinEl) { createJoinEl.classList.remove('hidden'); createJoinEl.classList.add('flex'); }
                     if (activeRoomEl) { activeRoomEl.classList.add('hidden'); activeRoomEl.classList.remove('flex'); }
                     if (hudBar) { hudBar.classList.add('hidden'); hudBar.classList.remove('flex'); }
-                    mpOrbCache.clear();
+                    clearMpOrbsDomAndCache();
                     return;
                 }
 
@@ -12877,9 +13082,9 @@
                 if (activeRoomEl) { activeRoomEl.classList.remove('hidden'); activeRoomEl.classList.add('flex'); }
 
                 const roomData = mpState.roomData || {};
-                const playersMap = roomData.players || {};
-                const modalSortedPlayers = Object.values(playersMap).sort((a, b) => (b.score || 0) - (a.score || 0) || (a.joinedAt || 0) - (b.joinedAt || 0));
-                const steadyOrbPlayers = Object.values(playersMap).sort((a, b) => (a.joinedAt || 0) - (b.joinedAt || 0));
+                const uniquePlayers = deduplicatePlayersList(roomData.players || {});
+                const modalSortedPlayers = [...uniquePlayers].sort((a, b) => (b.score || 0) - (a.score || 0) || (a.joinedAt || 0) - (b.joinedAt || 0));
+                const steadyOrbPlayers = [...uniquePlayers].sort((a, b) => (a.joinedAt || 0) - (b.joinedAt || 0));
 
                 const codeEl = document.getElementById('mpModalRoomCode');
                 const countEl = document.getElementById('mpModalPlayerCount');
@@ -12935,13 +13140,7 @@
                 if (hudBar) {
                     hudBar.classList.remove('hidden');
                     hudBar.classList.add('flex');
-                    const hudCode = document.getElementById('mpHudRoomCode');
-                    const hudCountMobile = document.getElementById('mpHudCountMobile');
                     const hudPlayers = document.getElementById('mpHudPlayersList');
-                    if (hudCode) hudCode.textContent = mpState.roomCode;
-                    if (hudCountMobile) {
-                        hudCountMobile.textContent = `· ${steadyOrbPlayers.length} ${steadyOrbPlayers.length === 1 ? 'gracz' : 'graczy'}`;
-                    }
                     if (hudPlayers) {
                         renderMpFloatingOrbs(roomData, steadyOrbPlayers, hudPlayers);
                     }
@@ -12950,13 +13149,14 @@
                 // Update Next Song button label on result screen if in Multiplayer
                 const nextBtnLabel = document.getElementById('nextSongMainBtnLabel');
                 if (nextBtnLabel && mpState.active && roomData.currentRound && roundOver) {
-                    const totalPlayers = Math.max(1, steadyOrbPlayers.length);
-                    const nVotes = roomData.currentRound.nextVotes || [];
+                    const eligibleVoters = getEligibleNextRoundVoters(roomData);
+                    const totalEligible = Math.max(1, eligibleVoters.length);
+                    const nVotes = (roomData.currentRound.nextVotes || []).filter(uid => Boolean(roomData.players?.[uid]));
                     const iVotedNext = currentUser && nVotes.includes(currentUser.uid);
-                    if (totalPlayers > 1) {
+                    if (totalEligible > 1) {
                         nextBtnLabel.textContent = iVotedNext
-                            ? `Czekam na gracza (${nVotes.length}/${totalPlayers})...`
-                            : `Następny utwór (${nVotes.length}/${totalPlayers})`;
+                            ? `Czekam na graczy (${Math.min(nVotes.length, totalEligible)}/${totalEligible})...`
+                            : `Następny utwór (${Math.min(nVotes.length, totalEligible)}/${totalEligible})`;
                     } else {
                         nextBtnLabel.textContent = 'Następny utwór';
                     }
@@ -13012,7 +13212,8 @@
                 isEditorTestRound = false;
                 isPreparingRoundAudio = true;
                 pendingPlayRequestToken = -1;
-                currentHintLevel = 0;
+                mpState.isSubmittingAction = false;
+                mpState.localTypingUntilMs = 0;
                 lastTypingValueSent = false;
                 lastTypingSentMs = 0;
                 stopAudioPlaybackAndReset();
@@ -13026,17 +13227,6 @@
                 isUserScrubbingMain = false;
                 lastMainSeekCommitMs = 0;
 
-                const hintBanner = document.getElementById('activeHintBanner');
-                if (hintBanner) {
-                    hintBanner.textContent = '';
-                    hintBanner.classList.add('hidden');
-                    hintBanner.classList.remove('inline-flex');
-                }
-                const winnerSpot = document.getElementById('mpWinnerSpotlight');
-                if (winnerSpot) {
-                    winnerSpot.classList.add('hidden');
-                    winnerSpot.classList.remove('flex', 'mp-winner-banner-pop');
-                }
                 const resStatusRow = document.getElementById('resultStatusRow');
                 if (resStatusRow) resStatusRow.classList.remove('hidden');
 
@@ -13062,6 +13252,7 @@
                     corsStreamUrl: songData.corsStreamUrl || null,
                     youtubeId: songData.youtubeId || null,
                     sourceType: 'online_stream',
+                    isSyncedFromMpRoom: true,
                     fileHandle: null,
                     fileObj: null,
                     startOffset: songData.startOffset || 0,
@@ -13077,6 +13268,7 @@
                 }
 
                 currentSong = syncedSong;
+                updateEditorAccessVisibility();
 
                 clearGuessInput(false);
                 exitMobileKeyboardModeSmoothly(false);
@@ -13108,6 +13300,14 @@
 
                 isPreparingRoundAudio = false;
                 updateGuessOrSkipButtonUI();
+
+                // If this client joined when the round was ALREADY won or failed, immediately transition to finishRound!
+                if (roundObj.status === 'won' || roundObj.status === 'failed') {
+                    mpState.lastSyncedRoundStatus = roundObj.status;
+                    finishRound(roundObj.status === 'won', false, null, roundObj);
+                    renderMpModalAndHud();
+                    return;
+                }
 
                 if (pendingPlayRequestToken === myRoundToken) {
                     pendingPlayRequestToken = -1;
@@ -13144,25 +13344,29 @@
                     }
 
                     renderMpModalAndHud();
+                    updateGuessOrSkipButtonUI();
 
                     const r = data.currentRound;
                     if (!r || data.status !== 'playing') return;
 
-                    // 1. Check if a brand new round started
+                    // 1. Check if a brand new round started (or client just joined into an existing round)
                     if (r.roundId && r.roundId !== mpState.lastSyncedRoundId) {
                         mpState.lastSyncedRoundId = r.roundId;
                         mpState.lastSyncedStageIndex = r.stageIndex || 0;
-                        mpState.lastSyncedRoundStatus = r.status || 'playing';
+                        mpState.lastSyncedRoundStatus = 'playing';
                         mpState.isAdvancingStage = false;
                         mpState.isStartingNextRound = false;
+                        mpState.isSubmittingAction = false;
                         window.toggleMultiplayerModal(false);
                         await startSyncedMpRoundOnClient(r, data);
+                        return;
                     }
 
                     // 2. Check if stage advanced for the current round
                     if (r.status === 'playing' && typeof r.stageIndex === 'number' && r.stageIndex > mpState.lastSyncedStageIndex) {
                         mpState.lastSyncedStageIndex = r.stageIndex;
                         mpState.isAdvancingStage = false;
+                        mpState.isSubmittingAction = false;
                         currentAttemptIndex = r.stageIndex;
                         const nextDur = ATTEMPT_DURATIONS[currentAttemptIndex];
                         showFloatingFeedbackPill(
@@ -13182,48 +13386,32 @@
                     if ((r.status === 'won' || r.status === 'failed') && mpState.lastSyncedRoundStatus === 'playing') {
                         mpState.lastSyncedRoundStatus = r.status;
                         mpState.isAdvancingStage = false;
-                        if (r.status === 'won') {
-                            if (typeof r.winnerStage === 'number') {
-                                currentAttemptIndex = r.winnerStage;
-                            }
-                            finishRound(true, false, null, r);
-                        } else {
-                            finishRound(false, false, null, r);
-                        }
+                        mpState.isSubmittingAction = false;
+                        finishRound(r.status === 'won', false, null, r);
                         renderMpModalAndHud();
                     }
 
-                    // 5. Host coordinator: strip old skip pills when advancing stage / ending round
+                    // 5. Coordinator fallback (in case a player left mid-stage or everyone voted for next song)
                     if (mpState.isHost && activeUids.length > 0) {
-                        const requiredVotes = activeUids.length;
                         if (r.status === 'playing') {
-                            const sVotes = (r.stageVotes || []).filter(uid => Boolean(playersObj[uid]));
-                            if (sVotes.length >= requiredVotes && !mpState.isAdvancingStage) {
+                            const winnersObj = r.winners || {};
+                            const remainingUids = activeUids.filter(uid => !winnersObj[uid]);
+                            const stageActionsObj = r.stageActions || {};
+                            const sVotes = Array.isArray(r.stageVotes) ? r.stageVotes : [];
+                            const allRemainingDone = remainingUids.length === 0 || remainingUids.every(uid => Boolean(stageActionsObj[uid]) || sVotes.includes(uid));
+
+                            if (allRemainingDone && !mpState.isAdvancingStage) {
                                 mpState.isAdvancingStage = true;
-                                const cleanedGuesses = (r.guesses || []).filter(g => g.type !== 'skip');
-                                if (r.stageIndex >= 5) {
-                                    await safeMpRoomWrite(roomCode, {
-                                        currentRound: {
-                                            ...r,
-                                            status: 'failed',
-                                            stageVotes: [],
-                                            guesses: cleanedGuesses
-                                        }
-                                    }, true);
-                                } else {
-                                    await safeMpRoomWrite(roomCode, {
-                                        currentRound: {
-                                            ...r,
-                                            stageIndex: (r.stageIndex || 0) + 1,
-                                            stageVotes: [],
-                                            guesses: cleanedGuesses
-                                        }
-                                    }, true);
-                                }
+                                await safeMpRoomTransaction(roomCode, (freshData) => {
+                                    return evaluateAndApplyMpRoundTransitionsInPlace(freshData);
+                                });
                             }
                         } else if (r.status === 'won' || r.status === 'failed') {
+                            const eligibleVoters = getEligibleNextRoundVoters(data);
                             const nVotes = (r.nextVotes || []).filter(uid => Boolean(playersObj[uid]));
-                            if (nVotes.length >= requiredVotes && !mpState.isStartingNextRound) {
+                            const allEligibleVoted = eligibleVoters.length > 0 && eligibleVoters.every(uid => nVotes.includes(uid));
+
+                            if ((allEligibleVoted || nVotes.length >= activeUids.length) && !mpState.isStartingNextRound) {
                                 mpState.isStartingNextRound = true;
                                 await window.hostStartNextMpRound(false);
                             }
@@ -13250,49 +13438,68 @@
                     showToast('Zaloguj się przez Google, aby stworzyć pokój Multiplayer.');
                     return;
                 }
-                const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-                let code = '';
-                for (let i = 0; i < 5; i++) {
-                    code += chars.charAt(getCryptoRandomInt(chars.length));
+                if (mpState.isJoiningOrCreating) return;
+                mpState.isJoiningOrCreating = true;
+
+                try {
+                    if (mpState.active && mpState.roomCode) {
+                        await window.leaveMultiplayerRoom(true);
+                    }
+
+                    // Stop any background solo round immediately so host is 100% synced with lobby
+                    ++currentRoundToken;
+                    stopAudioPlaybackAndReset();
+                    currentSong = null;
+                    roundOver = false;
+                    clearMpOrbsDomAndCache();
+
+                    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+                    let code = '';
+                    for (let i = 0; i < 5; i++) {
+                        code += chars.charAt(getCryptoRandomInt(chars.length));
+                    }
+
+                    const myName = getDisplayNameForPlayer(currentUser, stats.customNickname);
+                    const roomPayload = {
+                        isMpRoom: true,
+                        roomCode: code,
+                        hostUid: currentUser.uid,
+                        status: 'lobby',
+                        playlistTitle: currentActivePlaylistMeta?.title || 'Bazowa Playlista Hitów',
+                        titlePool: songsLibrary.filter(s => !s.isDemo).slice(0, 160).map(s => s.cleanTitle),
+                        typing: {},
+                        players: {
+                            [currentUser.uid]: {
+                                uid: currentUser.uid,
+                                name: myName,
+                                photoURL: currentUser.photoURL || '',
+                                score: 0,
+                                guessed: 0,
+                                joinedAt: Date.now()
+                            }
+                        },
+                        currentRound: null
+                    };
+
+                    const ok = await safeMpRoomWrite(code, roomPayload, false);
+                    if (!ok) {
+                        showToast('Nie udało się utworzyć pokoju w bazie Firebase.');
+                        return;
+                    }
+
+                    mpState.active = true;
+                    mpState.roomCode = code;
+                    mpState.isHost = true;
+                    mpState.roomData = roomPayload;
+                    mpState.lastSyncedRoundId = null;
+
+                    subscribeToMpRoom(code);
+                    renderMpModalAndHud();
+                    updateAttemptTimelineUI();
+                    showFloatingFeedbackPill(`Utworzono pokój: ${code}`, 'emerald', 'Wyślij kod lub link znajomemu!');
+                } finally {
+                    mpState.isJoiningOrCreating = false;
                 }
-
-                const myName = getDisplayNameForPlayer(currentUser, stats.customNickname);
-                const roomPayload = {
-                    isMpRoom: true,
-                    roomCode: code,
-                    hostUid: currentUser.uid,
-                    status: 'lobby',
-                    playlistTitle: currentActivePlaylistMeta?.title || 'Bazowa Playlista Hitów',
-                    titlePool: songsLibrary.filter(s => !s.isDemo).slice(0, 160).map(s => s.cleanTitle),
-                    typing: {},
-                    players: {
-                        [currentUser.uid]: {
-                            uid: currentUser.uid,
-                            name: myName,
-                            photoURL: currentUser.photoURL || '',
-                            score: 0,
-                            guessed: 0,
-                            joinedAt: Date.now()
-                        }
-                    },
-                    currentRound: null
-                };
-
-                const ok = await safeMpRoomWrite(code, roomPayload, false);
-                if (!ok) {
-                    showToast('Nie udało się utworzyć pokoju w bazie Firebase.');
-                    return;
-                }
-
-                mpState.active = true;
-                mpState.roomCode = code;
-                mpState.isHost = true;
-                mpState.roomData = roomPayload;
-                mpState.lastSyncedRoundId = null;
-
-                subscribeToMpRoom(code);
-                renderMpModalAndHud();
-                showFloatingFeedbackPill(`Utworzono pokój: ${code}`, 'emerald', 'Wyślij kod lub link znajomemu!');
             };
 
             window.joinMultiplayerRoomFromInput = async function () {
@@ -13312,66 +13519,89 @@
                     return;
                 }
                 const code = String(rawCode || '').trim().toUpperCase();
-                if (!code) return;
-
-                const snap = await safeMpRoomGet(code);
-                if (!snap || !snap.exists) {
-                    showToast(`Nie znaleziono pokoju o kodzie: ${code}`);
+                if (!code || mpState.isJoiningOrCreating) return;
+                if (mpState.active && mpState.roomCode === code) {
+                    window.toggleMultiplayerModal(true);
                     return;
                 }
 
-                const existingData = snap.data() || {};
-                const myName = getDisplayNameForPlayer(currentUser, stats.customNickname);
-                const existingPlayer = existingData.players?.[currentUser.uid];
-
-                const updatedPlayers = {
-                    ...(existingData.players || {}),
-                    [currentUser.uid]: {
-                        uid: currentUser.uid,
-                        name: myName,
-                        photoURL: currentUser.photoURL || '',
-                        score: existingPlayer ? (existingPlayer.score || 0) : 0,
-                        guessed: existingPlayer ? (existingPlayer.guessed || 0) : 0,
-                        joinedAt: existingPlayer ? existingPlayer.joinedAt : Date.now()
+                mpState.isJoiningOrCreating = true;
+                try {
+                    if (mpState.active && mpState.roomCode && mpState.roomCode !== code) {
+                        await window.leaveMultiplayerRoom(true);
                     }
-                };
 
-                await safeMpRoomWrite(code, { players: updatedPlayers }, true);
+                    const snap = await safeMpRoomGet(code);
+                    if (!snap || !snap.exists) {
+                        showToast(`Nie znaleziono pokoju o kodzie: ${code}`);
+                        return;
+                    }
 
-                mpState.active = true;
-                mpState.roomCode = code;
-                mpState.isHost = (existingData.hostUid === currentUser.uid);
-                mpState.roomData = { ...existingData, players: updatedPlayers };
-                mpState.lastSyncedRoundId = null;
+                    // Stop any solo round before entering the room
+                    ++currentRoundToken;
+                    stopAudioPlaybackAndReset();
+                    currentSong = null;
+                    roundOver = false;
+                    clearMpOrbsDomAndCache();
 
-                subscribeToMpRoom(code);
-                renderMpModalAndHud();
-                showFloatingFeedbackPill(`Dołączono do pokoju: ${code}`, 'emerald', `Graczy w pokoju: ${Object.keys(updatedPlayers).length}`);
+                    const myName = getDisplayNameForPlayer(currentUser, stats.customNickname);
+                    const updatedRoomData = await safeMpRoomTransaction(code, (data) => {
+                        if (!data.players || typeof data.players !== 'object') data.players = {};
+                        const existingPlayer = data.players[currentUser.uid];
+                        data.players[currentUser.uid] = {
+                            uid: currentUser.uid,
+                            name: myName,
+                            photoURL: currentUser.photoURL || '',
+                            score: existingPlayer ? (existingPlayer.score || 0) : 0,
+                            guessed: existingPlayer ? (existingPlayer.guessed || 0) : 0,
+                            joinedAt: existingPlayer && existingPlayer.joinedAt ? existingPlayer.joinedAt : Date.now()
+                        };
+                        return data;
+                    });
+
+                    if (!updatedRoomData) {
+                        showToast('Nie udało się dołączyć do pokoju.');
+                        return;
+                    }
+
+                    mpState.active = true;
+                    mpState.roomCode = code;
+                    mpState.isHost = (updatedRoomData.hostUid === currentUser.uid);
+                    mpState.roomData = updatedRoomData;
+                    mpState.lastSyncedRoundId = null;
+
+                    subscribeToMpRoom(code);
+                    renderMpModalAndHud();
+                    updateAttemptTimelineUI();
+                    showFloatingFeedbackPill(`Dołączono do pokoju: ${code}`, 'emerald', `Graczy w pokoju: ${Object.keys(updatedRoomData.players || {}).length}`);
+                } finally {
+                    mpState.isJoiningOrCreating = false;
+                }
             };
 
             window.leaveMultiplayerRoom = async function (silent = false) {
                 const code = mpState.roomCode;
-                if (mpOrbRefreshTimer) {
-                    clearTimeout(mpOrbRefreshTimer);
-                    mpOrbRefreshTimer = null;
-                }
                 if (mpState.roomUnsubscribe) {
                     mpState.roomUnsubscribe();
                     mpState.roomUnsubscribe = null;
                 }
-                if (code && currentUser && mpState.roomData?.players) {
-                    const remainingPlayers = { ...mpState.roomData.players };
-                    delete remainingPlayers[currentUser.uid];
-                    const remUids = Object.keys(remainingPlayers);
-                    if (remUids.length === 0) {
-                        try { await getMpRoomRef(code).delete(); } catch (e) {}
-                    } else {
-                        const nextHost = (mpState.roomData.hostUid === currentUser.uid) ? remUids[0] : mpState.roomData.hostUid;
-                        await safeMpRoomWrite(code, {
-                            hostUid: nextHost,
-                            players: remainingPlayers
-                        }, false);
-                    }
+                if (code && currentUser) {
+                    await safeMpRoomTransaction(code, (data) => {
+                        const remainingPlayers = { ...(data.players || {}) };
+                        delete remainingPlayers[currentUser.uid];
+                        const remUids = Object.keys(remainingPlayers);
+                        if (remUids.length === 0) {
+                            return null;
+                        }
+                        data.players = remainingPlayers;
+                        if (data.hostUid === currentUser.uid) {
+                            data.hostUid = remUids[0];
+                        }
+                        if (data.typing && data.typing[currentUser.uid]) {
+                            delete data.typing[currentUser.uid];
+                        }
+                        return evaluateAndApplyMpRoundTransitionsInPlace(data);
+                    });
                 }
 
                 mpState.active = false;
@@ -13379,20 +13609,18 @@
                 mpState.isHost = false;
                 mpState.roomData = null;
                 mpState.lastSyncedRoundId = null;
-                mpOrbCache.clear();
+                mpState.isSubmittingAction = false;
+                mpState.localTypingUntilMs = 0;
+                clearMpOrbsDomAndCache();
                 mpEventArrivalMap.clear();
                 lastTypingValueSent = false;
                 lastTypingSentMs = 0;
 
-                const winnerSpot = document.getElementById('mpWinnerSpotlight');
-                if (winnerSpot) {
-                    winnerSpot.classList.add('hidden');
-                    winnerSpot.classList.remove('flex', 'mp-winner-banner-pop');
-                }
-
                 renderMpModalAndHud();
+                updateEditorAccessVisibility();
                 if (!silent) {
                     showFloatingFeedbackPill('Opuszczono pokój Multiplayer', 'neutral');
+                    await startNewRound();
                 }
             };
 
@@ -13466,6 +13694,8 @@
                     return;
                 }
 
+                markSongAsRecentlyPlayed(pickedSong);
+
                 const samplePool = songsLibrary
                     .filter(s => !s.isDemo)
                     .map(s => s.cleanTitle);
@@ -13474,16 +13704,21 @@
                 const roundId = 'r_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
                 const prevRoundNum = mpState.roomData?.currentRound?.roundNumber || 0;
                 const startedAtMs = Date.now();
+                const participantUids = Object.keys(mpState.roomData?.players || {});
 
                 const roundPayload = {
                     roundId,
                     roundNumber: prevRoundNum + 1,
                     startedAt: startedAtMs,
+                    endedAt: null,
                     status: 'playing',
                     stageIndex: 0,
+                    participantUids,
+                    stageActions: {},
                     stageVotes: [],
                     nextVotes: [],
                     guesses: [],
+                    winners: {},
                     winnerUid: null,
                     winnerName: null,
                     winnerStage: null,
@@ -13504,131 +13739,227 @@
                     status: 'playing',
                     playlistTitle: currentActivePlaylistMeta?.title || 'Playlista Online',
                     titlePool: shuffledSample,
+                    typing: {},
                     currentRound: roundPayload
                 }, true);
             };
 
             window.__submitMpGuessResult = async function ({ isCorrect, isArtistMatch, text }) {
                 if (!mpState.active || !mpState.roomCode || !currentUser || !mpState.roomData?.currentRound) return;
-                const r = mpState.roomData.currentRound;
-                if (r.status !== 'playing') return;
+                if (mpState.isSubmittingAction) return;
 
+                const myUid = currentUser.uid;
                 const myName = getDisplayNameForPlayer(currentUser, stats.customNickname);
-                const newGuessEntry = {
-                    uid: currentUser.uid,
-                    name: myName,
-                    text,
-                    type: isCorrect ? 'correct' : (isArtistMatch ? 'artist_match' : 'wrong'),
-                    stage: currentAttemptIndex,
-                    ts: Date.now()
-                };
+                const expectedStage = currentAttemptIndex;
 
-                const updatedGuesses = [...(r.guesses || []), newGuessEntry];
+                mpState.isSubmittingAction = true;
+                updateGuessOrSkipButtonUI();
 
-                if (isCorrect) {
-                    const pts = STAGE_BASE_POINTS[currentAttemptIndex] || 15;
-                    const playersMap = { ...(mpState.roomData.players || {}) };
-                    const meObj = playersMap[currentUser.uid] || { uid: currentUser.uid, name: myName, score: 0, guessed: 0 };
-                    meObj.score = (meObj.score || 0) + pts;
-                    meObj.guessed = (meObj.guessed || 0) + 1;
-                    playersMap[currentUser.uid] = meObj;
+                let awardedPtsToMe = 0;
+                let roundStillContinuingForOthers = false;
 
-                    await safeMpRoomWrite(mpState.roomCode, {
-                        players: playersMap,
-                        typing: { [currentUser.uid]: 0 },
-                        currentRound: {
-                            ...r,
-                            status: 'won',
-                            winnerUid: currentUser.uid,
-                            winnerName: myName,
-                            winnerStage: currentAttemptIndex,
-                            winnerPoints: pts,
-                            guesses: updatedGuesses.filter(g => g.type !== 'skip')
+                try {
+                    const updatedData = await safeMpRoomTransaction(mpState.roomCode, (data) => {
+                        const r = data.currentRound;
+                        if (!r || r.status !== 'playing') return data;
+                        if (!r.winners || typeof r.winners !== 'object') r.winners = {};
+                        if (!r.stageActions || typeof r.stageActions !== 'object') r.stageActions = {};
+                        if (!Array.isArray(r.guesses)) r.guesses = [];
+
+                        // Prevent duplicate action in the same stage or after already winning
+                        if (r.winners[myUid] || r.stageActions[myUid]) {
+                            return data;
                         }
-                    }, true);
-                } else {
-                    const currentVotes = new Set(r.stageVotes || []);
-                    currentVotes.add(currentUser.uid);
-                    const votesArr = Array.from(currentVotes);
-                    const totalPlayers = Math.max(1, Object.keys(mpState.roomData.players || {}).length);
 
-                    if (isArtistMatch) {
-                        showFloatingFeedbackPill('Dobry wykonawca! Szukaj innego tytułu', 'amber', `Gotowość etapu: ${votesArr.length}/${totalPlayers}`);
-                    } else if (votesArr.length < totalPlayers) {
-                        showFloatingFeedbackPill('Pudło! Czekamy na drugiego gracza...', 'neutral', `Gotowość: ${votesArr.length}/${totalPlayers}`);
+                        const activeStage = typeof r.stageIndex === 'number' ? r.stageIndex : expectedStage;
+
+                        if (isCorrect) {
+                            const prevWinnersCount = Object.keys(r.winners).length;
+                            const basePts = STAGE_BASE_POINTS[activeStage] || 15;
+                            // Subsequent winners get slightly reduced points compared to earlier winners
+                            const pts = prevWinnersCount === 0
+                                ? basePts
+                                : Math.max(10, basePts - Math.min(25, prevWinnersCount * 10));
+
+                            awardedPtsToMe = pts;
+
+                            r.winners[myUid] = {
+                                uid: myUid,
+                                name: myName,
+                                photoURL: currentUser.photoURL || '',
+                                stageIndex: activeStage,
+                                points: pts,
+                                order: prevWinnersCount + 1,
+                                ts: Date.now()
+                            };
+
+                            if (prevWinnersCount === 0) {
+                                r.winnerUid = myUid;
+                                r.winnerName = myName;
+                                r.winnerStage = activeStage;
+                                r.winnerPoints = pts;
+                            }
+
+                            if (!data.players) data.players = {};
+                            const meObj = data.players[myUid] || { uid: myUid, name: myName, photoURL: currentUser.photoURL || '', score: 0, guessed: 0, joinedAt: Date.now() };
+                            meObj.score = (meObj.score || 0) + pts;
+                            meObj.guessed = (meObj.guessed || 0) + 1;
+                            data.players[myUid] = meObj;
+
+                            r.guesses.push({
+                                uid: myUid,
+                                name: myName,
+                                text: r.song?.cleanTitle || text,
+                                type: 'correct',
+                                stage: activeStage,
+                                points: pts,
+                                ts: Date.now()
+                            });
+                        } else {
+                            const actionType = isArtistMatch ? 'artist_match' : 'wrong';
+                            r.stageActions[myUid] = {
+                                type: actionType,
+                                text,
+                                stage: activeStage,
+                                ts: Date.now()
+                            };
+                            r.guesses.push({
+                                uid: myUid,
+                                name: myName,
+                                text,
+                                type: actionType,
+                                stage: activeStage,
+                                ts: Date.now()
+                            });
+                        }
+
+                        if (!data.typing) data.typing = {};
+                        data.typing[myUid] = 0;
+
+                        evaluateAndApplyMpRoundTransitionsInPlace(data);
+                        roundStillContinuingForOthers = (data.currentRound.status === 'playing');
+                        return data;
+                    });
+
+                    if (updatedData) {
+                        mpState.roomData = updatedData;
+                        renderMpModalAndHud();
+                        renderAttemptsLadder();
+                        updateGuessOrSkipButtonUI();
+
+                        if (isCorrect && awardedPtsToMe > 0) {
+                            const curRoundId = updatedData.currentRound?.roundId;
+                            if (curRoundId) {
+                                mpState.celebratedWinRoundId = curRoundId;
+                            }
+                            setOutcomeScreenEffect('win', true);
+                            if (roundStillContinuingForOthers) {
+                                showFloatingFeedbackPill(
+                                    `Odgadłeś utwór! (+${awardedPtsToMe} pkt)`,
+                                    'emerald',
+                                    'Czekamy aż pozostali gracze dokończą rundę...'
+                                );
+                            }
+                        } else if (!isCorrect && roundStillContinuingForOthers) {
+                            const { remainingCount, actedCount } = getMpStageRemainingAndActedCounts();
+                            if (isArtistMatch) {
+                                showFloatingFeedbackPill('Dobry wykonawca! Szukaj innego tytułu', 'neutral', `Czekam na graczy (${actedCount}/${remainingCount})`);
+                            } else if (actedCount < remainingCount) {
+                                showFloatingFeedbackPill('Pudło! Czekamy na pozostałych graczy...', 'neutral', `Gotowość: ${actedCount}/${remainingCount}`);
+                            }
+                        }
                     }
-
-                    await safeMpRoomWrite(mpState.roomCode, {
-                        typing: { [currentUser.uid]: 0 },
-                        currentRound: {
-                            ...r,
-                            stageVotes: votesArr,
-                            guesses: updatedGuesses
-                        }
-                    }, true);
+                } finally {
+                    mpState.isSubmittingAction = false;
+                    updateGuessOrSkipButtonUI();
                 }
             };
 
             window.__voteSkipMpStage = async function () {
                 if (!mpState.active || !mpState.roomCode || !currentUser || !mpState.roomData?.currentRound) return;
-                const r = mpState.roomData.currentRound;
-                if (r.status !== 'playing') return;
+                if (mpState.isSubmittingAction) return;
 
-                const currentVotes = new Set(r.stageVotes || []);
-                if (currentVotes.has(currentUser.uid)) {
-                    const totalP = Math.max(1, Object.keys(mpState.roomData.players || {}).length);
-                    showFloatingFeedbackPill(`Czekasz na drugiego gracza (${currentVotes.size}/${totalP})`, 'amber', 'Nadal możesz wpisać tytuł jeśli wpadnie Ci do głowy!');
-                    return;
-                }
-
-                currentVotes.add(currentUser.uid);
-                const votesArr = Array.from(currentVotes);
-                const totalPlayers = Math.max(1, Object.keys(mpState.roomData.players || {}).length);
+                const myUid = currentUser.uid;
                 const myName = getDisplayNameForPlayer(currentUser, stats.customNickname);
-                const stepLabels = ['1.5s', '3s', '6s', '10s', '15s', 'MAX'];
+                const expectedStage = currentAttemptIndex;
 
-                const updatedGuesses = [
-                    ...(r.guesses || []),
-                    {
-                        uid: currentUser.uid,
-                        name: myName,
-                        text: 'Pomiń',
-                        type: 'skip',
-                        stage: currentAttemptIndex,
-                        stageLabel: stepLabels[currentAttemptIndex] || '',
-                        ts: Date.now()
+                mpState.isSubmittingAction = true;
+                updateGuessOrSkipButtonUI();
+
+                try {
+                    const updatedData = await safeMpRoomTransaction(mpState.roomCode, (data) => {
+                        const r = data.currentRound;
+                        if (!r || r.status !== 'playing') return data;
+                        if (!r.winners || typeof r.winners !== 'object') r.winners = {};
+                        if (!r.stageActions || typeof r.stageActions !== 'object') r.stageActions = {};
+                        if (!Array.isArray(r.guesses)) r.guesses = [];
+
+                        if (r.winners[myUid] || r.stageActions[myUid]) {
+                            return data;
+                        }
+
+                        const activeStage = typeof r.stageIndex === 'number' ? r.stageIndex : expectedStage;
+                        const stepLabels = ['1.5s', '3s', '6s', '10s', '15s', 'MAX'];
+
+                        r.stageActions[myUid] = {
+                            type: 'skip',
+                            text: 'Pomiń',
+                            stage: activeStage,
+                            ts: Date.now()
+                        };
+
+                        r.guesses.push({
+                            uid: myUid,
+                            name: myName,
+                            text: 'Pomiń',
+                            type: 'skip',
+                            stage: activeStage,
+                            stageLabel: stepLabels[activeStage] || '',
+                            ts: Date.now()
+                        });
+
+                        if (!data.typing) data.typing = {};
+                        data.typing[myUid] = 0;
+
+                        return evaluateAndApplyMpRoundTransitionsInPlace(data);
+                    });
+
+                    if (updatedData) {
+                        mpState.roomData = updatedData;
+                        renderMpModalAndHud();
+                        renderAttemptsLadder();
+                        updateGuessOrSkipButtonUI();
+
+                        if (updatedData.currentRound?.status === 'playing' && updatedData.currentRound.stageIndex === expectedStage) {
+                            const { remainingCount, actedCount } = getMpStageRemainingAndActedCounts();
+                            if (actedCount < remainingCount) {
+                                showFloatingFeedbackPill(`Głos za pominięciem (${actedCount}/${remainingCount})`, 'neutral', 'Czekamy na pozostałych graczy...');
+                            }
+                        }
                     }
-                ];
-
-                if (votesArr.length < totalPlayers) {
-                    showFloatingFeedbackPill(`Głos za pominięciem (${votesArr.length}/${totalPlayers})`, 'neutral', 'Czekamy na drugiego gracza...');
+                } finally {
+                    mpState.isSubmittingAction = false;
+                    updateGuessOrSkipButtonUI();
                 }
-
-                await safeMpRoomWrite(mpState.roomCode, {
-                    typing: { [currentUser.uid]: 0 },
-                    currentRound: {
-                        ...r,
-                        stageVotes: votesArr,
-                        guesses: updatedGuesses
-                    }
-                }, true);
             };
 
             window.__voteNextMpRound = async function () {
                 if (!mpState.active || !mpState.roomCode || !currentUser || !mpState.roomData?.currentRound) return;
-                const r = mpState.roomData.currentRound;
-                const nextVotes = new Set(r.nextVotes || []);
-                if (nextVotes.has(currentUser.uid)) return;
+                const myUid = currentUser.uid;
 
-                nextVotes.add(currentUser.uid);
-                const votesArr = Array.from(nextVotes);
+                const updatedData = await safeMpRoomTransaction(mpState.roomCode, (data) => {
+                    const r = data.currentRound;
+                    if (!r || (r.status !== 'won' && r.status !== 'failed')) return data;
+                    const nextVotesSet = new Set(Array.isArray(r.nextVotes) ? r.nextVotes : []);
+                    nextVotesSet.add(myUid);
+                    r.nextVotes = Array.from(nextVotesSet);
+                    return data;
+                });
 
-                await safeMpRoomWrite(mpState.roomCode, {
-                    currentRound: {
-                        ...r,
-                        nextVotes: votesArr
-                    }
-                }, true);
+                if (updatedData) {
+                    mpState.roomData = updatedData;
+                    renderMpModalAndHud();
+                }
             };
 
             function getCappedCustomMetadataForCloud() {
@@ -14364,7 +14695,6 @@
             toggleHelpModal,
             restartFromBeginning,
             handleMainPlayButton,
-            triggerVisualizerHint,
             onFreeSeekInput,
             commitFreeSeekInput,
             toggleMute,
