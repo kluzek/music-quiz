@@ -1009,8 +1009,8 @@
             </div>
 
             <!-- 5. ZERO-SHIFT ANCHORED BOTTOM ZONE: No artificial gap between chat & history, and never shifts #mainPlayerCard! -->
-            <div id="gameBottomZone" class="relative w-full h-12 sm:h-14 shrink-0">
-                <div class="absolute top-0 inset-x-0 flex flex-col items-center gap-2">
+            <div id="gameBottomZone" class="relative w-full h-0 shrink-0 overflow-visible">
+                <div class="absolute top-1 inset-x-0 flex flex-col items-center gap-2">
                     <div id="attemptsTrailWrapper" class="hidden w-full flex-col items-center">
                         <div id="attemptsList" class="scrollable-touch-area flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 w-full max-h-20 sm:max-h-24 overflow-y-auto py-0.5 px-1"></div>
                     </div>
@@ -1969,6 +1969,8 @@
                 blurExitTimer = null;
             }
             if (!isTouchMobileDevice || currentView !== 'game' || roundOver) return;
+            // Włączaj tryb klawiatury TYLKO gdy kursor faktycznie jest w polu zgadywania
+            if (!guessInput || document.activeElement !== guessInput) return;
 
             isGuessInputFocused = true;
             document.documentElement.classList.add('mobile-keyboard-open');
@@ -1980,7 +1982,7 @@
                 const vv = window.visualViewport;
                 const vvh = vv ? vv.height : window.innerHeight;
                 const heightDrop = lastClosedViewportHeight - vvh;
-                if (heightDrop < 75 && !wasMobileKeyboardOpen) {
+                if (heightDrop < 120 && !wasMobileKeyboardOpen) {
                     if (guessInput && document.activeElement === guessInput) guessInput.blur();
                     exitMobileKeyboardModeSmoothly();
                 }
@@ -2005,17 +2007,17 @@
         function updateMobileVisualViewportDocking() {
             const vv = window.visualViewport;
             const vvh = vv ? vv.height : window.innerHeight;
+            const guessInput = document.getElementById('guessInput');
+            const isInputActuallyActive = Boolean(guessInput && document.activeElement === guessInput);
 
-            if (Math.abs(window.innerWidth - lastViewportWidth) > 45) {
+            if (!isInputActuallyActive) {
+                lastClosedViewportHeight = window.innerHeight;
+            } else if (Math.abs(window.innerWidth - lastViewportWidth) > 45) {
                 lastViewportWidth = window.innerWidth;
-                if (!isGuessInputFocused && !wasMobileKeyboardOpen) {
-                    lastClosedViewportHeight = Math.max(window.innerHeight, vvh);
-                }
-            } else if (vvh >= lastClosedViewportHeight - 40) {
-                lastClosedViewportHeight = Math.max(lastClosedViewportHeight, window.innerHeight, vvh);
+                lastClosedViewportHeight = Math.max(window.innerHeight, vvh);
             }
 
-            const targetLockedHeight = isTouchMobileDevice ? lastClosedViewportHeight : vvh;
+            const targetLockedHeight = isTouchMobileDevice ? window.innerHeight : vvh;
             document.documentElement.style.setProperty('--vvh', `${Math.round(targetLockedHeight)}px`);
             document.documentElement.style.setProperty('--vv-top', '0px');
 
@@ -2026,22 +2028,21 @@
 
                 const heightDrop = lastClosedViewportHeight - vvh;
 
-                if (isTouchMobileDevice && !roundOver) {
-                    if (heightDrop > 95) {
+                if (isTouchMobileDevice && !roundOver && isInputActuallyActive) {
+                    if (heightDrop > 140) {
                         wasMobileKeyboardOpen = true;
                         minOpenViewportHeight = Math.min(minOpenViewportHeight, vvh);
                         clearKeyboardWatchdogTimer();
                         if (!document.body.classList.contains('mobile-keyboard-open')) {
                             enterMobileKeyboardModeSmoothly();
                         }
-                    } else if (wasMobileKeyboardOpen && (heightDrop < 85 || (minOpenViewportHeight < 9000 && vvh - minOpenViewportHeight > 75))) {
+                    } else if (wasMobileKeyboardOpen && (heightDrop < 110 || (minOpenViewportHeight < 9000 && vvh - minOpenViewportHeight > 90))) {
                         const dropdown = document.getElementById('autocompleteDropdown');
                         if (dropdown) dropdown.classList.add('hidden');
-                        const guessInput = document.getElementById('guessInput');
-                        if (guessInput && document.activeElement === guessInput) guessInput.blur();
+                        if (guessInput) guessInput.blur();
                         exitMobileKeyboardModeSmoothly();
                     }
-                } else if (roundOver && document.body.classList.contains('mobile-keyboard-open')) {
+                } else if (document.body.classList.contains('mobile-keyboard-open')) {
                     exitMobileKeyboardModeSmoothly();
                 }
             } else if (document.body.classList.contains('mobile-keyboard-open')) {
