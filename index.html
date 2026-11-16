@@ -858,22 +858,13 @@
         <!-- ==================== VIEW 1: CENTERED STAGE WITH ANCHORED BOTTOM RESERVOIR ==================== -->
         <div id="gameView" class="hidden w-full max-w-lg mx-auto my-auto flex-col items-center gap-3 sm:gap-5">
 
-            <!-- BOXLESS FLOATING MULTIPLAYER AVATAR ORBS + LIVE ROOM ACTIVITY PILL -->
-            <div id="mpLiveHudBar" class="hidden w-full flex-col items-center gap-1.5 pb-0.5">
-                <div class="inline-flex flex-wrap items-center justify-center gap-1.5">
-                    <button id="mpLiveActivityPill" onclick="toggleMultiplayerModal(true)" class="h-6 px-2.5 rounded-full bg-[#121215]/90 hover:bg-[#18181c] border border-zinc-800/90 text-[10px] font-mono text-zinc-300 inline-flex items-center gap-1.5 transition-colors" title="Kliknij, aby zobaczyć szczegóły pokoju lub zaprosić znajomych">
-                        <span id="mpLiveActivityDot" class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
-                        <span id="mpLiveActivityText" class="truncate max-w-[230px] sm:max-w-[320px]">Pokój Multiplayer</span>
-                    </button>
-                    <button onclick="openMpQuickInviteFromHud()" class="h-6 px-2 rounded-full bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/35 text-emerald-300 text-[10px] font-mono font-medium inline-flex items-center gap-1 transition-colors" title="Zaproś gracza jednym kliknięciem">
-                        <span>+ Zaproś</span>
-                    </button>
-                </div>
-                <div id="mpHudPlayersList" class="w-full flex flex-wrap items-end justify-center gap-5 sm:gap-7 pt-4 pb-1 min-h-[78px]"></div>
-            </div>
+            <!-- Open Player Stage (Original gap-4 sm:gap-7 spacing — 100% locked vertical position in Solo & Multiplayer) -->
+            <div id="mainPlayerCard" class="relative w-full flex flex-col items-center gap-4 sm:gap-7">
 
-            <!-- Open Player Stage (Original gap-4 sm:gap-7 spacing) -->
-            <div id="mainPlayerCard" class="w-full flex flex-col items-center gap-4 sm:gap-7">
+                <!-- ZERO-SHIFT ANCHORED TOP ZONE: Floating Multiplayer Orbs (0px layout height, never pushes #mainPlayerCard!) -->
+                <div id="mpLiveHudBar" class="hidden absolute bottom-full inset-x-0 pb-2 sm:pb-3.5 pointer-events-none z-20">
+                    <div id="mpHudPlayersList" class="w-full flex flex-wrap items-end justify-center gap-4 sm:gap-6 pointer-events-auto"></div>
+                </div>
 
                 <!-- 1. Centered Stage Info + Play Hub -->
                 <div class="flex flex-col items-center gap-3.5 sm:gap-4 w-full">
@@ -4621,9 +4612,33 @@
                                 ytMainState = ev.data;
                                 if (activeAudioEngine === 'youtube') {
                                     if (ev.data === YT.PlayerState.PLAYING) {
+                                        if (ytPrewarmingVideo) {
+                                            ytPrewarmingVideo = false;
+                                            try {
+                                                ytMainPlayer.pauseVideo();
+                                                if (ytPrewarmTargetStartSec > 0) {
+                                                    ytMainPlayer.seekTo(ytPrewarmTargetStartSec, true);
+                                                }
+                                            } catch (e) {}
+                                            ytMainState = 2;
+                                            syncMasterVolumeToYouTube();
+                                            isAudioWaitingForBuffer = false;
+                                            if (ytMainLoadResolver) {
+                                                const res = ytMainLoadResolver;
+                                                ytMainLoadResolver = null;
+                                                res(true);
+                                            }
+                                            return;
+                                        }
                                         if (currentView === 'game' && !roundOver && (!isSnippetPlaying || isPreparingRoundAudio)) {
                                             try { ytMainPlayer.pauseVideo(); } catch (e) {}
                                             ytMainState = 2;
+                                            syncMasterVolumeToYouTube();
+                                            if (ytMainLoadResolver) {
+                                                const res = ytMainLoadResolver;
+                                                ytMainLoadResolver = null;
+                                                res(true);
+                                            }
                                             return;
                                         }
                                         isAudioWaitingForBuffer = false;
@@ -4638,7 +4653,7 @@
                                         }
                                     } else if (ev.data === YT.PlayerState.CUED || ev.data === YT.PlayerState.PAUSED) {
                                         isAudioWaitingForBuffer = false;
-                                        if (ytMainLoadResolver) {
+                                        if (!ytPrewarmingVideo && ytMainLoadResolver) {
                                             const res = ytMainLoadResolver;
                                             ytMainLoadResolver = null;
                                             res(true);
@@ -4648,8 +4663,10 @@
                                         }
                                         updateGuessOrSkipButtonUI();
                                     } else if (ev.data === YT.PlayerState.BUFFERING) {
-                                        isAudioWaitingForBuffer = true;
-                                        updateGuessOrSkipButtonUI();
+                                        if (!ytPrewarmingVideo) {
+                                            isAudioWaitingForBuffer = true;
+                                            updateGuessOrSkipButtonUI();
+                                        }
                                     } else if (ev.data === YT.PlayerState.ENDED) {
                                         isAudioWaitingForBuffer = false;
                                         isSnippetPlaying = false;
@@ -4661,6 +4678,8 @@
                                 }
                             },
                             onError: () => {
+                                ytPrewarmingVideo = false;
+                                syncMasterVolumeToYouTube();
                                 if (ytMainLoadResolver) {
                                     const res = ytMainLoadResolver;
                                     ytMainLoadResolver = null;
@@ -4676,18 +4695,33 @@
             });
         }
 
+        let ytPrewarmingVideo = false;
+        let ytPrewarmTargetStartSec = 0;
+
         async function prepareYouTubeVideoOnMainPlayer(videoId, startSec = 0, timeoutMs = 2800) {
             if (!videoId) return false;
             const ready = await ensureYouTubeMainPlayerInitialized();
             if (!ready || !ytMainPlayer || typeof ytMainPlayer.cueVideoById !== 'function') return false;
 
+            const safeStart = Math.max(0, startSec || 0);
+
             return await new Promise((resolve) => {
                 let done = false;
+                let prewarmFallbackTid = null;
                 const finish = (ok) => {
                     if (done) return;
                     done = true;
+                    ytPrewarmingVideo = false;
                     ytMainLoadResolver = null;
                     clearTimeout(tid);
+                    if (prewarmFallbackTid) clearTimeout(prewarmFallbackTid);
+                    syncMasterVolumeToYouTube();
+                    const clk = visualizerPCMState.ytClock;
+                    clk.videoId = videoId;
+                    clk.lastRawTime = safeStart;
+                    clk.lastRawPerfMs = performance.now();
+                    clk.anchorTime = safeStart;
+                    clk.wasPlaying = false;
                     resolve(ok);
                 };
                 ytMainLoadResolver = finish;
@@ -4695,13 +4729,38 @@
 
                 try {
                     activeAudioEngine = 'youtube';
-                    ytMainState = 5;
                     ytMainCurrentVideoId = videoId;
-                    syncMasterVolumeToYouTube();
-                    ytMainPlayer.cueVideoById({
-                        videoId: videoId,
-                        startSeconds: Math.max(0, startSec || 0)
-                    });
+
+                    // Pre-warm the YouTube media stream into RAM when audio is unlocked so clicking PLAY has 0ms buffering delay!
+                    if (iosAudioUnlocked && typeof ytMainPlayer.loadVideoById === 'function') {
+                        ytPrewarmingVideo = true;
+                        ytPrewarmTargetStartSec = safeStart;
+                        ytMainState = 3;
+                        try { ytMainPlayer.mute(); } catch (e) {}
+                        ytMainPlayer.loadVideoById({
+                            videoId: videoId,
+                            startSeconds: safeStart
+                        });
+                        // If browser blocks background autoplay before gesture, settle cleanly after 950ms if video is loaded/cued
+                        prewarmFallbackTid = setTimeout(() => {
+                            if (!done && ytPrewarmingVideo) {
+                                ytPrewarmingVideo = false;
+                                if (ytMainState === 1 || ytMainState === 2 || ytMainState === 3 || ytMainState === 5) {
+                                    try { ytMainPlayer.pauseVideo(); } catch (e) {}
+                                    ytMainState = 2;
+                                    finish(true);
+                                }
+                            }
+                        }, 950);
+                    } else {
+                        ytPrewarmingVideo = false;
+                        ytMainState = 5;
+                        syncMasterVolumeToYouTube();
+                        ytMainPlayer.cueVideoById({
+                            videoId: videoId,
+                            startSeconds: safeStart
+                        });
+                    }
                 } catch (e) {
                     finish(false);
                 }
@@ -4710,6 +4769,7 @@
 
         function syncMasterVolumeToYouTube() {
             if (!ytMainPlayer || !ytMainPlayerReady) return;
+            if (ytPrewarmingVideo) return;
             try {
                 if (isMuted || audioEl.volume === 0) {
                     ytMainPlayer.mute();
@@ -4743,47 +4803,96 @@
 
         function isAudioCurrentlyPlaying() {
             if (activeAudioEngine === 'youtube') {
-                return Boolean(ytMainPlayerReady && ytMainState === 1);
+                return Boolean(ytMainPlayerReady && ytMainState === 1 && !ytPrewarmingVideo);
             }
             return Boolean(audioEl.src && !audioEl.paused && !audioEl.ended && audioEl.readyState >= 2);
         }
 
         function getActiveCurrentTime() {
+            const clk = visualizerPCMState.ytClock;
+            const nowPerf = performance.now();
+            const frameDt = clk.lastFramePerfMs > 0 ? Math.min(0.10, Math.max(0, (nowPerf - clk.lastFramePerfMs) / 1000)) : 0;
+            clk.lastFramePerfMs = nowPerf;
+
             if (activeAudioEngine === 'youtube' && ytMainPlayerReady && ytMainPlayer && typeof ytMainPlayer.getCurrentTime === 'function') {
                 let rawT = 0;
                 try { rawT = ytMainPlayer.getCurrentTime() || 0; } catch (e) { rawT = 0; }
-                const clk = visualizerPCMState.ytClock;
-                const playingNow = Boolean(ytMainPlayerReady && ytMainState === 1 && !isAudioWaitingForBuffer);
-                const nowPerf = performance.now();
+                const playingNow = Boolean(ytMainPlayerReady && ytMainState === 1 && !isAudioWaitingForBuffer && !ytPrewarmingVideo);
 
                 if (!playingNow) {
                     clk.wasPlaying = false;
+                    clk.engine = 'youtube';
                     clk.videoId = ytMainCurrentVideoId;
                     clk.lastRawTime = rawT;
+                    clk.lastRawPerfMs = nowPerf;
                     clk.anchorTime = rawT;
-                    clk.anchorPerfMs = nowPerf;
                     return rawT;
                 }
 
-                if (!clk.wasPlaying || clk.videoId !== ytMainCurrentVideoId || Math.abs(rawT - clk.lastRawTime) > 0.0005) {
-                    if (clk.wasPlaying && clk.videoId === ytMainCurrentVideoId && rawT > clk.lastRawTime && (rawT - clk.lastRawTime) < 0.65) {
-                        const prevSmooth = clk.anchorTime + Math.min(0.34, Math.max(0, (nowPerf - clk.anchorPerfMs) / 1000));
-                        clk.anchorTime = Math.max(rawT, Math.min(prevSmooth, rawT + 0.055));
-                    } else {
-                        clk.anchorTime = rawT;
-                    }
-                    clk.lastRawTime = rawT;
-                    clk.anchorPerfMs = nowPerf;
-                    clk.videoId = ytMainCurrentVideoId;
+                if (!clk.wasPlaying || clk.engine !== 'youtube' || clk.videoId !== ytMainCurrentVideoId) {
                     clk.wasPlaying = true;
+                    clk.engine = 'youtube';
+                    clk.videoId = ytMainCurrentVideoId;
+                    clk.lastRawTime = rawT;
+                    clk.lastRawPerfMs = nowPerf;
+                    clk.anchorTime = rawT;
+                    return rawT;
                 }
 
-                const dtSec = Math.min(0.34, Math.max(0, (nowPerf - clk.anchorPerfMs) / 1000));
+                if (Math.abs(rawT - clk.lastRawTime) > 0.0005) {
+                    clk.lastRawTime = rawT;
+                    clk.lastRawPerfMs = nowPerf;
+                }
+
+                // Phase-Locked Loop (PLL) continuous clock: never hits a 340ms ceiling and never freezes or jumps between YT postMessage ticks!
+                const elapsedSinceRaw = Math.min(1.8, Math.max(0, (nowPerf - clk.lastRawPerfMs) / 1000));
+                const targetTime = clk.lastRawTime + elapsedSinceRaw;
+                const err = targetTime - clk.anchorTime;
+
+                if (Math.abs(err) > 0.28) {
+                    clk.anchorTime = targetTime;
+                } else {
+                    const rate = 1.0 + Math.max(-0.04, Math.min(0.04, err * 1.25));
+                    clk.anchorTime += frameDt * rate;
+                }
+
                 const dur = getActiveDuration();
-                const smoothSec = clk.anchorTime + dtSec;
-                return (dur && isFinite(dur) && dur > 0) ? Math.min(dur, smoothSec) : smoothSec;
+                return (dur && isFinite(dur) && dur > 0) ? Math.min(dur, Math.max(0, clk.anchorTime)) : Math.max(0, clk.anchorTime);
             }
-            return audioEl.currentTime || 0;
+
+            const rawHtmlT = audioEl.currentTime || 0;
+            const htmlPlayingNow = Boolean(audioEl.src && !audioEl.paused && !audioEl.ended && audioEl.readyState >= 2 && !isAudioWaitingForBuffer);
+            if (!htmlPlayingNow) {
+                clk.wasPlaying = false;
+                clk.engine = 'html5';
+                clk.lastRawTime = rawHtmlT;
+                clk.lastRawPerfMs = nowPerf;
+                clk.anchorTime = rawHtmlT;
+                return rawHtmlT;
+            }
+            if (!clk.wasPlaying || clk.engine !== 'html5') {
+                clk.wasPlaying = true;
+                clk.engine = 'html5';
+                clk.lastRawTime = rawHtmlT;
+                clk.lastRawPerfMs = nowPerf;
+                clk.anchorTime = rawHtmlT;
+                return rawHtmlT;
+            }
+            if (Math.abs(rawHtmlT - clk.lastRawTime) > 0.0002) {
+                clk.lastRawTime = rawHtmlT;
+                clk.lastRawPerfMs = nowPerf;
+            }
+            const elapsedHtml = Math.min(0.15, Math.max(0, (nowPerf - clk.lastRawPerfMs) / 1000));
+            const targetHtmlT = clk.lastRawTime + elapsedHtml;
+            const htmlErr = targetHtmlT - clk.anchorTime;
+            if (Math.abs(htmlErr) > 0.14) {
+                clk.anchorTime = targetHtmlT;
+            } else {
+                const rate = 1.0 + Math.max(-0.03, Math.min(0.03, htmlErr * 1.5));
+                clk.anchorTime += frameDt * rate;
+            }
+            const dur = audioEl.duration || 0;
+            return (dur && isFinite(dur) && dur > 0) ? Math.min(dur, Math.max(0, clk.anchorTime)) : Math.max(0, clk.anchorTime);
         }
 
         function getActiveDuration() {
@@ -4797,16 +4906,18 @@
         }
 
         function setActiveCurrentTime(sec) {
+            const clk = visualizerPCMState.ytClock;
+            const nowPerf = performance.now();
             if (activeAudioEngine === 'youtube' && ytMainPlayerReady && ytMainPlayer && typeof ytMainPlayer.seekTo === 'function') {
                 try {
                     const dur = getActiveDuration();
                     const safeSec = (dur && isFinite(dur) && dur > 0)
                         ? Math.max(0, Math.min(sec, Math.max(0, dur - 0.25)))
                         : Math.max(0, sec);
-                    const clk = visualizerPCMState.ytClock;
                     clk.lastRawTime = safeSec;
+                    clk.lastRawPerfMs = nowPerf;
+                    clk.lastFramePerfMs = nowPerf;
                     clk.anchorTime = safeSec;
-                    clk.anchorPerfMs = performance.now();
                     ytMainPlayer.seekTo(safeSec, true);
                 } catch (e) {}
                 return;
@@ -4816,8 +4927,12 @@
                 const clampedSec = (dur && isFinite(dur) && dur > 0)
                     ? Math.max(0, Math.min(sec, Math.max(0, dur - 0.15)))
                     : Math.max(0, sec);
+                clk.lastRawTime = clampedSec;
+                clk.lastRawPerfMs = nowPerf;
+                clk.lastFramePerfMs = nowPerf;
+                clk.anchorTime = clampedSec;
                 audioEl.currentTime = clampedSec;
-                if (vizShadowState.audioEl && vizShadowState.activeUrl && !vizShadowState.corsFailedUrls.has(vizShadowState.activeUrl)) {
+                if (vizShadowState.audioEl && vizShadowState.activeUrl && vizShadowState.activeUrl.startsWith('blob:')) {
                     try { vizShadowState.audioEl.currentTime = clampedSec; } catch (e) {}
                 }
             } catch (e) {}
@@ -4831,6 +4946,7 @@
                 }
                 if (!ytMainPlayerReady || !ytMainPlayer) return;
                 try {
+                    ytPrewarmingVideo = false;
                     syncMasterVolumeToYouTube();
                     ytMainPlayer.playVideo();
                     updatePlayButtonUI(true);
@@ -4841,12 +4957,13 @@
                 return;
             }
             if (!audioEl.src) return;
-            syncVizShadowAudioPlayback(true);
+            if (!visualizerPCMState.shortPCM && !visualizerPCMState.fullPCM && audioEl.src.startsWith('blob:')) {
+                syncVizShadowAudioPlayback(true);
+            }
             const p = audioEl.play();
             if (p && typeof p.then === 'function') {
                 p.then(() => {
                     isAudioWaitingForBuffer = false;
-                    syncVizShadowAudioPlayback(true);
                     updatePlayButtonUI(true);
                 }).catch(() => {
                     isSnippetPlaying = false;
@@ -4858,6 +4975,7 @@
 
         function pauseActiveAudio() {
             isAudioWaitingForBuffer = false;
+            ytPrewarmingVideo = false;
             if (activeAudioEngine === 'youtube' && ytMainPlayerReady && ytMainPlayer) {
                 ytMainState = 2;
                 visualizerPCMState.ytClock.wasPlaying = false;
@@ -4870,39 +4988,64 @@
         function waitForAudioElementReady(targetAudioEl, startSec = 0, timeoutMs = 2800) {
             return new Promise((resolve) => {
                 let done = false;
+                let hasAppliedStartSeek = (startSec <= 0);
+
+                const applyInitialSeekIfPossible = () => {
+                    if (hasAppliedStartSeek) return;
+                    if (targetAudioEl.readyState >= 1) {
+                        hasAppliedStartSeek = true;
+                        try {
+                            const dur = targetAudioEl.duration || 30;
+                            if (startSec > 0 && startSec < dur - 1.5) {
+                                targetAudioEl.currentTime = startSec;
+                            }
+                        } catch (e) {}
+                    }
+                };
+
                 const finish = (ok) => {
                     if (done) return;
                     done = true;
+                    targetAudioEl.removeEventListener('loadedmetadata', onMeta);
                     targetAudioEl.removeEventListener('canplay', onReady);
                     targetAudioEl.removeEventListener('canplaythrough', onReady);
                     targetAudioEl.removeEventListener('loadeddata', onReady);
+                    targetAudioEl.removeEventListener('seeked', onReady);
                     targetAudioEl.removeEventListener('error', onErr);
                     clearTimeout(tid);
-                    if (ok && startSec > 0) {
+                    if (ok && !hasAppliedStartSeek && startSec > 0) {
                         try {
                             const dur = targetAudioEl.duration || 30;
-                            if (startSec < dur - 2) targetAudioEl.currentTime = startSec;
+                            if (startSec < dur - 1.5) targetAudioEl.currentTime = startSec;
                         } catch (e) {}
                     }
                     resolve(ok);
                 };
 
+                const onMeta = () => {
+                    applyInitialSeekIfPossible();
+                };
+
                 const onReady = () => {
-                    if (targetAudioEl.readyState >= 2 && (!targetAudioEl.duration || targetAudioEl.duration > 3)) {
+                    applyInitialSeekIfPossible();
+                    if (targetAudioEl.readyState >= 2 && !targetAudioEl.seeking && (!targetAudioEl.duration || targetAudioEl.duration > 3)) {
                         finish(true);
                     }
                 };
                 const onErr = () => finish(false);
 
-                if (targetAudioEl.readyState >= 3 && (!targetAudioEl.duration || targetAudioEl.duration > 3)) {
+                applyInitialSeekIfPossible();
+                if (targetAudioEl.readyState >= 3 && !targetAudioEl.seeking && (!targetAudioEl.duration || targetAudioEl.duration > 3)) {
                     finish(true);
                     return;
                 }
 
                 const tid = setTimeout(() => finish(targetAudioEl.readyState >= 2), timeoutMs);
+                targetAudioEl.addEventListener('loadedmetadata', onMeta);
                 targetAudioEl.addEventListener('canplay', onReady);
                 targetAudioEl.addEventListener('canplaythrough', onReady);
                 targetAudioEl.addEventListener('loadeddata', onReady);
+                targetAudioEl.addEventListener('seeked', onReady);
                 targetAudioEl.addEventListener('error', onErr);
             });
         }
@@ -6936,7 +7079,7 @@
         }
 
         function preloadNextSongInBackground() {
-            if (mpState.active) return;
+            if (mpState.active && !mpState.isHost) return;
             const poolIds = categoriesMap[activeCategory] || categoriesMap['WSZYSTKIE'] || [];
             if (poolIds.length <= 1) return;
 
@@ -7036,10 +7179,14 @@
                     const dur = getActiveDuration() || 30;
                     const randSec = computeRandomMomentOffsetForDuration(dur, song.startOffset || 0);
                     song.roundStartOffset = randSec;
-                    setActiveCurrentTime(randSec);
+                    if (Math.abs(getActiveCurrentTime() - randSec) > 0.35) {
+                        setActiveCurrentTime(randSec);
+                    }
                 } else {
                     const targetStart = getEffectiveSongStartOffset(song);
-                    if (targetStart > 0) setActiveCurrentTime(targetStart);
+                    if (targetStart > 0 && Math.abs(getActiveCurrentTime() - targetStart) > 0.35) {
+                        setActiveCurrentTime(targetStart);
+                    }
                 }
                 if (currentView === 'game' && !roundOver && pendingPlayRequestToken !== roundToken) {
                     isSnippetPlaying = false;
@@ -8040,10 +8187,10 @@
             if (visualizerPCMState.songId !== activeSong.id) {
                 syncVisualizerTapSourceWithCurrentSong(activeSong);
             } else {
-                if (activeAudioEngine === 'html5' && audioEl.src && vizShadowState.activeUrl !== audioEl.src) {
-                    syncVizShadowAudioSource(activeSong, audioEl.src);
-                }
                 if (!visualizerPCMState.shortPCM && !visualizerPCMState.fullPCM) {
+                    if (activeAudioEngine === 'html5' && audioEl.src && audioEl.src.startsWith('blob:') && vizShadowState.activeUrl !== audioEl.src) {
+                        syncVizShadowAudioSource(activeSong, audioEl.src);
+                    }
                     const primaryUrl = activeObjectUrl || audioEl.src || activeSong.url || activeSong.corsStreamUrl || null;
                     loadVisualizerPCMForUrl(activeSong, primaryUrl, 'short');
                 }
@@ -8079,8 +8226,10 @@
             }
 
             const html5Url = activeObjectUrl || (activeAudioEngine === 'html5' ? audioEl.src : '') || null;
-            if (html5Url && activeAudioEngine === 'html5') {
+            if (html5Url && html5Url.startsWith('blob:') && activeAudioEngine === 'html5' && !visualizerPCMState.shortPCM && !visualizerPCMState.fullPCM) {
                 syncVizShadowAudioSource(song, html5Url);
+            } else if (vizShadowState.audioEl && !vizShadowState.audioEl.paused) {
+                try { vizShadowState.audioEl.pause(); } catch (e) {}
             }
 
             const primaryUrl = activeObjectUrl || song.url || song.shortStreamUrl || song.corsStreamUrl || audioEl.src || null;
@@ -8225,39 +8374,8 @@
             let rawBands = null;
             let usedRealSignal = false;
 
-            // TIER 1: Real-time Web Audio API Shadow Analyser (0ms latency, unlimited duration for local MP3s & CORS HTML5 streams)
-            if (
-                activeAudioEngine === 'html5' &&
-                vizShadowState.initialized &&
-                vizShadowState.analyser &&
-                vizShadowState.audioEl &&
-                vizShadowState.activeUrl &&
-                !vizShadowState.corsFailedUrls.has(vizShadowState.activeUrl)
-            ) {
-                const nowMs = performance.now();
-                if (nowMs - vizShadowState.lastSyncMs > 240) {
-                    vizShadowState.lastSyncMs = nowMs;
-                    syncVizShadowAudioPlayback(true);
-                }
-                if (!vizShadowState.audioEl.paused && vizShadowState.audioEl.readyState >= 2) {
-                    try {
-                        const tdBuf = vizShadowState.timeDomainBuf;
-                        vizShadowState.analyser.getFloatTimeDomainData(tdBuf);
-                        const sr = (audioCtx && audioCtx.sampleRate) ? audioCtx.sampleRate : 44100;
-                        const measureCount = Math.min(tdBuf.length, Math.max(128, Math.round(sr * 0.018)));
-                        const startIdx = tdBuf.length - measureCount;
-                        const warmupCount = Math.min(startIdx, Math.round(sr * 0.010));
-                        const res = computeFiveBandRmsFromPcmSlice(tdBuf, startIdx, tdBuf.length, startIdx - warmupCount, sr);
-                        if (res && res.rawBands) {
-                            rawBands = res.rawBands;
-                            usedRealSignal = true;
-                        }
-                    } catch (e) {}
-                }
-            }
-
-            // TIER 2 & 3: Full-duration decoded PCM (fullPCM) or Preview PCM (shortPCM)
-            if (!rawBands) {
+            // TIER 1 & 2: Sample-accurate in-memory PCM (fullPCM or shortPCM) locked 1:1 to PLL clock (ZERO drift, ZERO seek lag)
+            {
                 let pcm = null;
                 let sr = 0;
                 let isShortPreviewOnLongSong = false;
@@ -8276,22 +8394,23 @@
                 }
 
                 if (pcm && sr > 0) {
+                    // Stop shadow audio element once PCM is in RAM so it never wastes CPU or drifts
+                    if (vizShadowState.audioEl && !vizShadowState.audioEl.paused) {
+                        try { vizShadowState.audioEl.pause(); } catch (e) {}
+                    }
                     const totalSamples = pcm.length;
                     const bufferDur = totalSamples / sr;
                     if (bufferDur > 0.2) {
                         let effectiveSec = curSec;
                         if (curSec > bufferDur || (isShortPreviewOnLongSong && activeAudioEngine === 'youtube')) {
-                            // Ping-pong inside the active musical body of the preview buffer (avoiding fade-in/fade-out silence at edges)
-                            const loopStart = bufferDur > 8 ? Math.min(2.2, bufferDur * 0.10) : 0;
-                            const loopEnd = bufferDur > 8 ? Math.max(loopStart + 3.5, bufferDur - 1.8) : bufferDur;
+                            // Forward wrap inside the active musical body of the preview buffer (never reverses direction)
+                            const loopStart = bufferDur > 8 ? Math.min(2.0, bufferDur * 0.08) : 0;
+                            const loopEnd = bufferDur > 8 ? Math.max(loopStart + 4.0, bufferDur - 1.5) : bufferDur;
                             const span = Math.max(1.0, loopEnd - loopStart);
                             if (curSec <= loopEnd && curSec >= loopStart && !isShortPreviewOnLongSong) {
                                 effectiveSec = curSec;
                             } else {
-                                const cycle = Math.max(0, curSec - loopStart) / span;
-                                const cycleInt = Math.floor(cycle);
-                                const cycleFrac = cycle - cycleInt;
-                                effectiveSec = loopStart + ((cycleInt % 2 === 0) ? cycleFrac : (1 - cycleFrac)) * span;
+                                effectiveSec = loopStart + (Math.max(0, curSec - loopStart) % span);
                             }
                         }
 
@@ -8310,6 +8429,39 @@
                             visualizerPCMState.silentFramesCount = (visualizerPCMState.silentFramesCount || 0) + step120;
                         }
                     }
+                }
+            }
+
+            // TIER 3: Local blob Web Audio Analyser bridge (only during the first ~100ms before fullPCM finishes decoding)
+            if (
+                !rawBands &&
+                activeAudioEngine === 'html5' &&
+                vizShadowState.initialized &&
+                vizShadowState.analyser &&
+                vizShadowState.audioEl &&
+                vizShadowState.activeUrl &&
+                vizShadowState.activeUrl.startsWith('blob:') &&
+                !vizShadowState.corsFailedUrls.has(vizShadowState.activeUrl)
+            ) {
+                const nowMs = performance.now();
+                if (nowMs - vizShadowState.lastSyncMs > 300) {
+                    vizShadowState.lastSyncMs = nowMs;
+                    syncVizShadowAudioPlayback(true);
+                }
+                if (!vizShadowState.audioEl.paused && vizShadowState.audioEl.readyState >= 2) {
+                    try {
+                        const tdBuf = vizShadowState.timeDomainBuf;
+                        vizShadowState.analyser.getFloatTimeDomainData(tdBuf);
+                        const sr = (audioCtx && audioCtx.sampleRate) ? audioCtx.sampleRate : 44100;
+                        const measureCount = Math.min(tdBuf.length, Math.max(128, Math.round(sr * 0.018)));
+                        const startIdx = tdBuf.length - measureCount;
+                        const warmupCount = Math.min(startIdx, Math.round(sr * 0.010));
+                        const res = computeFiveBandRmsFromPcmSlice(tdBuf, startIdx, tdBuf.length, startIdx - warmupCount, sr);
+                        if (res && res.rawBands) {
+                            rawBands = res.rawBands;
+                            usedRealSignal = true;
+                        }
+                    } catch (e) {}
                 }
             }
 
@@ -10602,7 +10754,6 @@
             const cur = getActiveCurrentTime();
             if (cur >= snippetStopTimestamp) {
                 pauseActiveAudio();
-                setActiveCurrentTime(snippetStopTimestamp);
                 isSnippetPlaying = false;
                 pausedAtStageLimit = true;
                 clearScheduledSnippetStop();
@@ -10659,7 +10810,7 @@
 
             if (roundOver || !isFinite(allowedDur)) {
                 const curTime = getActiveCurrentTime();
-                if (curTime < startSec || curTime >= totalDur - 0.35 || isEnded) {
+                if (curTime < startSec - 0.45 || curTime >= totalDur - 0.35 || isEnded) {
                     setActiveCurrentTime(startSec);
                 }
                 snippetStopTimestamp = Infinity;
@@ -10671,7 +10822,7 @@
             } else {
                 const curTime = getActiveCurrentTime();
                 const limitTimestamp = Math.min(startSec + allowedDur, Math.max(1.5, totalDur - 0.1));
-                if (pausedAtStageLimit || curTime >= limitTimestamp - 0.05 || curTime < startSec || isEnded) {
+                if (pausedAtStageLimit || curTime >= limitTimestamp - 0.05 || curTime < startSec - 0.45 || isEnded) {
                     setActiveCurrentTime(startSec);
                 }
                 pausedAtStageLimit = false;
@@ -10746,7 +10897,7 @@
             } else if (resumeIfStoppedAtLimit) {
                 const cur = getActiveCurrentTime();
                 const isEnded = (activeAudioEngine === 'html5' && audioEl.ended) || (activeAudioEngine === 'youtube' && ytMainState === 0);
-                if (cur < startSec || cur >= newLimitTimestamp - 0.1 || isEnded) {
+                if (cur < startSec - 0.45 || cur >= newLimitTimestamp - 0.1 || isEnded) {
                     setActiveCurrentTime(startSec);
                 }
                 pausedAtStageLimit = false;
@@ -12631,19 +12782,19 @@
                         el.style.setProperty('--orb-delay', `${delay}s`);
 
                         el.innerHTML = `
-                            <div class="orb-magnetic-unit magnetic-item relative flex flex-col items-center gap-1" data-base-scale="1">
+                            <div class="orb-magnetic-unit magnetic-item relative flex flex-col items-center gap-0.5 sm:gap-1" data-base-scale="1">
                                 <div class="orb-top-bubble absolute -top-5 left-1/2 -translate-x-1/2 z-20 pointer-events-none whitespace-nowrap"></div>
                                 <div class="orb-circle-wrap relative">
                                     <div class="orb-halo hidden absolute inset-0 rounded-full mp-winner-halo pointer-events-none"></div>
-                                    <div class="orb-avatar-ring relative w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 border-zinc-700/80 bg-[#18181c] transition-colors duration-300 flex items-center justify-center">
+                                    <div class="orb-avatar-ring relative w-9 h-9 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 border-zinc-700/80 bg-[#18181c] transition-colors duration-300 flex items-center justify-center">
                                         <img class="orb-img hidden w-full h-full object-cover" src="" alt="" referrerpolicy="no-referrer" />
                                         <span class="orb-initial text-xs font-bold text-zinc-200"></span>
                                     </div>
                                     <div class="orb-rim-badge hidden absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full items-center justify-center border border-[#09090b] shadow-md z-10"></div>
-                                    <div class="orb-score-pill absolute -bottom-1.5 left-1/2 -translate-x-1/2 px-1.5 py-[1px] rounded-full bg-[#09090b]/95 border border-zinc-800 text-[10px] font-mono font-semibold text-zinc-200 whitespace-nowrap shadow-md z-10">0</div>
+                                    <div class="orb-score-pill absolute -bottom-1.5 left-1/2 -translate-x-1/2 px-1.5 py-[1px] rounded-full bg-[#09090b]/95 border border-zinc-800 text-[9px] sm:text-[10px] font-mono font-semibold text-zinc-200 whitespace-nowrap shadow-md z-10">0</div>
                                 </div>
-                                <div class="orb-name-row pt-1 flex items-center justify-center gap-1 max-w-[78px]">
-                                    <span class="orb-name text-[11px] font-medium truncate text-zinc-300 group-hover:text-white transition-colors"></span>
+                                <div class="orb-name-row pt-1 flex items-center justify-center gap-1 max-w-[72px] sm:max-w-[78px]">
+                                    <span class="orb-name text-[10px] sm:text-[11px] font-medium truncate text-zinc-300 group-hover:text-white transition-colors"></span>
                                 </div>
                             </div>
                         `;
@@ -12748,9 +12899,9 @@
                         orbEntry.el.style.opacity = '1';
                         orbEntry.magneticUnit.dataset.baseScale = '1.12';
                         orbEntry.halo.className = 'orb-halo absolute inset-0 rounded-full bg-emerald-400/40 mp-winner-halo pointer-events-none';
-                        orbEntry.avatarRing.className = 'orb-avatar-ring relative w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 border-emerald-400 shadow-[0_0_24px_rgba(16,185,129,0.75)] bg-[#18181c] transition-colors duration-300 flex items-center justify-center';
-                        orbEntry.scorePill.className = 'orb-score-pill absolute -bottom-1.5 left-1/2 -translate-x-1/2 px-1.5 py-[1px] rounded-full bg-[#09090b] border border-emerald-400/70 text-emerald-300 text-[10px] font-mono font-bold whitespace-nowrap shadow-md z-10';
-                        orbEntry.nameText.className = 'orb-name text-[11px] font-bold truncate text-emerald-300';
+                        orbEntry.avatarRing.className = 'orb-avatar-ring relative w-9 h-9 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 border-emerald-400 shadow-[0_0_24px_rgba(16,185,129,0.75)] bg-[#18181c] transition-colors duration-300 flex items-center justify-center';
+                        orbEntry.scorePill.className = 'orb-score-pill absolute -bottom-1.5 left-1/2 -translate-x-1/2 px-1.5 py-[1px] rounded-full bg-[#09090b] border border-emerald-400/70 text-emerald-300 text-[9px] sm:text-[10px] font-mono font-bold whitespace-nowrap shadow-md z-10';
+                        orbEntry.nameText.className = 'orb-name text-[10px] sm:text-[11px] font-bold truncate text-emerald-300';
 
                         const winPts = winEntry.points || curRound.winnerPoints || 0;
                         orbEntry.topBubble.innerHTML = `<span class="px-1.5 py-[1px] rounded-full bg-emerald-500 text-zinc-950 font-mono font-bold text-[9px] shadow-lg">+${winPts}</span>`;
@@ -12762,9 +12913,9 @@
                     } else if (isRoundEnded) {
                         orbEntry.el.style.opacity = votedNext ? '0.85' : '0.45';
                         orbEntry.magneticUnit.dataset.baseScale = '0.92';
-                        orbEntry.avatarRing.className = `orb-avatar-ring relative w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 ${votedNext ? 'border-zinc-400' : 'border-zinc-800'} bg-[#18181c] transition-colors duration-300 flex items-center justify-center`;
-                        orbEntry.scorePill.className = 'orb-score-pill absolute -bottom-1.5 left-1/2 -translate-x-1/2 px-1.5 py-[1px] rounded-full bg-[#09090b]/95 border border-zinc-800 text-[10px] font-mono font-semibold text-zinc-500 whitespace-nowrap shadow-md z-10';
-                        orbEntry.nameText.className = 'orb-name text-[11px] font-medium truncate text-zinc-500';
+                        orbEntry.avatarRing.className = `orb-avatar-ring relative w-9 h-9 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 ${votedNext ? 'border-zinc-400' : 'border-zinc-800'} bg-[#18181c] transition-colors duration-300 flex items-center justify-center`;
+                        orbEntry.scorePill.className = 'orb-score-pill absolute -bottom-1.5 left-1/2 -translate-x-1/2 px-1.5 py-[1px] rounded-full bg-[#09090b]/95 border border-zinc-800 text-[9px] sm:text-[10px] font-mono font-semibold text-zinc-500 whitespace-nowrap shadow-md z-10';
+                        orbEntry.nameText.className = 'orb-name text-[10px] sm:text-[11px] font-medium truncate text-zinc-500';
 
                         if (votedNext) {
                             orbEntry.rimBadge.className = 'orb-rim-badge flex absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full items-center justify-center bg-zinc-200 text-zinc-950 border border-[#09090b] shadow-md z-10';
@@ -12774,11 +12925,11 @@
                     } else {
                         orbEntry.el.style.opacity = '1';
                         orbEntry.magneticUnit.dataset.baseScale = '1';
-                        orbEntry.nameText.className = 'orb-name text-[11px] font-medium truncate text-zinc-300';
-                        orbEntry.scorePill.className = 'orb-score-pill absolute -bottom-1.5 left-1/2 -translate-x-1/2 px-1.5 py-[1px] rounded-full bg-[#09090b]/95 border border-zinc-800 text-zinc-200 text-[10px] font-mono font-semibold whitespace-nowrap shadow-md z-10';
+                        orbEntry.nameText.className = 'orb-name text-[10px] sm:text-[11px] font-medium truncate text-zinc-300';
+                        orbEntry.scorePill.className = 'orb-score-pill absolute -bottom-1.5 left-1/2 -translate-x-1/2 px-1.5 py-[1px] rounded-full bg-[#09090b]/95 border border-zinc-800 text-zinc-200 text-[9px] sm:text-[10px] font-mono font-semibold whitespace-nowrap shadow-md z-10';
 
                         if (isTyping) {
-                            orbEntry.avatarRing.className = 'orb-avatar-ring relative w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 border-zinc-400/80 bg-[#18181c] transition-colors duration-300 flex items-center justify-center';
+                            orbEntry.avatarRing.className = 'orb-avatar-ring relative w-9 h-9 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 border-zinc-400/80 bg-[#18181c] transition-colors duration-300 flex items-center justify-center';
                             orbEntry.topBubble.innerHTML = `
                                 <span class="px-2 py-1 rounded-full bg-[#18181c]/95 border border-zinc-700/80 inline-flex items-center gap-0.5 shadow-md">
                                     <span class="w-1 h-1 rounded-full bg-zinc-200 mp-typing-dot" style="animation-delay: 0s;"></span>
@@ -12787,18 +12938,18 @@
                                 </span>
                             `;
                         } else if (recentGuess && recentGuess.type === 'artist_match') {
-                            orbEntry.avatarRing.className = 'orb-avatar-ring relative w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 border-zinc-400 bg-[#18181c] transition-colors duration-300 flex items-center justify-center';
+                            orbEntry.avatarRing.className = 'orb-avatar-ring relative w-9 h-9 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 border-zinc-400 bg-[#18181c] transition-colors duration-300 flex items-center justify-center';
                             orbEntry.topBubble.innerHTML = `<span class="px-1.5 py-[1px] rounded-full bg-zinc-800 border border-zinc-600 text-zinc-200 text-[9px] font-mono">Wykonawca</span>`;
                         } else if (recentGuess && recentGuess.type === 'wrong') {
-                            orbEntry.avatarRing.className = 'orb-avatar-ring relative w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 border-red-500/80 shadow-[0_0_12px_rgba(239,68,68,0.3)] bg-[#18181c] transition-colors duration-300 flex items-center justify-center';
+                            orbEntry.avatarRing.className = 'orb-avatar-ring relative w-9 h-9 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 border-red-500/80 shadow-[0_0_12px_rgba(239,68,68,0.3)] bg-[#18181c] transition-colors duration-300 flex items-center justify-center';
                             orbEntry.topBubble.innerHTML = `<span class="px-1.5 py-[1px] rounded-full bg-red-500/20 border border-red-500/40 text-red-300 text-[9px] font-mono">Pudło</span>`;
                         } else if (actedInStage) {
-                            orbEntry.avatarRing.className = 'orb-avatar-ring relative w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 border-zinc-500 bg-[#18181c] transition-colors duration-300 flex items-center justify-center';
+                            orbEntry.avatarRing.className = 'orb-avatar-ring relative w-9 h-9 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 border-zinc-500 bg-[#18181c] transition-colors duration-300 flex items-center justify-center';
                             orbEntry.rimBadge.className = 'orb-rim-badge flex absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full items-center justify-center bg-zinc-700 text-zinc-100 border border-[#09090b] shadow-md z-10';
                             orbEntry.rimBadge.innerHTML = `<svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></svg>`;
                             orbEntry.topBubble.innerHTML = `<span class="px-1.5 py-[1px] rounded-full bg-zinc-900/90 border border-zinc-700 text-zinc-300 text-[9px] font-mono">Czeka</span>`;
                         } else {
-                            orbEntry.avatarRing.className = 'orb-avatar-ring relative w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 border-zinc-700/80 bg-[#18181c] transition-colors duration-300 flex items-center justify-center';
+                            orbEntry.avatarRing.className = 'orb-avatar-ring relative w-9 h-9 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 border-zinc-700/80 bg-[#18181c] transition-colors duration-300 flex items-center justify-center';
                         }
                     }
 
@@ -12886,17 +13037,14 @@
                 if (countEl) countEl.textContent = modalSortedPlayers.length;
                 if (plBadgeEl) plBadgeEl.textContent = roomData.playlistTitle || 'Bazowa Playlista';
 
-                // Live Room State Badge & Game Feed inside Modal and HUD
+                // Live Room State Badge & Game Feed inside Modal
                 const curRound = roomData.currentRound || null;
                 const stageLabels = ['1.5s', '3.0s', '6.0s', '10.0s', '15.0s', 'MAX'];
                 const liveStateBadge = document.getElementById('mpModalLiveStateBadge');
                 const feedTitle = document.getElementById('mpModalFeedTitle');
                 const feedStage = document.getElementById('mpModalFeedStage');
                 const feedDetail = document.getElementById('mpModalFeedDetail');
-                const hudActivityText = document.getElementById('mpLiveActivityText');
-                const hudActivityDot = document.getElementById('mpLiveActivityDot');
 
-                const winnersCount = curRound && curRound.winners ? Object.keys(curRound.winners).length : 0;
                 const totalRoomPlayers = Math.max(1, modalSortedPlayers.length);
                 const stageIdx = curRound && typeof curRound.stageIndex === 'number' ? curRound.stageIndex : 0;
                 const stageLabelStr = stageLabels[stageIdx] || '1.5s';
@@ -12917,11 +13065,6 @@
                         if (winnersNames.length > 0) detailParts.push(`Odgadli (${winnersNames.length}/${totalRoomPlayers}): ${winnersNames.join(', ')}`);
                         detailParts.push(`Ruchy w tym etapie: ${actedCount}/${remainingCount}`);
                         if (feedDetail) feedDetail.textContent = detailParts.join(' · ');
-
-                        if (hudActivityText) {
-                            hudActivityText.textContent = `Pokój #${mpState.roomCode} · Runda ${rNum} (${stageLabelStr}) · Odgadło ${winnersCount}/${totalRoomPlayers}`;
-                        }
-                        if (hudActivityDot) hudActivityDot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0';
                     } else {
                         const wonAny = curRound.status === 'won';
                         if (liveStateBadge) {
@@ -12939,10 +13082,6 @@
                                 ? `Utwór: ${curRound.song.cleanTitle}`
                                 : 'Oczekiwanie na przejście do kolejnego utworu...';
                         }
-                        if (hudActivityText) {
-                            hudActivityText.textContent = `Pokój #${mpState.roomCode} · Koniec rundy ${rNum} · Gotowi: ${Math.min(nVotes.length, eligibleVoters.length)}/${Math.max(1, eligibleVoters.length)}`;
-                        }
-                        if (hudActivityDot) hudActivityDot.className = 'w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0';
                     }
                 } else {
                     if (liveStateBadge) {
@@ -12956,10 +13095,6 @@
                             ? 'Zaproś znajomych przyciskiem „+ Zaproś gracza” lub kliknij Rozpocznij wspólną grę.'
                             : 'Jesteś w pokoju! Czekamy aż Host uruchomi pierwszą rundę.';
                     }
-                    if (hudActivityText) {
-                        hudActivityText.textContent = `Poczekalnia #${mpState.roomCode} · ${totalRoomPlayers} ${totalRoomPlayers === 1 ? 'gracz' : 'graczy'} · ${roomData.playlistTitle || 'Playlista'}`;
-                    }
-                    if (hudActivityDot) hudActivityDot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0';
                 }
 
                 if (listEl) {
@@ -13138,10 +13273,6 @@
                 const resStatusRow = document.getElementById('resultStatusRow');
                 if (resStatusRow) resStatusRow.classList.remove('hidden');
 
-                if (Array.isArray(roomData?.titlePool)) {
-                    await syncMpAutocompletePoolForGuest(roomData.titlePool, roomData.playlistTitle || 'Multiplayer');
-                }
-
                 const songData = roundObj.song;
                 const searchMeta = buildSongSearchIndex(songData.cleanTitle, songData.rawFileName || songData.cleanTitle);
                 const syncedStartOffset = songData.startOffset || 0;
@@ -13170,6 +13301,15 @@
                     isDemo: false
                 };
 
+                currentSong = syncedSong;
+
+                // Start pre-buffering audio/YouTube immediately in parallel with UI & autocomplete pool updates!
+                const prepPromise = prepareSongForPlayback(currentSong, myRoundToken);
+
+                if (Array.isArray(roomData?.titlePool)) {
+                    await syncMpAutocompletePoolForGuest(roomData.titlePool, roomData.playlistTitle || 'Multiplayer');
+                }
+
                 const cKey = getCanonicalSongKey(syncedSong.cleanTitle);
                 if (!songsLibrary.some(s => getCanonicalSongKey(s.cleanTitle) === cKey)) {
                     songsLibrary.push(syncedSong);
@@ -13178,7 +13318,6 @@
                     updateHeaderActiveCategoryPill();
                 }
 
-                currentSong = syncedSong;
                 updateEditorAccessVisibility();
 
                 clearGuessInput(false);
@@ -13198,11 +13337,17 @@
                 renderAttemptsLadder();
                 renderMpModalAndHud();
 
-                await prepareSongForPlayback(currentSong, myRoundToken);
+                await prepPromise;
                 if (myRoundToken !== currentRoundToken) return;
 
                 isPreparingRoundAudio = false;
                 updateGuessOrSkipButtonUI();
+
+                if (mpState.isHost) {
+                    setTimeout(() => {
+                        if (myRoundToken === currentRoundToken) preloadNextSongInBackground();
+                    }, 80);
+                }
 
                 if (roundObj.status === 'won' || roundObj.status === 'failed') {
                     mpState.lastSyncedRoundStatus = roundObj.status;
@@ -13668,7 +13813,19 @@
 
                 const roomMode = getActiveEffectiveSnippetMode();
                 let pickedSong = null;
-                for (let tries = 0; tries < 8; tries++) {
+
+                // Use preloaded candidate first if available for instant 0ms round transition
+                if (preloadedCandidate.song && preloadedCandidate.category === activeCategory) {
+                    const preSong = preloadedCandidate.song;
+                    preloadedCandidate = { category: null, song: null, poolSizeWhenPicked: 0, readyPromise: null };
+                    const unplayedSet = unplayedPools[activeCategory];
+                    if (unplayedSet) unplayedSet.delete(preSong.id);
+                    if (preSong.url || preSong.youtubeId) {
+                        pickedSong = preSong;
+                    }
+                }
+
+                for (let tries = 0; !pickedSong && tries < 8; tries++) {
                     const poolIds = categoriesMap[activeCategory] || categoriesMap['WSZYSTKIE'] || [];
                     if (poolIds.length === 0) break;
                     let unplayedSet = unplayedPools[activeCategory];
@@ -13681,8 +13838,10 @@
                     const candidate = songsLibrary.find(s => s.id === randId) || songsLibrary[0];
                     if (!candidate) continue;
 
-                    if (!candidate.url && (roomMode === 'best_30s' || !candidate.youtubeId)) {
-                        const backup = await resolvePlayableBackupStreamCascade(candidate, true);
+                    if (!candidate.url) {
+                        const backup = candidate.youtubeId && roomMode !== 'best_30s'
+                            ? await withTimeout(resolvePlayableBackupStreamCascade(candidate, true), 1100).catch(() => null)
+                            : await resolvePlayableBackupStreamCascade(candidate, true);
                         if (backup && backup.streamUrl) {
                             candidate.url = backup.streamUrl;
                             candidate.shortStreamUrl = backup.streamUrl;
@@ -14959,11 +15118,12 @@
                     }
 
                     const myName = getDisplayNameForPlayer(currentUser, stats.customNickname);
-                    const inviteId = `inv_${currentUser.uid}_${roomCode}`;
+                    const inviteId = `inv_${currentUser.uid}_${roomCode}_${ Math.floor(Date.now() / 15000) }`;
                     const nowMs = Date.now();
                     const invitePayload = {
                         id: inviteId,
                         type: 'room_invite',
+                        targetUid: targetUid,
                         fromUid: currentUser.uid,
                         fromName: myName,
                         fromPhoto: currentUser.photoURL || '',
@@ -14974,11 +15134,44 @@
                         createdAt: nowMs
                     };
 
-                    await fbDb.collection('users').doc(targetUid).set({
-                        incomingInvites: {
-                            [inviteId]: invitePayload
-                        }
-                    }, { merge: true });
+                    // Multi-channel permission-safe delivery:
+                    // 1) Write to sender's OWN user doc (100% permitted by users/{ownUid} rules, queried via array-contains by recipient)
+                    // 2) Write to shared invite mailbox via safeMpRoomWrite('INV_' + targetUid)
+                    // 3) Write to active room document via safeMpRoomWrite(roomCode)
+                    const writeResults = await Promise.allSettled([
+                        fbDb.collection('users').doc(currentUser.uid).set({
+                            outgoingInviteTargets: firebase.firestore.FieldValue.arrayUnion(targetUid),
+                            outgoingInvitesMap: {
+                                [targetUid]: invitePayload
+                            },
+                            lastSeenAt: nowMs
+                        }, { merge: true }),
+                        safeMpRoomWrite('INV_' + targetUid, {
+                            isMpInviteBox: true,
+                            targetUid: targetUid,
+                            invites: {
+                                [inviteId]: invitePayload
+                            },
+                            updatedAt: nowMs,
+                            expiresAt: new Date(nowMs + 2 * 60 * 60 * 1000)
+                        }, true),
+                        safeMpRoomWrite(roomCode, {
+                            invitedUids: firebase.firestore.FieldValue.arrayUnion(targetUid),
+                            invitedMap: {
+                                [targetUid]: invitePayload
+                            }
+                        }, true),
+                        fbDb.collection('users').doc(targetUid).set({
+                            incomingInvites: {
+                                [inviteId]: invitePayload
+                            }
+                        }, { merge: true })
+                    ]);
+
+                    const anySucceeded = writeResults.some(r => r.status === 'fulfilled' && r.value !== false);
+                    if (!anySucceeded) {
+                        throw new Error('All invite channels failed');
+                    }
 
                     socialState.sentInvitesMap.set(targetUid, nowMs);
 
@@ -15077,13 +15270,18 @@
                 if (bannerEl) bannerEl.remove();
 
                 if (currentUser && fbDb && inviteId) {
-                    try {
-                        await fbDb.collection('users').doc(currentUser.uid).set({
+                    Promise.allSettled([
+                        fbDb.collection('users').doc(currentUser.uid).set({
                             incomingInvites: {
                                 [inviteId]: firebase.firestore.FieldValue.delete()
                             }
-                        }, { merge: true });
-                    } catch (e) {}
+                        }, { merge: true }),
+                        safeMpRoomWrite('INV_' + currentUser.uid, {
+                            invites: {
+                                [inviteId]: firebase.firestore.FieldValue.delete()
+                            }
+                        }, true)
+                    ]).catch(() => {});
                 }
 
                 socialState.incomingInvites = socialState.incomingInvites.filter(inv => inv.id !== inviteId);
@@ -15093,26 +15291,7 @@
                 window.togglePlayerProfileModal(false);
                 window.toggleLeaderboardModal(false);
 
-                const joinedOk = await window.joinMultiplayerRoomByCode(roomCode, { goToGameView: true });
-                if (joinedOk && fromUid && currentUser && fbDb) {
-                    const myName = getDisplayNameForPlayer(currentUser, stats.customNickname);
-                    const ackId = `ack_${currentUser.uid}_${roomCode}`;
-                    try {
-                        await fbDb.collection('users').doc(fromUid).set({
-                            incomingInvites: {
-                                [ackId]: {
-                                    id: ackId,
-                                    type: 'invite_accepted',
-                                    fromUid: currentUser.uid,
-                                    fromName: myName,
-                                    fromPhoto: currentUser.photoURL || '',
-                                    roomCode,
-                                    createdAt: Date.now()
-                                }
-                            }
-                        }, { merge: true });
-                    } catch (e) {}
-                }
+                await window.joinMultiplayerRoomByCode(roomCode, { goToGameView: true });
             };
 
             window.dismissGameInvite = async function (inviteId) {
@@ -15123,13 +15302,18 @@
                 if (bannerEl) bannerEl.remove();
 
                 if (currentUser && fbDb) {
-                    try {
-                        await fbDb.collection('users').doc(currentUser.uid).set({
+                    Promise.allSettled([
+                        fbDb.collection('users').doc(currentUser.uid).set({
                             incomingInvites: {
                                 [inviteId]: firebase.firestore.FieldValue.delete()
                             }
-                        }, { merge: true });
-                    } catch (e) {}
+                        }, { merge: true }),
+                        safeMpRoomWrite('INV_' + currentUser.uid, {
+                            invites: {
+                                [inviteId]: firebase.firestore.FieldValue.delete()
+                            }
+                        }, true)
+                    ]).catch(() => {});
                 }
                 socialState.incomingInvites = socialState.incomingInvites.filter(inv => inv.id !== inviteId);
                 renderNotificationsModalAndBadges();
@@ -15150,11 +15334,14 @@
                 if (bannerContainer) bannerContainer.innerHTML = '';
 
                 if (currentUser && fbDb && Object.keys(toDeleteMap).length > 0) {
-                    try {
-                        await fbDb.collection('users').doc(currentUser.uid).set({
+                    Promise.allSettled([
+                        fbDb.collection('users').doc(currentUser.uid).set({
                             incomingInvites: toDeleteMap
-                        }, { merge: true });
-                    } catch (e) {}
+                        }, { merge: true }),
+                        safeMpRoomWrite('INV_' + currentUser.uid, {
+                            invites: toDeleteMap
+                        }, true)
+                    ]).catch(() => {});
                 }
                 renderNotificationsModalAndBadges();
                 showToast('Wyczyszczono wszystkie powiadomienia.');
@@ -15285,15 +15472,28 @@
                 }
                 if (!fbDb || !currentUser) return;
 
-                const myRef = fbDb.collection('users').doc(currentUser.uid);
-                socialState.myDocUnsubscribe = myRef.onSnapshot((snap) => {
-                    if (!snap.exists) return;
-                    const data = snap.data() || {};
-                    const rawInvitesObj = data.incomingInvites || {};
+                const myUid = currentUser.uid;
+                const channelInvites = {
+                    ownDoc: {},
+                    mailbox: {},
+                    outgoingQuery: {}
+                };
+
+                const recomputeCombinedIncomingInvites = () => {
+                    if (!currentUser || currentUser.uid !== myUid) return;
+                    const mergedMap = new Map();
+                    const allSources = [channelInvites.ownDoc, channelInvites.mailbox, channelInvites.outgoingQuery];
+                    for (const srcObj of allSources) {
+                        if (!srcObj || typeof srcObj !== 'object') continue;
+                        Object.values(srcObj).forEach(inv => {
+                            if (inv && inv.id) mergedMap.set(inv.id, inv);
+                        });
+                    }
+
                     const nowMs = Date.now();
                     const freshRoomInvites = [];
 
-                    Object.values(rawInvitesObj).forEach(inv => {
+                    mergedMap.forEach((inv) => {
                         if (!inv || !inv.id) return;
                         if (socialState.dismissedInviteIds.has(inv.id)) return;
                         // Ignore invites older than 30 minutes
@@ -15314,7 +15514,6 @@
                                     text: `Przyjął(a) Twoje zaproszenie do pokoju #${inv.roomCode}`,
                                     createdAt: inv.createdAt || nowMs
                                 });
-                                myRef.set({ incomingInvites: { [inv.id]: firebase.firestore.FieldValue.delete() } }, { merge: true }).catch(() => {});
                             }
                             return;
                         }
@@ -15332,7 +15531,64 @@
                     freshRoomInvites.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
                     socialState.incomingInvites = freshRoomInvites;
                     renderNotificationsModalAndBadges();
-                }, () => {});
+                };
+
+                const unsubs = [];
+
+                // Channel 1: Recipient's own user document
+                try {
+                    const myRef = fbDb.collection('users').doc(myUid);
+                    unsubs.push(myRef.onSnapshot((snap) => {
+                        channelInvites.ownDoc = (snap && snap.exists && snap.data()?.incomingInvites) ? snap.data().incomingInvites : {};
+                        recomputeCombinedIncomingInvites();
+                    }, () => {}));
+                } catch (e) {}
+
+                // Channel 2: Senders' own user documents queried via single-field array-contains (100% permission-safe)
+                try {
+                    const outQuery = fbDb.collection('users').where('outgoingInviteTargets', 'array-contains', myUid);
+                    unsubs.push(outQuery.onSnapshot((qSnap) => {
+                        const map = {};
+                        if (qSnap && typeof qSnap.forEach === 'function') {
+                            qSnap.forEach(doc => {
+                                const d = doc.data() || {};
+                                const inv = d.outgoingInvitesMap && d.outgoingInvitesMap[myUid];
+                                if (inv && inv.id) {
+                                    map[inv.id] = inv;
+                                }
+                            });
+                        }
+                        channelInvites.outgoingQuery = map;
+                        recomputeCombinedIncomingInvites();
+                    }, () => {}));
+                } catch (e) {}
+
+                // Channel 3: Shared invite mailbox document (mpRooms/INV_uid & users/mp_room_INV_uid)
+                try {
+                    const boxRef1 = fbDb.collection('mpRooms').doc('INV_' + myUid);
+                    unsubs.push(boxRef1.onSnapshot((snap) => {
+                        if (snap && snap.exists && snap.data()?.invites) {
+                            channelInvites.mailbox = { ...channelInvites.mailbox, ...snap.data().invites };
+                            recomputeCombinedIncomingInvites();
+                        }
+                    }, () => {}));
+                } catch (e) {}
+
+                try {
+                    const boxRef2 = fbDb.collection('users').doc('mp_room_INV_' + myUid);
+                    unsubs.push(boxRef2.onSnapshot((snap) => {
+                        if (snap && snap.exists && snap.data()?.invites) {
+                            channelInvites.mailbox = { ...channelInvites.mailbox, ...snap.data().invites };
+                            recomputeCombinedIncomingInvites();
+                        }
+                    }, () => {}));
+                } catch (e) {}
+
+                socialState.myDocUnsubscribe = () => {
+                    unsubs.forEach(fn => {
+                        try { if (typeof fn === 'function') fn(); } catch (e) {}
+                    });
+                };
             }
 
             window.togglePlayerProfileModal = function (show) {
