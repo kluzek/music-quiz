@@ -110,6 +110,13 @@
             touch-action: manipulation;
         }
 
+        /* Prevent iOS Safari & Android Chrome from auto-zooming the viewport when focusing any input */
+        @media (hover: none), (pointer: coarse), (max-width: 768px) {
+            input[type="text"], input[type="number"], textarea, select {
+                font-size: 16px !important;
+            }
+        }
+
         html, body {
             scrollbar-width: none;
             -ms-overflow-style: none;
@@ -163,11 +170,9 @@
 
         body.game-locked main {
             min-height: 0 !important;
-            height: 100% !important;
         }
 
-        #gameView { will-change: transform; }
-
+        /* Mobile Keyboard Open State: cleanly docks player without zooming or overflowing */
         @media (max-width: 767px), (hover: none) and (pointer: coarse) {
             body.game-locked.mobile-keyboard-open main {
                 justify-content: flex-start !important;
@@ -175,23 +180,16 @@
                 padding-bottom: 0.35rem !important;
             }
             body.game-locked.mobile-keyboard-open #gameView {
-                display: flex !important;
-                flex-direction: column !important;
-                justify-content: flex-start !important;
-                height: auto !important;
                 margin-top: 0 !important;
                 margin-bottom: auto !important;
                 gap: 0.5rem !important;
             }
             body.game-locked.mobile-keyboard-open #mainPlayerCard { gap: 0.65rem !important; }
-            body.game-locked.mobile-keyboard-open #gameTopZone,
             body.game-locked.mobile-keyboard-open #gameBottomZone,
-            body.game-locked.mobile-keyboard-open #attemptsTrailWrapper,
-            body.game-locked.mobile-keyboard-open #recentHistoryCard,
             body.game-locked.mobile-keyboard-open #mpLiveHudBar {
                 display: none !important;
             }
-            body.game-locked.mobile-keyboard-open #autocompleteList { max-height: 12.5rem !important; }
+            body.game-locked.mobile-keyboard-open #autocompleteList { max-height: 9.5rem !important; }
         }
 
         body.editor-mode, body.start-mode {
@@ -319,6 +317,7 @@
 
         .magnetic-item { -webkit-font-smoothing: antialiased; }
         .scrollable-touch-area { touch-action: pan-y !important; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
+        .scrollable-touch-area * { touch-action: pan-y !important; }
 
         @keyframes resultRevealEnter {
             0% { opacity: 0; transform: translateY(10px) scale(0.98); }
@@ -566,7 +565,7 @@
 
                 <!-- Settings Gear Button -->
                 <div class="relative" id="studioMenuWrapper">
-                    <button id="studioMenuBtn" onclick="toggleStudioMenuPopover()" class="magnetic-item w-8 h-8 rounded-full ui-pill text-zinc-400 hover:text-zinc-100 inline-flex items-center justify-center" title="Ustawienia, logi deweloperskie i biblioteka">
+                    <button id="studioMenuBtn" onclick="toggleStudioMenuPopover()" class="magnetic-item w-8 h-8 rounded-full ui-pill text-zinc-400 hover:text-zinc-100 inline-flex items-center justify-center" title="Ustawienia, tryb fragmentu, logi deweloperskie i biblioteka">
                         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="12" cy="12" r="3"></circle>
                             <path d="M 12.22 2 h -0.44 a 2 2 0 0 0 -2 2 v 0.18 a 2 2 0 0 1 -1 1.73 l -0.43 0.25 a 2 2 0 0 1 -2 0 l -0.15 -0.08 a 2 2 0 0 0 -2.73 0.73 l -0.22 0.38 a 2 2 0 0 0 0.73 2.73 l 0.15 0.1 a 2 2 0 0 1 1 1.72 v 0.51 a 2 2 0 0 1 -1 1.74 l -0.15 0.09 a 2 2 0 0 0 -0.73 2.73 l 0.22 0.38 a 2 2 0 0 0 2.73 0.73 l 0.15 -0.08 a 2 2 0 0 1 2 0 l 0.43 0.25 a 2 2 0 0 1 1 1.73 V 20 a 2 2 0 0 0 2 2 h 0.44 a 2 2 0 0 0 2 -2 v -0.18 a 2 2 0 0 1 1 -1.73 l 0.43 -0.25 a 2 2 0 0 1 2 0 l 0.15 0.08 a 2 2 0 0 0 2.73 -0.73 l 0.22 -0.39 a 2 2 0 0 0 -0.73 -2.73 l -0.15 -0.08 a 2 2 0 0 1 -1 -1.74 v -0.5 a 2 2 0 0 1 1 -1.74 l 0.15 -0.09 a 2 2 0 0 0 0.73 -2.73 l -0.22 -0.38 a 2 2 0 0 0 -2.73 -0.73 l -0.15 0.08 a 2 2 0 0 1 -2 0 l -0.43 -0.25 a 2 2 0 0 1 -1 -1.73 V 4 a 2 2 0 0 0 -2 -2 z"></path>
@@ -574,10 +573,23 @@
                     </button>
 
                     <!-- Dropdown Popover Menu -->
-                    <div id="studioMenuPopover" class="hidden absolute right-0 mt-2 w-64 rounded-2xl panel-card py-1.5 z-50 divide-y divide-[#27272a]/80">
+                    <div id="studioMenuPopover" class="hidden absolute right-0 mt-2 w-72 rounded-2xl panel-card py-1.5 z-50 divide-y divide-[#27272a]/80">
                         <div class="px-3.5 py-2 flex items-center justify-between text-[11px] font-mono text-zinc-500">
-                            <span id="libraryModeBadge" class="truncate max-w-[140px]">Tryb testowy (4)</span>
+                            <span id="libraryModeBadge" class="truncate max-w-[155px]">Tryb testowy (4)</span>
                             <span>W puli: <strong id="statPool" class="text-zinc-300">4</strong></span>
+                        </div>
+
+                        <!-- Snippet Playback Mode Selector in Settings -->
+                        <div class="px-3.5 py-2.5 space-y-1.5">
+                            <div class="flex items-center justify-between text-[11px] font-mono text-zinc-400">
+                                <span>Tryb odtwarzania utworu:</span>
+                                <span id="menuSnippetModeHint" class="text-emerald-400">Pełne (YT)</span>
+                            </div>
+                            <div class="grid grid-cols-3 gap-1 p-1 rounded-xl bg-[#09090b] border border-[#27272a]">
+                                <button type="button" onclick="setSnippetPlaybackMode('full_from_start')" data-snip-mode="full_from_start" class="snip-mode-btn py-1.5 px-1.5 rounded-lg text-[11px] font-semibold bg-zinc-100 text-zinc-950 transition-all truncate" title="Pełne utwory z YouTube od początku">Pełne YT</button>
+                                <button type="button" onclick="setSnippetPlaybackMode('best_30s')" data-snip-mode="best_30s" class="snip-mode-btn py-1.5 px-1.5 rounded-lg text-[11px] font-medium text-zinc-400 hover:text-zinc-200 transition-all truncate" title="Najlepsze 30-sekundowe fragmenty (Refren / Hit CDN)">Hit 30s</button>
+                                <button type="button" onclick="setSnippetPlaybackMode('random_moment')" data-snip-mode="random_moment" class="snip-mode-btn py-1.5 px-1.5 rounded-lg text-[11px] font-medium text-zinc-400 hover:text-zinc-200 transition-all truncate" title="Losowy moment z całego utworu">Losowy</button>
+                            </div>
                         </div>
 
                         <div class="py-1">
@@ -687,8 +699,8 @@
         </div>
     </header>
 
-    <!-- ==================== MAIN CONTENT (CENTERED STAGE) ==================== -->
-    <main class="relative z-10 flex-1 w-full max-w-2xl mx-auto px-4 py-2 sm:py-6 flex flex-col min-h-0">
+    <!-- ==================== MAIN CONTENT (ORIGINAL VERTICAL ALIGNMENT) ==================== -->
+    <main class="relative z-10 flex-1 w-full max-w-2xl mx-auto px-4 py-2.5 sm:py-8 flex flex-col">
 
         <!-- ==================== VIEW 0: ULTRA-CLEAN START HUB ==================== -->
         <div id="startView" class="w-full max-w-2xl mx-auto my-auto flex flex-col items-center justify-center gap-5 sm:gap-6 py-4 sm:py-8 reveal-enter">
@@ -827,18 +839,16 @@
 
         </div>
 
-        <!-- ==================== VIEW 1: 3-ZONE LOCKED CENTER STAGE (ZERO JUMPING) ==================== -->
-        <div id="gameView" class="hidden flex-1 w-full max-w-lg mx-auto h-full min-h-0 grid-rows-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center">
+        <!-- ==================== VIEW 1: ORIGINAL CENTERED STAGE WITH FIXED BOTTOM RESERVOIR (ZERO JUMPING) ==================== -->
+        <div id="gameView" class="hidden w-full max-w-lg mx-auto my-auto flex-col items-center gap-3 sm:gap-6">
 
-            <!-- TOP 1FR ZONE: Floating Multiplayer Orbs (Never pushes the center stage) -->
-            <div id="gameTopZone" class="w-full h-full min-h-0 flex flex-col items-center justify-end pb-2 sm:pb-4">
-                <div id="mpLiveHudBar" class="hidden w-full flex-col items-center">
-                    <div id="mpHudPlayersList" class="w-full flex flex-wrap items-end justify-center gap-5 sm:gap-7 pt-5 pb-1 min-h-[78px]"></div>
-                </div>
+            <!-- BOXLESS FLOATING MULTIPLAYER AVATAR ORBS -->
+            <div id="mpLiveHudBar" class="hidden w-full flex-col items-center pb-0.5">
+                <div id="mpHudPlayersList" class="w-full flex flex-wrap items-end justify-center gap-5 sm:gap-7 pt-5 pb-1 min-h-[78px]"></div>
             </div>
 
-            <!-- CENTER AUTO ZONE: Locked Player Controls, Timeline & Input / Result -->
-            <div id="mainPlayerCard" class="w-full flex flex-col items-center gap-4 sm:gap-6 shrink-0">
+            <!-- Open Player Stage (Exact original gap-4 sm:gap-7 spacing) -->
+            <div id="mainPlayerCard" class="w-full flex flex-col items-center gap-4 sm:gap-7">
 
                 <!-- 1. Centered Stage Info + Play Hub -->
                 <div class="flex flex-col items-center gap-3.5 sm:gap-4 w-full">
@@ -846,7 +856,7 @@
                         <span id="centerModeLabel" class="text-zinc-300 font-medium">Próba 1 z 6</span>
                         <span class="text-zinc-700">·</span>
                         <span id="stageLimitBigBadge" class="font-semibold theme-accent-text">1.5s</span>
-                        <span id="offsetActiveBadge" class="hidden text-[11px] text-zinc-500" title="Utwór startuje z pominięciem intro">(+0.0s)</span>
+                        <span id="offsetActiveBadge" class="hidden text-[11px] text-zinc-500" title="Utwór startuje z przesunięciem czasu">(+0.0s)</span>
                     </div>
 
                     <div class="flex items-center justify-center gap-5">
@@ -928,7 +938,7 @@
                             </div>
 
                             <div id="autocompleteDropdown" onmousedown="event.preventDefault()" class="hidden absolute left-0 right-0 bottom-full mb-2.5 z-40 rounded-2xl panel-card overflow-hidden p-2 shadow-2xl">
-                                <div id="autocompleteList" class="scrollable-touch-area max-h-60 sm:max-h-80 overflow-y-auto divide-y divide-zinc-800/80 pr-1"></div>
+                                <div id="autocompleteList" class="scrollable-touch-area max-h-56 sm:max-h-72 overflow-y-auto divide-y divide-zinc-800/80 pr-1"></div>
                             </div>
                         </div>
 
@@ -999,13 +1009,13 @@
 
             </div>
 
-            <!-- BOTTOM 1FR ZONE: Guesses Trail & Last Played History (Never pushes the center stage) -->
-            <div id="gameBottomZone" class="w-full h-full min-h-0 flex flex-col items-center justify-start pt-2.5 sm:pt-4 gap-2 overflow-hidden">
-                <div id="attemptsTrailWrapper" class="hidden w-full flex-col items-center gap-1.5">
-                    <div id="attemptsList" class="scrollable-touch-area flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 w-full max-h-20 sm:max-h-24 overflow-y-auto py-0.5"></div>
+            <!-- 5. FIXED-HEIGHT BOTTOM ZONE: Keeps #mainPlayerCard at the exact original height while preventing any button jumping! -->
+            <div id="gameBottomZone" class="w-full h-24 sm:h-28 shrink-0 flex flex-col items-center justify-start gap-1.5 pt-1 overflow-hidden">
+                <div id="attemptsTrailWrapper" class="hidden w-full flex-col items-center min-h-0 flex-1 overflow-hidden">
+                    <div id="attemptsList" class="scrollable-touch-area flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 w-full max-h-16 sm:max-h-20 overflow-y-auto py-0.5 px-1"></div>
                 </div>
 
-                <div id="recentHistoryCard" class="hidden items-center justify-center gap-2 text-xs text-zinc-500 pt-0.5 px-3 py-1 rounded-full shrink-0">
+                <div id="recentHistoryCard" class="hidden items-center justify-center gap-2 text-xs text-zinc-500 px-3 py-0.5 rounded-full shrink-0">
                     <div id="inlineRecentHistoryList" class="inline-flex items-center gap-2 truncate max-w-[230px] sm:max-w-md"></div>
                     <span class="text-zinc-800">·</span>
                     <button onclick="toggleHistoryModal(true)" class="text-[11px] text-zinc-500 hover:text-zinc-200 font-mono shrink-0 transition-colors">Pełna historia</button>
@@ -1120,7 +1130,7 @@
     </main>
 
     <!-- Ultra-Discreet Bottom Keyboard Hints (Hidden on mobile touchscreens) -->
-    <footer class="hidden sm:block relative z-10 mt-auto py-3 px-4 text-center text-[11px] text-zinc-600 select-none shrink-0">
+    <footer class="hidden sm:block relative z-10 mt-auto py-4 px-4 text-center text-[11px] text-zinc-600 select-none">
         <div class="max-w-xl mx-auto flex flex-wrap items-center justify-center gap-x-5 gap-y-1">
             <span><span class="font-mono text-zinc-500">Spacja</span> Graj / Pauza</span>
             <span><span class="font-mono text-zinc-500">R</span> Od początku</span>
@@ -1134,7 +1144,7 @@
 
     <!-- ==================== REAL-TIME MULTIPLAYER LOBBY & ROOM MODAL ==================== -->
     <div id="multiplayerModal" onclick="if(event.target===this) toggleMultiplayerModal(false)" class="fixed inset-0 z-50 bg-black/85 hidden items-center justify-center p-4 backdrop-blur-sm">
-        <div class="panel-card modal-pop max-w-md w-full rounded-3xl p-5 sm:p-6 space-y-5 relative flex flex-col max-h-[88vh]">
+        <div class="panel-card modal-pop max-w-md w-full rounded-3xl p-5 sm:p-6 space-y-4 relative flex flex-col max-h-[88vh]">
             <button onclick="toggleMultiplayerModal(false)" class="absolute top-5 right-5 p-1.5 rounded-full text-zinc-400 hover:text-zinc-100 hover:bg-[#18181c] transition-colors z-10" title="Zamknij">
                 <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
             </button>
@@ -1174,7 +1184,7 @@
                 </div>
             </div>
 
-            <div id="mpActiveRoomView" class="hidden flex-col gap-4 min-h-0 flex-1">
+            <div id="mpActiveRoomView" class="hidden flex-col gap-3.5 min-h-0 flex-1">
                 <div class="p-3.5 rounded-2xl bg-[#09090b] border border-[#27272a] flex items-center justify-between gap-3">
                     <div>
                         <div class="text-[10px] font-mono text-zinc-500 uppercase">Kod pokoju</div>
@@ -1186,23 +1196,36 @@
                     </div>
                 </div>
 
+                <!-- Room Playback Mode Settings (Host configurable, Guest read-only live view) -->
+                <div class="p-3 rounded-2xl bg-[#09090b] border border-[#27272a] space-y-2">
+                    <div class="flex items-center justify-between text-[11px] font-mono">
+                        <span class="text-zinc-400">Tryb odtwarzania w pokoju:</span>
+                        <span id="mpModalSnippetModeLabel" class="text-emerald-400 font-semibold">Pełne (YT)</span>
+                    </div>
+                    <div id="mpHostSnippetModeControls" class="grid grid-cols-3 gap-1 p-1 rounded-xl bg-[#121215] border border-[#27272a]">
+                        <button type="button" onclick="setSnippetPlaybackMode('full_from_start')" data-snip-mode="full_from_start" class="snip-mode-btn py-1.5 px-2 rounded-lg text-[11px] font-semibold bg-zinc-100 text-zinc-950 transition-all truncate">Pełne YT</button>
+                        <button type="button" onclick="setSnippetPlaybackMode('best_30s')" data-snip-mode="best_30s" class="snip-mode-btn py-1.5 px-2 rounded-lg text-[11px] font-medium text-zinc-400 hover:text-zinc-200 transition-all truncate">Hit 30s</button>
+                        <button type="button" onclick="setSnippetPlaybackMode('random_moment')" data-snip-mode="random_moment" class="snip-mode-btn py-1.5 px-2 rounded-lg text-[11px] font-medium text-zinc-400 hover:text-zinc-200 transition-all truncate">Losowy moment</button>
+                    </div>
+                </div>
+
                 <div class="space-y-1.5">
                     <div class="flex items-center justify-between text-xs text-zinc-400 px-1">
                         <span>Gracze w pokoju (<span id="mpModalPlayerCount">1</span>)</span>
                         <span id="mpModalPlaylistBadge" class="font-mono text-[11px] text-zinc-500 truncate max-w-[180px]">Bazowa Playlista</span>
                     </div>
-                    <div id="mpModalPlayersList" class="scrollable-touch-area max-h-48 overflow-y-auto rounded-2xl bg-[#09090b] border border-[#27272a] divide-y divide-zinc-900"></div>
+                    <div id="mpModalPlayersList" class="scrollable-touch-area max-h-40 overflow-y-auto rounded-2xl bg-[#09090b] border border-[#27272a] divide-y divide-zinc-900"></div>
                 </div>
 
-                <div class="pt-1 flex flex-col gap-2">
+                <div class="pt-0.5 flex flex-col gap-2">
                     <button id="mpHostStartBtn" onclick="hostStartNextMpRound(true)" class="w-full h-11 px-5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-semibold text-xs inline-flex items-center justify-center gap-2 transition-colors shadow-[0_0_25px_rgba(16,185,129,0.25)]">
                         <span>Rozpocznij wspólną grę</span>
                     </button>
                     <button id="mpHostForceAdvanceBtn" onclick="hostForceAdvanceMpStage()" class="hidden w-full h-9 px-4 rounded-xl ui-pill text-zinc-300 hover:text-white text-xs font-medium items-center justify-center gap-2">
                         <span>Wymuś kolejny etap (Pomiń AFK)</span>
                     </button>
-                    <p id="mpGuestWaitHint" class="hidden text-center text-xs font-mono text-zinc-400 py-2">Czekamy aż Host uruchomi pierwszą rundę...</p>
-                    <div class="flex items-center justify-between gap-2 pt-1">
+                    <p id="mpGuestWaitHint" class="hidden text-center text-xs font-mono text-zinc-400 py-1.5">Czekamy aż Host uruchomi pierwszą rundę...</p>
+                    <div class="flex items-center justify-between gap-2 pt-0.5">
                         <button onclick="leaveMultiplayerRoom()" class="h-9 px-3.5 rounded-xl text-xs text-zinc-500 hover:text-red-400 transition-colors">Opuść pokój</button>
                         <button onclick="toggleMultiplayerModal(false)" class="h-9 px-4 rounded-xl ui-pill text-xs text-zinc-300 hover:text-white">Zamknij okno</button>
                     </div>
@@ -1377,7 +1400,7 @@
 
             <div class="text-center space-y-1 px-6">
                 <h2 class="text-base font-semibold text-zinc-100">Zasady gry i punktacji</h2>
-                <p class="text-xs text-zinc-500">Punktacja, Multiplayer i skróty klawiszowe</p>
+                <p class="text-xs text-zinc-500">Punktacja, tryby odtwarzania, Multiplayer i skróty klawiszowe</p>
             </div>
 
             <div class="space-y-3 text-xs text-zinc-300 leading-relaxed">
@@ -1385,12 +1408,12 @@
                     <div class="text-zinc-200 font-semibold">Punktacja za trafienie:</div>
                     <div>• <span class="text-emerald-400">1.5s: +100 pkt</span>, <span class="text-zinc-300">3s: +75</span>, <span class="text-zinc-300">6s: +55</span>, <span class="text-zinc-300">10s: +40</span>, <span class="text-zinc-300">15s: +25</span>, <span class="text-zinc-300">MAX: +15</span></div>
                     <div>• <span class="text-zinc-200">Seria</span>: od 2. trafienia z rzędu do +50 pkt bonusu za utwór.</div>
-                    <div>• <span class="text-zinc-200">Multiplayer</span>: w każdym etapie każdy ma po 1 strzale albo 1 skipnięciu. Gdy ktoś zgadnie wcześniej, pozostali grają dalej aż do końca rundy!</div>
+                    <div>• <span class="text-zinc-200">Tryby fragmentu</span>: w Ustawieniach (lub w Lobby Multiplayer) możesz wybrać <strong>Pełne YT</strong>, <strong>Hit 30s</strong> (refreny) lub <strong>Losowy moment</strong> z całej piosenki.</div>
                 </div>
 
                 <ul class="space-y-1.5 list-disc list-inside text-zinc-400">
                     <li>Kliknij <strong>KLUZEK</strong> u góry, aby zmienić źródło muzyki.</li>
-                    <li>Utwory z YouTube odtwarzają się bezpośrednio z oficjalnego odtwarzacza YouTube lub automatycznie przełączają się na strumień zapasowy CDN, jeśli autor zablokował osadzanie.</li>
+                    <li>W Multiplayerze wszyscy słyszą dokładnie ten sam wylosowany fragment utworu.</li>
                 </ul>
             </div>
 
@@ -1532,6 +1555,7 @@
         const SAVED_PLAYLISTS_STORAGE_KEY = 'kluzek_saved_playlists_v1';
         const RECENT_PLAYED_STORAGE_KEY = 'kluzek_recent_played_v1';
         const SCORED_SONGS_STORAGE_KEY = 'kluzek_scored_songs_v1';
+        const SNIPPET_MODE_STORAGE_KEY = 'kluzek_snippet_mode_v1';
         const IDB_NAME = 'kluzek_music_quiz_idb_v1';
         const IDB_VERSION = 1;
 
@@ -1553,6 +1577,97 @@
             } else {
                 if (ambCanvas) ambCanvas.style.display = '';
                 if (badge) badge.style.display = '';
+            }
+        }
+
+        // Snippet Playback Mode: 'full_from_start' | 'best_30s' | 'random_moment'
+        let snippetPlaybackMode = 'full_from_start';
+
+        function loadSnippetPlaybackModeFromStorage() {
+            try {
+                const saved = localStorage.getItem(SNIPPET_MODE_STORAGE_KEY);
+                if (saved === 'full_from_start' || saved === 'best_30s' || saved === 'random_moment') {
+                    snippetPlaybackMode = saved;
+                }
+            } catch (e) {}
+            updateSnippetModeButtonsUI();
+        }
+
+        function getActiveEffectiveSnippetMode() {
+            if (mpState.active && mpState.roomData && mpState.roomData.snippetMode) {
+                return mpState.roomData.snippetMode;
+            }
+            return snippetPlaybackMode;
+        }
+
+        function getSnippetModeDisplayName(mode) {
+            if (mode === 'best_30s') return 'Hit 30s (Refren)';
+            if (mode === 'random_moment') return 'Losowy moment';
+            return 'Pełne (YT)';
+        }
+
+        function updateSnippetModeButtonsUI() {
+            const effectiveMode = getActiveEffectiveSnippetMode();
+            const labelText = getSnippetModeDisplayName(effectiveMode);
+
+            const menuHint = document.getElementById('menuSnippetModeHint');
+            if (menuHint) menuHint.textContent = labelText;
+
+            const mpLabel = document.getElementById('mpModalSnippetModeLabel');
+            if (mpLabel) mpLabel.textContent = labelText;
+
+            const mpControls = document.getElementById('mpHostSnippetModeControls');
+            if (mpControls) {
+                const canChangeInMp = !mpState.active || mpState.isHost;
+                mpControls.classList.toggle('opacity-60', !canChangeInMp);
+                mpControls.classList.toggle('pointer-events-none', !canChangeInMp);
+            }
+
+            document.querySelectorAll('.snip-mode-btn').forEach(btn => {
+                const m = btn.getAttribute('data-snip-mode');
+                const isAct = (m === effectiveMode);
+                btn.className = isAct
+                    ? 'snip-mode-btn py-1.5 px-1.5 rounded-lg text-[11px] font-semibold bg-zinc-100 text-zinc-950 transition-all truncate'
+                    : 'snip-mode-btn py-1.5 px-1.5 rounded-lg text-[11px] font-medium text-zinc-400 hover:text-zinc-200 transition-all truncate';
+            });
+        }
+
+        async function setSnippetPlaybackMode(newMode) {
+            if (newMode !== 'full_from_start' && newMode !== 'best_30s' && newMode !== 'random_moment') return;
+            if (mpState.active && !mpState.isHost) {
+                showToast('Tylko Host pokoju może zmieniać tryb odtwarzania w Multiplayerze.');
+                return;
+            }
+            snippetPlaybackMode = newMode;
+            try { localStorage.setItem(SNIPPET_MODE_STORAGE_KEY, newMode); } catch (e) {}
+
+            if (mpState.active && mpState.isHost && typeof window.__syncMpRoomSnippetMode === 'function') {
+                await window.__syncMpRoomSnippetMode(newMode);
+            }
+
+            updateSnippetModeButtonsUI();
+            preloadedCandidate = { category: null, song: null, poolSizeWhenPicked: 0, readyPromise: null };
+            showFloatingFeedbackPill(`Tryb odtwarzania: ${getSnippetModeDisplayName(newMode)}`, 'emerald', 'Zostanie użyty od kolejnego utworu');
+        }
+
+        function getEffectiveSongStartOffset(song) {
+            if (!song) return 0;
+            if (typeof song.roundStartOffset === 'number' && song.roundStartOffset >= 0) {
+                return song.roundStartOffset;
+            }
+            return song.startOffset || 0;
+        }
+
+        function updateOffsetBadgeForCurrentSong() {
+            const offsetBadge = document.getElementById('offsetActiveBadge');
+            if (!offsetBadge || !currentSong) return;
+            const effStart = getEffectiveSongStartOffset(currentSong);
+            if (effStart > 0) {
+                const isRandom = (typeof currentSong.roundStartOffset === 'number' && currentSong.roundStartOffset > 0 && currentSong.roundStartOffset !== (currentSong.startOffset || 0));
+                offsetBadge.textContent = isRandom ? `(+${effStart.toFixed(0)}s losowo)` : `(+${effStart.toFixed(1)}s)`;
+                offsetBadge.classList.remove('hidden');
+            } else {
+                offsetBadge.classList.add('hidden');
             }
         }
 
@@ -1673,11 +1788,8 @@
             const input = document.getElementById('omnibarInput');
             const clearBtn = document.getElementById('omnibarClearBtn');
             if (!input || !clearBtn) return;
-            if (input.value.length > 0) {
-                clearBtn.classList.remove('hidden');
-            } else {
-                clearBtn.classList.add('hidden');
-            }
+            if (input.value.length > 0) clearBtn.classList.remove('hidden');
+            else clearBtn.classList.add('hidden');
         }
 
         function clearOmnibarInput(shouldFocus = true) {
@@ -1830,7 +1942,7 @@
             return { eligible: true, reason: '' };
         }
 
-        // ==================== MOBILE KEYBOARD FLIP GLIDE & ANTI-JUMP VIEWPORT CONTROLLER ====================
+        // ==================== MOBILE KEYBOARD & VIEWPORT CONTROLLER (ZERO ZOOM / ZERO JUMP) ====================
         let isGuessInputFocused = false;
         let isInteractingWithAutocomplete = false;
         let wasMobileKeyboardOpen = false;
@@ -1838,21 +1950,8 @@
         let lastClosedViewportHeight = typeof window !== 'undefined' ? window.innerHeight : 800;
         let lastViewportWidth = typeof window !== 'undefined' ? window.innerWidth : 400;
         let minOpenViewportHeight = 9999;
-        let keyboardFlipResetTimer = null;
         let keyboardOpenWatchdogTimer = null;
         let blurExitTimer = null;
-
-        function clearGameViewFlipTransform() {
-            if (keyboardFlipResetTimer) {
-                clearTimeout(keyboardFlipResetTimer);
-                keyboardFlipResetTimer = null;
-            }
-            const gameView = document.getElementById('gameView');
-            if (gameView) {
-                gameView.style.transition = '';
-                gameView.style.transform = '';
-            }
-        }
 
         function clearKeyboardWatchdogTimer() {
             if (keyboardOpenWatchdogTimer) {
@@ -1863,46 +1962,15 @@
 
         function enterMobileKeyboardModeSmoothly() {
             const guessInput = document.getElementById('guessInput');
-            const gameView = document.getElementById('gameView');
-            const playerCard = document.getElementById('mainPlayerCard');
-
             if (blurExitTimer) {
                 clearTimeout(blurExitTimer);
                 blurExitTimer = null;
             }
-
             if (!isTouchMobileDevice || currentView !== 'game' || roundOver) return;
 
             isGuessInputFocused = true;
-
-            if (!document.body.classList.contains('mobile-keyboard-open')) {
-                clearGameViewFlipTransform();
-                const firstTop = playerCard ? playerCard.getBoundingClientRect().top : 0;
-
-                document.documentElement.classList.add('mobile-keyboard-open');
-                document.body.classList.add('mobile-keyboard-open');
-
-                if (guessInput) void guessInput.offsetHeight;
-
-                const lastTop = playerCard ? playerCard.getBoundingClientRect().top : 0;
-                const deltaY = firstTop - lastTop;
-
-                if (gameView && Math.abs(deltaY) > 2 && Math.abs(deltaY) < 380) {
-                    gameView.style.transition = 'none';
-                    gameView.style.transform = `translate3d(0, ${deltaY.toFixed(1)}px, 0)`;
-                    void gameView.offsetHeight;
-                    requestAnimationFrame(() => {
-                        gameView.style.transition = 'transform 0.24s cubic-bezier(0.22, 1, 0.36, 1)';
-                        gameView.style.transform = 'translate3d(0, 0, 0)';
-                        keyboardFlipResetTimer = setTimeout(() => {
-                            if (gameView) {
-                                gameView.style.transition = '';
-                                gameView.style.transform = '';
-                            }
-                        }, 260);
-                    });
-                }
-            }
+            document.documentElement.classList.add('mobile-keyboard-open');
+            document.body.classList.add('mobile-keyboard-open');
 
             clearKeyboardWatchdogTimer();
             keyboardOpenWatchdogTimer = setTimeout(() => {
@@ -1912,60 +1980,24 @@
                 const heightDrop = lastClosedViewportHeight - vvh;
                 if (heightDrop < 75 && !wasMobileKeyboardOpen) {
                     if (guessInput && document.activeElement === guessInput) guessInput.blur();
-                    exitMobileKeyboardModeSmoothly(true);
+                    exitMobileKeyboardModeSmoothly();
                 }
             }, 520);
         }
 
-        function exitMobileKeyboardModeSmoothly(animateGlide = true, customFirstTop = null) {
+        function exitMobileKeyboardModeSmoothly() {
             if (blurExitTimer) {
                 clearTimeout(blurExitTimer);
                 blurExitTimer = null;
             }
             clearKeyboardWatchdogTimer();
 
-            const gameView = document.getElementById('gameView');
-            const playerCard = document.getElementById('mainPlayerCard');
-            const wasOpen = document.body.classList.contains('mobile-keyboard-open');
-
             isGuessInputFocused = false;
             wasMobileKeyboardOpen = false;
             minOpenViewportHeight = 9999;
 
-            if (!wasOpen && customFirstTop === null) {
-                clearGameViewFlipTransform();
-                return;
-            }
-
-            const firstTop = customFirstTop !== null
-                ? customFirstTop
-                : ((animateGlide && playerCard && currentView === 'game') ? playerCard.getBoundingClientRect().top : 0);
-
-            clearGameViewFlipTransform();
             document.documentElement.classList.remove('mobile-keyboard-open');
             document.body.classList.remove('mobile-keyboard-open');
-
-            if (animateGlide && gameView && playerCard && currentView === 'game') {
-                void gameView.offsetHeight;
-                const lastTop = playerCard.getBoundingClientRect().top;
-                const deltaY = firstTop - lastTop;
-
-                if (Math.abs(deltaY) > 2 && Math.abs(deltaY) < 380) {
-                    gameView.style.transition = 'none';
-                    gameView.style.transform = `translate3d(0, ${deltaY.toFixed(1)}px, 0)`;
-                    void gameView.offsetHeight;
-                    requestAnimationFrame(() => {
-                        gameView.style.transition = 'transform 0.24s cubic-bezier(0.22, 1, 0.36, 1)';
-                        gameView.style.transform = 'translate3d(0, 0, 0)';
-                        keyboardFlipResetTimer = setTimeout(() => {
-                            if (gameView) {
-                                gameView.style.transition = '';
-                                gameView.style.transform = '';
-                            }
-                        }, 260);
-                    });
-                }
-            }
         }
 
         function updateMobileVisualViewportDocking() {
@@ -2005,13 +2037,13 @@
                         if (dropdown) dropdown.classList.add('hidden');
                         const guessInput = document.getElementById('guessInput');
                         if (guessInput && document.activeElement === guessInput) guessInput.blur();
-                        exitMobileKeyboardModeSmoothly(true);
+                        exitMobileKeyboardModeSmoothly();
                     }
                 } else if (roundOver && document.body.classList.contains('mobile-keyboard-open')) {
-                    exitMobileKeyboardModeSmoothly(true);
+                    exitMobileKeyboardModeSmoothly();
                 }
             } else if (document.body.classList.contains('mobile-keyboard-open')) {
-                exitMobileKeyboardModeSmoothly(false);
+                exitMobileKeyboardModeSmoothly();
             }
         }
 
@@ -2045,7 +2077,7 @@
                 if (!isGuessInputFocused && !isInteractingWithAutocomplete) {
                     const dropdown = document.getElementById('autocompleteDropdown');
                     if (dropdown) dropdown.classList.add('hidden');
-                    exitMobileKeyboardModeSmoothly(true);
+                    exitMobileKeyboardModeSmoothly();
                     if (currentView === 'game') window.scrollTo(0, 0);
                     updateMobileVisualViewportDocking();
                 }
@@ -2105,13 +2137,9 @@
             recordDevFailedTrack(brokenSong.youtubeId || brokenSong.id, brokenSong.cleanTitle || brokenSong.rawFileName, reason);
 
             const idx = songsLibrary.findIndex(s => s.id === brokenSong.id);
-            if (idx !== -1 && !brokenSong.isDemo) {
-                songsLibrary.splice(idx, 1);
-            }
+            if (idx !== -1 && !brokenSong.isDemo) songsLibrary.splice(idx, 1);
             for (const poolSet of Object.values(unplayedPools)) {
-                if (poolSet && typeof poolSet.delete === 'function') {
-                    poolSet.delete(brokenSong.id);
-                }
+                if (poolSet && typeof poolSet.delete === 'function') poolSet.delete(brokenSong.id);
             }
             if (preloadedCandidate.song && preloadedCandidate.song.id === brokenSong.id) {
                 preloadedCandidate = { category: null, song: null, poolSizeWhenPicked: 0, readyPromise: null };
@@ -2502,20 +2530,15 @@
 
             clearVoiceSilenceTimer();
             voiceSilenceTimer = setTimeout(() => {
-                if (mode === 'guess' && latestCombinedTranscript) {
-                    finalizeVoiceGuessTranscript(latestCombinedTranscript);
-                } else {
-                    stopActiveVoiceRecognition();
-                }
+                if (mode === 'guess' && latestCombinedTranscript) finalizeVoiceGuessTranscript(latestCombinedTranscript);
+                else stopActiveVoiceRecognition();
             }, 6500);
 
             rec.onresult = (event) => {
                 const parts = [];
                 for (let i = 0; i < event.results.length; i++) {
                     const res = event.results[i];
-                    if (res && res[0] && res[0].transcript) {
-                        parts.push(res[0].transcript.trim());
-                    }
+                    if (res && res[0] && res[0].transcript) parts.push(res[0].transcript.trim());
                 }
                 const combined = parts.join(' ').replace(/\s{2,}/g, ' ').trim();
                 if (!combined) return;
@@ -2539,9 +2562,7 @@
                 }
 
                 clearVoiceSilenceTimer();
-                voiceSilenceTimer = setTimeout(() => {
-                    finalizeVoiceGuessTranscript(latestCombinedTranscript);
-                }, 2200);
+                voiceSilenceTimer = setTimeout(() => finalizeVoiceGuessTranscript(latestCombinedTranscript), 2200);
             };
 
             rec.onerror = () => {
@@ -3089,21 +3110,6 @@
             barOffsetsY: [0, 0, 0, 0, 0]
         };
 
-        const visualizerPCMState = {
-            songId: null,
-            shortUrl: null,
-            shortPCM: null,
-            shortSampleRate: 0,
-            preloadSongId: null,
-            preloadUrl: null,
-            preloadPCM: null,
-            preloadSampleRate: 0,
-            loadingKeys: new Set(),
-            fastEnv: [0, 0, 0, 0, 0],
-            slowEnv: [0, 0, 0, 0, 0],
-            peakEnv: [0.015, 0.015, 0.015, 0.015, 0.015]
-        };
-
         let activeParticles = [];
         let activeShockRings = [];
         let particleAnimId = null;
@@ -3420,7 +3426,6 @@
                 });
             }
 
-            // Cache whole Multiplayer player orb unit (photo + points + popup + name) so the entire unit attracts together!
             mouseFX.orbRectCache = [];
             const orbNodes = document.querySelectorAll('#mpHudPlayersList .orb-magnetic-unit');
             for (let i = 0; i < orbNodes.length; i++) {
@@ -4407,6 +4412,12 @@
                                 ytMainState = ev.data;
                                 if (activeAudioEngine === 'youtube') {
                                     if (ev.data === YT.PlayerState.PLAYING) {
+                                        // Guard against unexpected autoplay when cued before user clicks Play
+                                        if (currentView === 'game' && !roundOver && (!isSnippetPlaying || isPreparingRoundAudio)) {
+                                            try { ytMainPlayer.pauseVideo(); } catch (e) {}
+                                            ytMainState = 2;
+                                            return;
+                                        }
                                         isAudioWaitingForBuffer = false;
                                         if (ytMainLoadResolver) {
                                             const res = ytMainLoadResolver;
@@ -4476,6 +4487,7 @@
 
                 try {
                     activeAudioEngine = 'youtube';
+                    ytMainState = 5; // CUED state immediately so old PLAYING state never leaks
                     ytMainCurrentVideoId = videoId;
                     syncMasterVolumeToYouTube();
                     ytMainPlayer.cueVideoById({
@@ -4522,6 +4534,8 @@
         }
 
         function isAudioCurrentlyPlaying() {
+            if (isPreparingRoundAudio) return false;
+            if (currentView === 'game' && !roundOver && !isSnippetPlaying) return false;
             if (activeAudioEngine === 'youtube') {
                 return Boolean(ytMainPlayerReady && ytMainState === 1);
             }
@@ -4596,6 +4610,7 @@
         function pauseActiveAudio() {
             isAudioWaitingForBuffer = false;
             if (activeAudioEngine === 'youtube' && ytMainPlayerReady && ytMainPlayer) {
+                ytMainState = 2;
                 try { ytMainPlayer.pauseVideo(); } catch (e) {}
             }
             try { audioEl.pause(); } catch (e) {}
@@ -4654,7 +4669,7 @@
                 return;
             }
 
-            const startSec = currentSong.startOffset || 0;
+            const startSec = getEffectiveSongStartOffset(currentSong);
             const dur = getActiveDuration() || 30;
 
             if (isAudioCurrentlyPlaying()) {
@@ -4699,7 +4714,6 @@
                 if (candCombined.includes(kw) && !refLower.includes(kw)) return true;
             }
 
-            // Block random Opera / Classical / Symphony / Orchestra tracks unless explicitly searched for
             const classicalOperaRegex = /\b(opera|symphony|symfonia|orchestra|orkiestra|philharmonic|filharmonia|concerto|sonata|aria|op\.\s*\d+|no\.\s*\d+\s+in\s+[a-g]|adagio|allegro|andante|choreography|overture|uwertura|baritone|soprano|tenor|mozart|beethoven|chopin|bach|vivaldi|verdi|puccini)\b/i;
             if (classicalOperaRegex.test(candCombined) && !classicalOperaRegex.test(refLower)) {
                 return true;
@@ -4721,7 +4735,6 @@
             const cWords = cNorm.split(' ').filter(w => w.length >= 2);
             if (qWords.length === 0 || cWords.length === 0) return false;
 
-            // Every word of the queried artist must appear as a full word or close fuzzy token in the candidate artist
             return qWords.every(qw =>
                 cWords.some(cw => cw === qw || (qw.length >= 4 && computeTokenFuzzySimilarity(qw, cw) >= 0.84))
             );
@@ -4894,57 +4907,6 @@
             return queries.slice(0, 4);
         }
 
-        async function resolveCorsStreamForVisualizer(song) {
-            if (!song) return null;
-            if (song.corsStreamUrl) return song.corsStreamUrl;
-            const queries = buildBackupSearchQueriesForSong(song);
-            for (let i = 0; i < Math.min(2, queries.length); i++) {
-                const q = queries[i];
-                try {
-                    const itunesUrl = `https://itunes.apple.com/search?term=${encodeURIComponent(q)}&entity=song&limit=6&country=PL`;
-                    const resp = await withTimeout(fetch(itunesUrl), 2500);
-                    if (resp.ok) {
-                        const data = await resp.json();
-                        if (data && Array.isArray(data.results) && data.results.length > 0) {
-                            const good = data.results.find(r =>
-                                r.previewUrl &&
-                                !isFillerOrRemixTrackTitle(r.trackName) &&
-                                isCandidateTrackMatchingSong(song, r.artistName || '', r.trackName || '', r.primaryGenreName || '')
-                            );
-                            if (good && good.previewUrl) {
-                                song.corsStreamUrl = good.previewUrl;
-                                return good.previewUrl;
-                            }
-                        }
-                    }
-                } catch (e) {}
-            }
-            return null;
-        }
-
-        function syncSongTitleWithResolvedBackup(song, resolvedCleanTitle) {
-            if (!song || !resolvedCleanTitle) return;
-            if (mpState.active && song.isSyncedFromMpRoom) return;
-            const hasManualOverride = Boolean(
-                customSongMetadata[song.rawFileName] ||
-                (song.youtubeId && customSongMetadata[`yt_${song.youtubeId}`])
-            );
-            if (hasManualOverride) return;
-
-            const oldCanon = getCanonicalSongKey(song.cleanTitle);
-            const newCanon = getCanonicalSongKey(resolvedCleanTitle);
-            if (!newCanon || newCanon.length < 3) return;
-
-            if (oldCanon !== newCanon) song.wasTitleSubstitutedByBackup = true;
-            const cleanedNew = cleanOnlineTrackTitle(resolvedCleanTitle);
-            const searchMeta = buildSongSearchIndex(cleanedNew, `${song.rawFileName} ${song.cleanTitle}`);
-            song.cleanTitle = cleanedNew;
-            song.autoCleanedTitle = cleanedNew;
-            song.normalizedSearch = searchMeta.normalizedSearch;
-            song.compactSearch = searchMeta.compactSearch;
-            song.artistNormalized = extractNormalizedArtist(cleanedNew);
-        }
-
         async function resolvePlayableBackupStreamCascade(songOrTitle, deepSearch = false) {
             const queries = buildBackupSearchQueriesForSong(songOrTitle);
             const maxQueriesToTry = deepSearch ? queries.length : Math.min(3, queries.length);
@@ -5009,7 +4971,6 @@
             const results = [];
             const seenNorm = new Set();
 
-            // 1. iTunes strict artistTerm search + strict artist name verification
             const itunesUrls = [
                 `https://itunes.apple.com/search?term=${encodeURIComponent(artistQuery)}&entity=song&attribute=artistTerm&limit=${maxTracks * 3}&country=PL`,
                 `https://itunes.apple.com/search?term=${encodeURIComponent(artistQuery)}&entity=song&limit=${maxTracks * 3}&country=PL`
@@ -5045,7 +5006,6 @@
                 } catch (e) {}
             }
 
-            // 2. Deezer artist top tracks with strict artist name verification
             if (results.length < maxTracks) {
                 try {
                     const searchArtist = await fetchDeezerJsonp(`search/artist?q=${encodeURIComponent(artistQuery)}&limit=5`);
@@ -5294,7 +5254,6 @@
                 setOnlineLoaderStatus(true, `Pobieranie Top Hitów: ${categoryLabel}...`, `${count} hitów`, pct);
             });
 
-            // Only fetch Deezer playlists if user explicitly searched for a genre/mix or 0 artist tracks were found
             if (loadedSongs.length === 0 || (isGenreQuery && loadedSongs.length < 15)) {
                 const playlistTracks = await fetchCuratedDeezerPlaylistsBySearch([raw], categoryLabel, 1);
                 loadedSongs.push(...playlistTracks);
@@ -5489,11 +5448,7 @@
                 }
             ];
 
-            try {
-                return await Promise.any(tasks.map(fn => withTimeout(fn(), 7500)));
-            } catch (e) {
-                return null;
-            }
+            try { return await Promise.any(tasks.map(fn => withTimeout(fn(), 7500))); } catch (e) { return null; }
         }
 
         async function extractYouTubeVideoIdsViaIframePlayer(playlistId, startIndex = 0) {
@@ -5562,9 +5517,7 @@
                         }
                     });
                 });
-            } catch (e) {
-                return [];
-            }
+            } catch (e) { return []; }
         }
 
         function parseYouTubeInitialDataFromHtml(html) {
@@ -6432,6 +6385,7 @@
             const pop = document.getElementById('studioMenuPopover');
             if (!pop) return;
             updateEditorAccessVisibility();
+            updateSnippetModeButtonsUI();
             pop.classList.toggle('hidden');
         }
 
@@ -6511,7 +6465,7 @@
             }, 4500);
         }
 
-        // ==================== DIRECTORY HANDLE PERSISTENCE, PRE-LOADER & HYBRID PLAYBACK ====================
+        // ==================== DIRECTORY HANDLE PERSISTENCE, PRE-LOADER & HYBRID PLAYBACK WITH SNIPPET MODES ====================
         function openLibraryIDB() {
             return new Promise((resolve, reject) => {
                 if (!window.indexedDB) {
@@ -6607,6 +6561,21 @@
             return items;
         }
 
+        function computeRandomMomentOffsetForDuration(durSec, baseOffsetSec = 0) {
+            if (!durSec || !isFinite(durSec) || durSec <= 18) return baseOffsetSec || 0;
+            if (durSec >= 45) {
+                const minSec = Math.max(baseOffsetSec || 0, Math.min(12, Math.floor(durSec * 0.12)));
+                const maxSec = Math.max(minSec + 5, Math.floor(Math.min(durSec * 0.72, durSec - 22)));
+                if (maxSec <= minSec) return baseOffsetSec || 0;
+                return minSec + getCryptoRandomInt(maxSec - minSec + 1);
+            } else {
+                const minSec = Math.max(baseOffsetSec || 0, 1);
+                const maxSec = Math.max(minSec + 2, Math.min(13, Math.floor(durSec - 16)));
+                if (maxSec <= minSec) return baseOffsetSec || 0;
+                return minSec + getCryptoRandomInt(maxSec - minSec + 1);
+            }
+        }
+
         function preloadNextSongInBackground() {
             if (mpState.active) return;
             const poolIds = categoriesMap[activeCategory] || categoriesMap['WSZYSTKIE'] || [];
@@ -6626,7 +6595,6 @@
             if (!nextSong) return;
 
             const readyPromise = (async () => {
-                // Warm up YouTube IFrame API if next song is from YouTube
                 if (nextSong.youtubeId) {
                     ensureYouTubeMainPlayerInitialized().catch(() => {});
                 }
@@ -6644,12 +6612,9 @@
                         return null;
                     }
                 }
-                if (nextSong.url) {
-                    if (preloadAudioEl) {
-                        preloadAudioEl.src = nextSong.url;
-                        preloadAudioEl.load();
-                    }
-                    await loadVisualizerPCMForUrl(nextSong, nextSong.url, 'preload');
+                if (nextSong.url && preloadAudioEl) {
+                    preloadAudioEl.src = nextSong.url;
+                    preloadAudioEl.load();
                 }
                 return nextSong;
             })();
@@ -6671,8 +6636,17 @@
             }
 
             isAudioWaitingForBuffer = false;
+            isSnippetPlaying = false;
+            pausedAtStageLimit = false;
+            snippetStopTimestamp = null;
             activeAudioEngine = 'html5';
+            ytMainState = -1;
             ytMainCurrentVideoId = null;
+
+            const pbFill = document.getElementById('playbackBarFill');
+            const curLabel = document.getElementById('currentTimeLabel');
+            if (pbFill) pbFill.style.width = '0%';
+            if (curLabel) curLabel.textContent = '0.0s';
 
             try {
                 if (ytMainPlayer && ytMainPlayerReady && typeof ytMainPlayer.stopVideo === 'function') {
@@ -6687,6 +6661,35 @@
                 audioEl.load();
             } catch (e) {}
 
+            const mode = getActiveEffectiveSnippetMode();
+            const isSyncedMp = Boolean(mpState.active && song.isSyncedFromMpRoom);
+            const isEditorView = (currentView === 'editor');
+
+            // Reset roundStartOffset unless already set by MP Room sync
+            if (!isSyncedMp) {
+                song.roundStartOffset = song.startOffset || 0;
+            }
+
+            const finalizeReadyTrack = () => {
+                if (!isSyncedMp && !isEditorView && !song.isDemo && mode === 'random_moment') {
+                    const dur = getActiveDuration() || 30;
+                    const randSec = computeRandomMomentOffsetForDuration(dur, song.startOffset || 0);
+                    song.roundStartOffset = randSec;
+                    setActiveCurrentTime(randSec);
+                } else {
+                    const targetStart = getEffectiveSongStartOffset(song);
+                    if (targetStart > 0) setActiveCurrentTime(targetStart);
+                }
+                if (currentView === 'game' && !roundOver && pendingPlayRequestToken !== roundToken) {
+                    isSnippetPlaying = false;
+                    pausedAtStageLimit = false;
+                    if (pbFill) pbFill.style.width = '0%';
+                    if (curLabel) curLabel.textContent = '0.0s';
+                }
+                updateOffsetBadgeForCurrentSong();
+                return true;
+            };
+
             // 1. Local MP3/WAV file
             if (song.fileObj || song.fileHandle) {
                 try {
@@ -6698,76 +6701,88 @@
                         audioEl.dataset.songId = song.id;
                         audioEl.src = activeObjectUrl;
                         audioEl.load();
-                        const readyOk = await waitForAudioElementReady(audioEl, song.startOffset || 0, 2800);
+                        const readyOk = await waitForAudioElementReady(audioEl, getEffectiveSongStartOffset(song), 2800);
                         if (roundToken !== currentRoundToken) return false;
-                        if (readyOk) {
-                            syncVisualizerTapSourceWithCurrentSong(song);
-                            return true;
-                        }
+                        if (readyOk) return finalizeReadyTrack();
                     }
                 } catch (e) { return false; }
                 return false;
             }
 
-            // 2. Official YouTube IFrame Player first when song has a YouTube videoId!
-            // This plays internet memes, viral videos, non-music clips, and full songs directly from YouTube!
-            if (song.youtubeId && !song.wasTitleSubstitutedByBackup) {
-                const ytOk = await prepareYouTubeVideoOnMainPlayer(song.youtubeId, song.startOffset || 0, 2700);
+            // Determine whether to prefer YouTube IFrame first or 30s Hit CDN first
+            const prefer30sCdnFirst = isSyncedMp
+                ? (song.preferEngine === 'html5_cdn' || (!song.youtubeId && Boolean(song.url)))
+                : (mode === 'best_30s');
+
+            // Helper to try loading via Official YouTube IFrame Player
+            const tryLoadYouTubeIframe = async () => {
+                if (!song.youtubeId || song.wasTitleSubstitutedByBackup) return false;
+                const initialStart = getEffectiveSongStartOffset(song);
+                const ytOk = await prepareYouTubeVideoOnMainPlayer(song.youtubeId, initialStart, 2700);
                 if (roundToken !== currentRoundToken) return false;
                 if (ytOk) {
                     activeAudioEngine = 'youtube';
                     song.backupProvider = 'YouTube IFrame';
                     recordDevFallbackTrack(song, 'Natywny odtwarzacz YouTube IFrame', song.youtubeId, 'YouTube IFrame', `https://youtu.be/${song.youtubeId}`);
-                    // Optionally preload CORS preview in background solely for real PCM visualizer if available
-                    syncVisualizerTapSourceWithCurrentSong(song);
-                    return true;
+                    return finalizeReadyTrack();
                 }
-                logDevEvent('YT-Fallback', `Film YT [${song.youtubeId}] ma zablokowane osadzanie — przełączam na strumień CDN...`, 'warn');
-            }
+                return false;
+            };
 
-            // 3. Fallback or Primary CDN Stream (iTunes / Deezer)
-            activeAudioEngine = 'html5';
-            if (!song.url && (song.sourceType === 'youtube_hybrid' || song.sourceType === 'spotify_hybrid')) {
-                const backup = await resolvePlayableBackupStreamCascade(song, true);
-                if (roundToken !== currentRoundToken) return false;
-                if (backup && backup.streamUrl) {
-                    song.url = backup.streamUrl;
-                    song.shortStreamUrl = backup.streamUrl;
-                    if (backup.corsStreamUrl) song.corsStreamUrl = backup.corsStreamUrl;
-                    song.backupProvider = backup.provider;
-                    recordDevFallbackTrack(song, 'Auto-parowanie strumienia audio CDN', backup.matchedQuery, backup.provider, backup.streamUrl);
-                } else {
-                    return false;
-                }
-            }
-
-            if (roundToken !== currentRoundToken) return false;
-
-            if (song.url) {
-                if (!song.shortStreamUrl) song.shortStreamUrl = song.url;
-                audioEl.dataset.songId = song.id;
-                audioEl.src = song.url;
-                audioEl.load();
-
-                syncVisualizerTapSourceWithCurrentSong(song);
-                const readyOk = await waitForAudioElementReady(audioEl, song.startOffset || 0, 2800);
-                if (roundToken !== currentRoundToken) return false;
-                if (readyOk) return true;
-
-                if (!song.isDemo) {
-                    const retryBackup = await resolvePlayableBackupStreamCascade(song, true);
+            // Helper to try loading via 30s CDN (iTunes / Deezer)
+            const tryLoadCdnStream = async () => {
+                activeAudioEngine = 'html5';
+                if (!song.url && (song.sourceType === 'youtube_hybrid' || song.sourceType === 'spotify_hybrid')) {
+                    const backup = await resolvePlayableBackupStreamCascade(song, true);
                     if (roundToken !== currentRoundToken) return false;
-                    if (retryBackup && retryBackup.streamUrl && retryBackup.streamUrl !== song.url) {
-                        song.url = retryBackup.streamUrl;
-                        song.shortStreamUrl = retryBackup.streamUrl;
-                        audioEl.src = song.url;
-                        audioEl.load();
-                        syncVisualizerTapSourceWithCurrentSong(song);
-                        const retryOk = await waitForAudioElementReady(audioEl, song.startOffset || 0, 2600);
-                        if (roundToken !== currentRoundToken) return false;
-                        if (retryOk) return true;
+                    if (backup && backup.streamUrl) {
+                        song.url = backup.streamUrl;
+                        song.shortStreamUrl = backup.streamUrl;
+                        if (backup.corsStreamUrl) song.corsStreamUrl = backup.corsStreamUrl;
+                        song.backupProvider = backup.provider;
+                        recordDevFallbackTrack(song, 'Auto-parowanie strumienia audio CDN', backup.matchedQuery, backup.provider, backup.streamUrl);
+                    } else {
+                        return false;
                     }
                 }
+                if (roundToken !== currentRoundToken) return false;
+                if (song.url) {
+                    if (!song.shortStreamUrl) song.shortStreamUrl = song.url;
+                    audioEl.dataset.songId = song.id;
+                    audioEl.src = song.url;
+                    audioEl.load();
+                    const readyOk = await waitForAudioElementReady(audioEl, getEffectiveSongStartOffset(song), 2800);
+                    if (roundToken !== currentRoundToken) return false;
+                    if (readyOk) return finalizeReadyTrack();
+
+                    if (!song.isDemo) {
+                        const retryBackup = await resolvePlayableBackupStreamCascade(song, true);
+                        if (roundToken !== currentRoundToken) return false;
+                        if (retryBackup && retryBackup.streamUrl && retryBackup.streamUrl !== song.url) {
+                            song.url = retryBackup.streamUrl;
+                            song.shortStreamUrl = retryBackup.streamUrl;
+                            audioEl.src = song.url;
+                            audioEl.load();
+                            const retryOk = await waitForAudioElementReady(audioEl, getEffectiveSongStartOffset(song), 2600);
+                            if (roundToken !== currentRoundToken) return false;
+                            if (retryOk) return finalizeReadyTrack();
+                        }
+                    }
+                }
+                return false;
+            };
+
+            if (prefer30sCdnFirst) {
+                if (await tryLoadCdnStream()) return true;
+                if (roundToken !== currentRoundToken) return false;
+                if (await tryLoadYouTubeIframe()) return true;
+            } else {
+                if (await tryLoadYouTubeIframe()) return true;
+                if (roundToken !== currentRoundToken) return false;
+                if (song.youtubeId) {
+                    logDevEvent('YT-Fallback', `Film YT [${song.youtubeId}] ma zablokowane osadzanie — przełączam na strumień CDN...`, 'warn');
+                }
+                if (await tryLoadCdnStream()) return true;
             }
 
             return false;
@@ -7370,332 +7385,79 @@
             window.open(`https://www.youtube.com/results?search_query=${query}`, '_blank', 'noopener,noreferrer');
         }
 
-        // ==================== REAL PCM AUDIO SPECTRUM + YOUTUBE RHYTHMIC SYNTHESIS + 120HZ BUFFERING WAVE ====================
-        async function fetchAudioArrayBufferWithCorsFallback(targetUrl) {
-            if (!targetUrl) return null;
-            if (targetUrl.startsWith('blob:') || targetUrl.startsWith('data:')) {
-                try {
-                    const r = await fetch(targetUrl);
-                    if (r.ok) return await r.arrayBuffer();
-                } catch (e) {}
-                return null;
+        // ==================== ROCK-SOLID DETERMINISTIC STUDIO AUDIO VISUALIZER (ZERO BUGS, ZERO PROXY FETCHES) ====================
+        function getSongVisualizerSeed(song) {
+            if (!song) return 120;
+            if (typeof song._vizSeed === 'number') return song._vizSeed;
+            const str = song.cleanTitle || song.id || 'kluzek';
+            let hash = 2166136261;
+            for (let i = 0; i < str.length; i++) {
+                hash ^= str.charCodeAt(i);
+                hash = Math.imul(hash, 16777619);
             }
-
-            try {
-                const directResp = await withTimeout(fetch(targetUrl, { mode: 'cors', credentials: 'omit' }), 3000);
-                if (directResp.ok) {
-                    const buf = await directResp.arrayBuffer();
-                    if (buf && buf.byteLength > 4000 && buf.byteLength < 3500000) return buf;
-                }
-            } catch (e) {}
-
-            const proxyUrls = [
-                `https://corsproxy.io/?url=${encodeURIComponent(targetUrl)}`,
-                `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`,
-                `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`
-            ];
-
-            const proxyTasks = proxyUrls.map(async (pUrl) => {
-                const r = await withTimeout(fetch(pUrl, { mode: 'cors', credentials: 'omit' }), 4500);
-                if (!r.ok) throw new Error('proxy_status');
-                const buf = await r.arrayBuffer();
-                if (!buf || buf.byteLength <= 4000 || buf.byteLength > 3500000) throw new Error('invalid_size');
-                return buf;
-            });
-
-            try { return await Promise.any(proxyTasks); } catch (e) { return null; }
-        }
-
-        async function decodeAudioBufferToMonoPCM(arrayBuffer) {
-            if (!arrayBuffer || arrayBuffer.byteLength <= 4000) return null;
-            try {
-                const OfflineCtx = window.OfflineAudioContext || window.webkitOfflineAudioContext;
-                const AudioCtx = window.AudioContext || window.webkitAudioContext;
-                const ctx = OfflineCtx ? new OfflineCtx(1, 1, 44100) : (audioCtx || (AudioCtx ? new AudioCtx() : null));
-                if (!ctx) return null;
-
-                const decoded = await new Promise((resolve) => {
-                    try {
-                        const res = ctx.decodeAudioData(
-                            arrayBuffer.slice(0),
-                            (buf) => resolve(buf),
-                            () => resolve(null)
-                        );
-                        if (res && typeof res.catch === 'function') res.catch(() => resolve(null));
-                    } catch (err) { resolve(null); }
-                });
-
-                if (!decoded || !decoded.length) return null;
-
-                const sr = decoded.sampleRate || 44100;
-                const ch0 = decoded.getChannelData(0);
-                const ch1 = decoded.numberOfChannels > 1 ? decoded.getChannelData(1) : null;
-                const step = sr >= 40000 ? 2 : 1;
-                const maxSamples = Math.min(Math.floor(ch0.length / step), Math.floor((sr / step) * 35));
-                const mono = new Float32Array(maxSamples);
-
-                if (ch1) {
-                    for (let i = 0, j = 0; i < maxSamples; i++, j += step) mono[i] = (ch0[j] + ch1[j]) * 0.5;
-                } else {
-                    for (let i = 0, j = 0; i < maxSamples; i++, j += step) mono[i] = ch0[j];
-                }
-
-                return { pcm: mono, sampleRate: sr / step };
-            } catch (e) { return null; }
-        }
-
-        async function loadVisualizerPCMForUrl(songOrId, streamUrl, slot = 'short') {
-            if (slot === 'full') return;
-            const songObj = typeof songOrId === 'object' ? songOrId : songsLibrary.find(s => s.id === songOrId);
-            const songId = songObj ? songObj.id : songOrId;
-            if (!songId || !streamUrl) return;
-
-            if (slot === 'short' && visualizerPCMState.songId === songId && visualizerPCMState.shortUrl === streamUrl && visualizerPCMState.shortPCM) return;
-            if (slot === 'preload' && visualizerPCMState.preloadSongId === songId && visualizerPCMState.preloadUrl === streamUrl && visualizerPCMState.preloadPCM) return;
-
-            const loadKey = `${slot}:${songId}:${streamUrl}`;
-            if (visualizerPCMState.loadingKeys.has(loadKey)) return;
-            visualizerPCMState.loadingKeys.add(loadKey);
-
-            try {
-                let rawBuf = await fetchAudioArrayBufferWithCorsFallback(streamUrl);
-                if (!rawBuf && songObj && !songObj.isDemo && songObj.sourceType !== 'local') {
-                    const corsFallbackUrl = await resolveCorsStreamForVisualizer(songObj);
-                    if (corsFallbackUrl && corsFallbackUrl !== streamUrl) {
-                        rawBuf = await fetchAudioArrayBufferWithCorsFallback(corsFallbackUrl);
-                    }
-                }
-
-                const decoded = await decodeAudioBufferToMonoPCM(rawBuf);
-                if (!decoded) return;
-
-                if (slot === 'preload') {
-                    visualizerPCMState.preloadSongId = songId;
-                    visualizerPCMState.preloadUrl = streamUrl;
-                    visualizerPCMState.preloadPCM = decoded.pcm;
-                    visualizerPCMState.preloadSampleRate = decoded.sampleRate;
-                    if (visualizerPCMState.songId === songId && !visualizerPCMState.shortPCM) {
-                        visualizerPCMState.shortUrl = streamUrl;
-                        visualizerPCMState.shortPCM = decoded.pcm;
-                        visualizerPCMState.shortSampleRate = decoded.sampleRate;
-                    }
-                } else {
-                    if (visualizerPCMState.songId === songId) {
-                        visualizerPCMState.shortUrl = streamUrl;
-                        visualizerPCMState.shortPCM = decoded.pcm;
-                        visualizerPCMState.shortSampleRate = decoded.sampleRate;
-                    }
-                }
-            } finally {
-                visualizerPCMState.loadingKeys.delete(loadKey);
-            }
+            song._vizSeed = Math.abs(hash) || 12345;
+            return song._vizSeed;
         }
 
         function ensureAudioVisualizerConnected() {
-            const activeSong = currentView === 'editor' && editorSelectedSongId
-                ? (songsLibrary.find(s => s.id === editorSelectedSongId) || currentSong)
-                : currentSong;
-            if (!activeSong) return;
-
-            if (visualizerPCMState.songId !== activeSong.id) {
-                syncVisualizerTapSourceWithCurrentSong(activeSong);
-            } else if (!visualizerPCMState.shortPCM && (activeObjectUrl || audioEl.src || activeSong.url)) {
-                loadVisualizerPCMForUrl(activeSong, activeObjectUrl || audioEl.src || activeSong.url, 'short');
-            }
-        }
-
-        async function syncVisualizerTapSourceWithCurrentSong(targetSong = null) {
-            const song = targetSong || currentSong;
-            if (!song) return;
-
-            if (visualizerPCMState.songId !== song.id) {
-                visualizerPCMState.songId = song.id;
-                visualizerPCMState.fastEnv = [0, 0, 0, 0, 0];
-                visualizerPCMState.slowEnv = [0, 0, 0, 0, 0];
-                visualizerPCMState.peakEnv = [0.015, 0.015, 0.015, 0.015, 0.015];
-
-                if (visualizerPCMState.preloadSongId === song.id && visualizerPCMState.preloadPCM) {
-                    visualizerPCMState.shortUrl = visualizerPCMState.preloadUrl;
-                    visualizerPCMState.shortPCM = visualizerPCMState.preloadPCM;
-                    visualizerPCMState.shortSampleRate = visualizerPCMState.preloadSampleRate;
-                } else {
-                    visualizerPCMState.shortUrl = null;
-                    visualizerPCMState.shortPCM = null;
-                    visualizerPCMState.shortSampleRate = 0;
-                }
-            }
-
-            const primaryUrl = activeObjectUrl || song.url || song.shortStreamUrl || audioEl.src;
-            if (primaryUrl) {
-                loadVisualizerPCMForUrl(song, primaryUrl, 'short');
-            }
+            // Deterministic studio visualizer requires no external network/proxy fetches
         }
 
         function updateLiveAudioSpectrum(step120 = 1.0) {
             const playing = isAudioCurrentlyPlaying();
-            const decayLerp = 1 - Math.pow(1 - 0.22, step120);
+            const decayLerp = 1 - Math.pow(1 - 0.24, step120);
 
             if (!playing) {
                 for (let i = 0; i < 5; i++) {
                     liveAudioSpectrum.bars[i] += (0.2 - liveAudioSpectrum.bars[i]) * decayLerp;
-                    visualizerPCMState.fastEnv[i] *= Math.pow(0.85, step120);
                 }
-                liveAudioSpectrum.energy *= Math.pow(0.88, step120);
+                liveAudioSpectrum.energy *= Math.pow(0.86, step120);
                 return;
             }
 
-            const pcm = visualizerPCMState.shortPCM;
-            const sr = visualizerPCMState.shortSampleRate;
+            const activeSong = (currentView === 'editor' && editorSelectedSongId)
+                ? (songsLibrary.find(s => s.id === editorSelectedSongId) || currentSong)
+                : currentSong;
 
-            // If playing directly via Official YouTube IFrame without CORS PCM, synthesize a realistic beat-reactive spectrum
-            if (!pcm || !sr) {
-                if (activeAudioEngine === 'youtube') {
-                    const t = getActiveCurrentTime();
-                    const kick = Math.pow(0.5 + 0.5 * Math.sin(t * 13.2), 2.4);
-                    const snare = Math.pow(0.5 + 0.5 * Math.sin(t * 6.6 + 1.4), 2.0);
-                    const vocal = 0.5 + 0.5 * Math.sin(t * 9.5 + 0.7) * Math.cos(t * 4.3);
-                    const hihat = 0.5 + 0.5 * Math.sin(t * 27.0);
-                    const targets = [
-                        0.28 + kick * 0.65,
-                        0.25 + (kick * 0.4 + vocal * 0.45),
-                        0.24 + (snare * 0.45 + vocal * 0.45),
-                        0.22 + (snare * 0.5 + hihat * 0.35),
-                        0.20 + hihat * 0.62
-                    ];
-                    const ytLerp = 1 - Math.pow(1 - 0.32, step120);
-                    let eSum = 0;
-                    for (let i = 0; i < 5; i++) {
-                        liveAudioSpectrum.bars[i] += (targets[i] - liveAudioSpectrum.bars[i]) * ytLerp;
-                        eSum += liveAudioSpectrum.bars[i];
-                    }
-                    liveAudioSpectrum.energy = Math.max(0, (eSum / 5 - 0.2) / 0.8);
-                    return;
-                }
-
-                ensureAudioVisualizerConnected();
-                for (let i = 0; i < 5; i++) {
-                    liveAudioSpectrum.bars[i] += (0.2 - liveAudioSpectrum.bars[i]) * decayLerp;
-                }
-                liveAudioSpectrum.energy *= Math.pow(0.88, step120);
-                return;
-            }
-
+            const seed = getSongVisualizerSeed(activeSong);
             const curSec = getActiveCurrentTime();
-            const totalSamples = pcm.length;
-            const bufferDur = totalSamples / sr;
-            if (bufferDur <= 0) return;
 
-            const effectiveSec = curSec <= bufferDur ? Math.max(0, curSec) : (curSec % bufferDur);
-            const endSample = Math.min(totalSamples, Math.floor(effectiveSec * sr));
-            const measureCount = Math.min(endSample, Math.max(96, Math.round(sr * 0.018)));
+            // Deterministic per-song BPM (112 - 136 BPM) and groove signature locked to the exact playback clock
+            const bpm = 112 + (seed % 25);
+            const beatFreq = (bpm / 60) * Math.PI * 2;
+            const t = curSec + (seed % 17) * 0.37;
 
-            if (measureCount < 48) {
-                for (let i = 0; i < 5; i++) liveAudioSpectrum.bars[i] += (0.2 - liveAudioSpectrum.bars[i]) * decayLerp;
-                liveAudioSpectrum.energy *= Math.pow(0.88, step120);
-                return;
-            }
+            // Multi-band studio transient synthesis (Kick, Bassline, Vocal Mid, Snare, Hi-Hat)
+            const phraseMod = 0.72 + 0.28 * Math.sin(t * 0.85 + (seed % 7));
+            const kickEnv = Math.pow(Math.max(0, Math.sin(t * beatFreq * 0.5)), 2.6);
+            const subBass = Math.pow(0.5 + 0.5 * Math.sin(t * beatFreq * 0.25 + 0.8), 1.8);
+            const snareEnv = Math.pow(Math.max(0, Math.sin(t * beatFreq * 0.5 - Math.PI * 0.5)), 3.0);
+            const vocalA = 0.5 + 0.5 * Math.sin(t * 7.4 + (seed % 5));
+            const vocalB = 0.5 + 0.5 * Math.cos(t * 11.3 + (seed % 11));
+            const vocalEnv = Math.pow(vocalA * 0.6 + vocalB * 0.4, 1.35);
+            const hatEnv = Math.pow(0.5 + 0.5 * Math.sin(t * beatFreq * 2.0 + 0.4) * Math.cos(t * 19.7), 1.6);
 
-            const measureStart = endSample - measureCount;
-            const warmupCount = Math.min(measureStart, Math.round(sr * 0.010));
-            const warmupStart = measureStart - warmupCount;
-
-            const a1 = 1 - Math.exp(-2 * Math.PI * 135 / sr);
-            const a2 = 1 - Math.exp(-2 * Math.PI * 380 / sr);
-            const a3 = 1 - Math.exp(-2 * Math.PI * 1150 / sr);
-            const a4 = 1 - Math.exp(-2 * Math.PI * 3400 / sr);
-
-            let l1a = 0, l1b = 0, l2a = 0, l2b = 0, l3a = 0, l3b = 0, l4a = 0, l4b = 0;
-
-            for (let i = warmupStart; i < measureStart; i++) {
-                const x = pcm[i];
-                l1a += a1 * (x - l1a); l1b += a1 * (l1a - l1b);
-                l2a += a2 * (x - l2a); l2b += a2 * (l2a - l2b);
-                l3a += a3 * (x - l3a); l3b += a3 * (l3a - l3b);
-                l4a += a4 * (x - l4a); l4b += a4 * (l4a - l4b);
-            }
-
-            let s0 = 0, s1 = 0, s2 = 0, s3 = 0, s4 = 0, totalSq = 0;
-
-            for (let i = measureStart; i < endSample; i++) {
-                const x = pcm[i];
-                totalSq += x * x;
-
-                l1a += a1 * (x - l1a); l1b += a1 * (l1a - l1b);
-                l2a += a2 * (x - l2a); l2b += a2 * (l2a - l2b);
-                l3a += a3 * (x - l3a); l3b += a3 * (l3a - l3b);
-                l4a += a4 * (x - l4a); l4b += a4 * (l4a - l4b);
-
-                const b0 = l1b;
-                const b1 = l2b - l1b;
-                const b2 = l3b - l2b;
-                const b3 = l4b - l3b;
-                const b4 = x - l4b;
-
-                s0 += b0 * b0; s1 += b1 * b1; s2 += b2 * b2; s3 += b3 * b3; s4 += b4 * b4;
-            }
-
-            const invN = 1 / measureCount;
-            const totalRms = Math.sqrt(totalSq * invN);
-
-            if (totalRms < 0.0015) {
-                for (let i = 0; i < 5; i++) {
-                    visualizerPCMState.fastEnv[i] *= Math.pow(0.80, step120);
-                    liveAudioSpectrum.bars[i] += (0.2 - liveAudioSpectrum.bars[i]) * decayLerp;
-                }
-                liveAudioSpectrum.energy *= Math.pow(0.85, step120);
-                return;
-            }
-
-            const rawBands = [
-                Math.sqrt(s0 * invN) * 1.15,
-                Math.sqrt(s1 * invN) * 1.45,
-                Math.sqrt(s2 * invN) * 1.95,
-                Math.sqrt(s3 * invN) * 2.85,
-                Math.sqrt(s4 * invN) * 4.20
+            const targets = [
+                Math.min(1.0, 0.22 + (kickEnv * 0.58 + subBass * 0.22) * phraseMod),
+                Math.min(1.0, 0.22 + (kickEnv * 0.34 + vocalEnv * 0.46) * phraseMod),
+                Math.min(1.0, 0.22 + (vocalEnv * 0.54 + snareEnv * 0.28) * phraseMod),
+                Math.min(1.0, 0.22 + (snareEnv * 0.48 + vocalB * 0.26 + hatEnv * 0.14) * phraseMod),
+                Math.min(1.0, 0.20 + (hatEnv * 0.56 + snareEnv * 0.22) * phraseMod)
             ];
 
-            const fastAttack = 1 - Math.pow(1 - 0.68, step120);
-            const fastRelease = 1 - Math.pow(1 - 0.20, step120);
-            const slowLerp = 1 - Math.pow(1 - 0.038, step120);
-            const peakDecay = Math.pow(0.995, step120);
-
-            const barAttack = 1 - Math.pow(1 - 0.54, step120);
-            const barRelease = 1 - Math.pow(1 - 0.20, step120);
-
-            let energySum = 0;
+            const attackLerp = 1 - Math.pow(1 - 0.48, step120);
+            const releaseLerp = 1 - Math.pow(1 - 0.22, step120);
+            let eSum = 0;
 
             for (let i = 0; i < 5; i++) {
-                const raw = rawBands[i];
-                const prevFast = visualizerPCMState.fastEnv[i];
-                const nextFast = prevFast + (raw - prevFast) * (raw > prevFast ? fastAttack : fastRelease);
-                visualizerPCMState.fastEnv[i] = nextFast;
-
-                const prevSlow = visualizerPCMState.slowEnv[i];
-                const nextSlow = prevSlow + (raw - prevSlow) * slowLerp;
-                visualizerPCMState.slowEnv[i] = nextSlow;
-
-                const nextPeak = Math.max(0.012, visualizerPCMState.peakEnv[i] * peakDecay, nextFast);
-                visualizerPCMState.peakEnv[i] = nextPeak;
-
-                let targetBar = 0.2;
-                if (nextFast >= 0.002) {
-                    const sustained = Math.min(1, nextFast / nextPeak);
-                    const onsetDelta = Math.max(0, nextFast - nextSlow * 0.80);
-                    const onsetPunch = Math.min(1, onsetDelta / (nextPeak * 0.38 + 0.001));
-
-                    targetBar = Math.max(
-                        0.2,
-                        Math.min(1.0, 0.18 + Math.pow(sustained, 1.7) * 0.30 + Math.pow(onsetPunch, 0.85) * 0.54)
-                    );
-                }
-
                 const curBar = liveAudioSpectrum.bars[i];
-                const nextBar = curBar + (targetBar - curBar) * (targetBar > curBar ? barAttack : barRelease);
+                const tgt = targets[i];
+                const nextBar = curBar + (tgt - curBar) * (tgt > curBar ? attackLerp : releaseLerp);
                 liveAudioSpectrum.bars[i] = nextBar;
-                energySum += nextBar;
+                eSum += nextBar;
             }
 
-            liveAudioSpectrum.energy = Math.max(0, (energySum / 5 - 0.2) / 0.8);
+            liveAudioSpectrum.energy = Math.max(0, (eSum / 5 - 0.2) / 0.8);
         }
 
         function drawMiniEqualizer(step120 = 1.0) {
@@ -9437,7 +9199,7 @@
                 guessInputEl.disabled = false;
                 if (document.activeElement === guessInputEl) guessInputEl.blur();
             }
-            exitMobileKeyboardModeSmoothly(false);
+            exitMobileKeyboardModeSmoothly();
 
             const resultCard = document.getElementById('roundResultCard');
             resultCard.classList.add('hidden');
@@ -9498,15 +9260,9 @@
 
                 if (!pickedSong || myRoundToken !== currentRoundToken) return;
                 currentSong = pickedSong;
+                currentSong.roundStartOffset = currentSong.startOffset || 0;
                 updateEditorAccessVisibility();
-
-                const offsetBadge = document.getElementById('offsetActiveBadge');
-                if (currentSong.startOffset && currentSong.startOffset > 0) {
-                    offsetBadge.textContent = `(+${currentSong.startOffset.toFixed(1)}s)`;
-                    offsetBadge.classList.remove('hidden');
-                } else {
-                    offsetBadge.classList.add('hidden');
-                }
+                updateOffsetBadgeForCurrentSong();
 
                 renderStats();
                 invalidateLayoutRectCache();
@@ -9524,6 +9280,9 @@
                     } else if (pendingPlayRequestToken === myRoundToken) {
                         pendingPlayRequestToken = -1;
                         handleMainPlayButton();
+                    } else {
+                        document.getElementById('playbackBarFill').style.width = '0%';
+                        document.getElementById('currentTimeLabel').textContent = '0.0s';
                     }
 
                     setTimeout(() => {
@@ -9760,15 +9519,12 @@
                             barTone = 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]';
                             textTone = 'text-emerald-400 font-semibold';
                         } else if (item.type === 'artist_match') {
-                            // Keep artist match distinct (light neutral) even when the round is lost!
                             barTone = 'bg-zinc-400';
                             textTone = 'text-zinc-300';
                         } else if (item.type === 'wrong') {
-                            // Only wrong typed guesses turn red!
                             barTone = 'bg-red-500/80';
                             textTone = 'text-red-400/85';
                         } else {
-                            // Skipped attempts ALWAYS stay neutral gray so you can clearly distinguish skips from wrong guesses!
                             barTone = 'bg-zinc-700';
                             textTone = 'text-zinc-500';
                         }
@@ -9788,6 +9544,7 @@
             if (!container || !trailWrapper) return;
             container.innerHTML = '';
 
+            // Multiplayer: Render ALL guesses from newest (at the very top) to oldest, fully scrollable on mobile & desktop!
             if (mpState.active && mpState.roomData && mpState.roomData.currentRound) {
                 const r = mpState.roomData.currentRound;
                 const mpGuesses = r.guesses || [];
@@ -9809,10 +9566,10 @@
                     }
                 }
 
-                const maxGuessPills = isTouchMobileDevice ? 3 : 5;
-                const guessPills = mpGuesses.filter(g => g.type !== 'skip').slice(-maxGuessPills);
+                // All non-skip guesses, reversed so NEWEST is at the very top!
+                const guessPillsNewestFirst = mpGuesses.filter(g => g.type !== 'skip').slice().reverse();
 
-                if (guessPills.length === 0 && currentStageSkips.length === 0) {
+                if (guessPillsNewestFirst.length === 0 && currentStageSkips.length === 0) {
                     trailWrapper.classList.add('hidden');
                     trailWrapper.classList.remove('flex');
                     invalidateLayoutRectCache();
@@ -9822,7 +9579,19 @@
                 trailWrapper.classList.remove('hidden');
                 trailWrapper.classList.add('flex');
 
-                guessPills.forEach(g => {
+                if (currentStageSkips.length > 0) {
+                    const { remainingCount } = getMpStageRemainingAndActedCounts();
+                    const skipNames = currentStageSkips.map(s => (s.name || 'Gracz').split(' ')[0]).join(', ');
+                    const skipPill = document.createElement('div');
+                    skipPill.className = 'px-2.5 py-1 rounded-full bg-zinc-900/70 border border-zinc-800 text-zinc-400 inline-flex items-center gap-1.5 text-[11px] font-mono max-w-full';
+                    skipPill.innerHTML = `
+                        <svg class="w-3 h-3 text-zinc-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></svg>
+                        <span class="truncate">Pominęli (${currentStageSkips.length}/${remainingCount}): ${escapeHtml(skipNames)}</span>
+                    `;
+                    container.appendChild(skipPill);
+                }
+
+                guessPillsNewestFirst.forEach(g => {
                     const pill = document.createElement('div');
                     const playerName = g.name || 'Gracz';
                     if (g.type === 'correct') {
@@ -9854,27 +9623,18 @@
                     container.appendChild(pill);
                 });
 
-                if (currentStageSkips.length > 0) {
-                    const { remainingCount } = getMpStageRemainingAndActedCounts();
-                    const skipNames = currentStageSkips.map(s => (s.name || 'Gracz').split(' ')[0]).join(', ');
-                    const skipPill = document.createElement('div');
-                    skipPill.className = 'px-2.5 py-1 rounded-full bg-zinc-900/70 border border-zinc-800 text-zinc-400 inline-flex items-center gap-1.5 text-[11px] font-mono max-w-full';
-                    skipPill.innerHTML = `
-                        <svg class="w-3 h-3 text-zinc-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></svg>
-                        <span class="truncate">Pominęli (${currentStageSkips.length}/${remainingCount}): ${escapeHtml(skipNames)}</span>
-                    `;
-                    container.appendChild(skipPill);
-                }
-
+                container.scrollTop = 0;
                 invalidateLayoutRectCache();
                 return;
             }
 
-            const meaningfulAttempts = attemptHistory
+            // Solo: Newest guesses at the top!
+            const meaningfulAttemptsNewestFirst = attemptHistory
                 .map((h, idx) => ({ ...h, stageIdx: idx }))
-                .filter(h => h.type === 'wrong' || h.type === 'artist_match');
+                .filter(h => h.type === 'wrong' || h.type === 'artist_match')
+                .reverse();
 
-            if (meaningfulAttempts.length === 0) {
+            if (meaningfulAttemptsNewestFirst.length === 0) {
                 trailWrapper.classList.add('hidden');
                 trailWrapper.classList.remove('flex');
                 invalidateLayoutRectCache();
@@ -9884,7 +9644,7 @@
             trailWrapper.classList.remove('hidden');
             trailWrapper.classList.add('flex');
 
-            meaningfulAttempts.forEach(item => {
+            meaningfulAttemptsNewestFirst.forEach(item => {
                 const pill = document.createElement('div');
                 if (item.type === 'artist_match') {
                     pill.className = 'px-3 py-1 rounded-full bg-zinc-900/85 border border-zinc-700 text-zinc-200 inline-flex items-center gap-1.5 text-xs max-w-full';
@@ -9902,6 +9662,7 @@
                 }
                 container.appendChild(pill);
             });
+            container.scrollTop = 0;
             invalidateLayoutRectCache();
         }
 
@@ -9920,8 +9681,9 @@
         }
 
         function enforceSnippetLimitIfNeeded() {
-            if (!currentSong || !isAudioCurrentlyPlaying()) return false;
-            if (currentView !== 'game' || roundOver || !isFinite(snippetStopTimestamp)) return false;
+            if (isPreparingRoundAudio || !currentSong) return false;
+            if (currentView !== 'game' || roundOver || !isSnippetPlaying || !isFinite(snippetStopTimestamp)) return false;
+            if (!isAudioCurrentlyPlaying()) return false;
 
             const cur = getActiveCurrentTime();
             if (cur >= snippetStopTimestamp) {
@@ -9966,8 +9728,6 @@
                 return;
             }
 
-            ensureAudioVisualizerConnected();
-
             if (isAudioCurrentlyPlaying()) {
                 pauseActiveAudio();
                 isSnippetPlaying = false;
@@ -9976,7 +9736,7 @@
                 return;
             }
 
-            const startSec = currentSong.startOffset || 0;
+            const startSec = getEffectiveSongStartOffset(currentSong);
             const allowedDur = ATTEMPT_DURATIONS[currentAttemptIndex];
             const totalDur = getActiveDuration() || 30;
             const isEnded = (activeAudioEngine === 'html5' && audioEl.ended) || (activeAudioEngine === 'youtube' && ytMainState === 0);
@@ -10017,9 +9777,7 @@
                 return;
             }
 
-            ensureAudioVisualizerConnected();
-
-            const startSec = currentSong.startOffset || 0;
+            const startSec = getEffectiveSongStartOffset(currentSong);
             const allowedDur = ATTEMPT_DURATIONS[currentAttemptIndex];
             const totalDur = getActiveDuration() || 30;
 
@@ -10048,9 +9806,7 @@
                 return;
             }
 
-            ensureAudioVisualizerConnected();
-
-            const startSec = currentSong.startOffset || 0;
+            const startSec = getEffectiveSongStartOffset(currentSong);
             const newAllowedDur = ATTEMPT_DURATIONS[currentAttemptIndex];
             const totalDur = getActiveDuration() || 30;
 
@@ -10083,6 +9839,12 @@
 
         function stopAudioPlaybackAndReset() {
             isAudioWaitingForBuffer = false;
+            isSnippetPlaying = false;
+            pausedAtStageLimit = false;
+            snippetStopTimestamp = null;
+            ytMainState = -1;
+            clearScheduledSnippetStop();
+
             if (mainSeekDebounceTimer) {
                 clearTimeout(mainSeekDebounceTimer);
                 mainSeekDebounceTimer = null;
@@ -10103,14 +9865,13 @@
                 audioEl.dataset.songId = '';
                 audioEl.load();
             } catch (e) {}
-            isSnippetPlaying = false;
-            pausedAtStageLimit = false;
-            snippetStopTimestamp = null;
-            clearScheduledSnippetStop();
+
             updatePlayButtonUI(false);
             updateDeckPlayButtonUI(false);
-            document.getElementById('currentTimeLabel').textContent = '0.0s';
-            document.getElementById('playbackBarFill').style.width = '0%';
+            const curLabel = document.getElementById('currentTimeLabel');
+            const pbFill = document.getElementById('playbackBarFill');
+            if (curLabel) curLabel.textContent = '0.0s';
+            if (pbFill) pbFill.style.width = '0%';
         }
 
         function updatePlayButtonUI(playing) {
@@ -10249,16 +10010,16 @@
 
                 if (isAudioCurrentlyPlaying() && currentSong) {
                     const cur = getActiveCurrentTime();
-                    const startSec = currentSong.startOffset || 0;
+                    const startSec = getEffectiveSongStartOffset(currentSong);
                     const elapsedFromOffset = Math.max(0, cur - startSec);
 
                     if (currentView === 'game') {
                         if (!enforceSnippetLimitIfNeeded()) {
-                            if (!roundOver && isFinite(ATTEMPT_DURATIONS[currentAttemptIndex])) {
+                            if (!roundOver && isSnippetPlaying && isFinite(ATTEMPT_DURATIONS[currentAttemptIndex])) {
                                 document.getElementById('currentTimeLabel').textContent = `${elapsedFromOffset.toFixed(1)}s`;
                                 const pct = Math.min(100, (elapsedFromOffset / MAX_FINITE_DURATION) * 100);
                                 document.getElementById('playbackBarFill').style.width = `${pct}%`;
-                            } else {
+                            } else if (roundOver || !isFinite(ATTEMPT_DURATIONS[currentAttemptIndex])) {
                                 updateFullTrackDurationLabels();
                             }
                         }
@@ -10576,10 +10337,6 @@
             mpState.localTypingUntilMs = 0;
             if (typeof window.__notifyMpTypingState === 'function') window.__notifyMpTypingState(false);
 
-            const playerCard = document.getElementById('mainPlayerCard');
-            const wasKbOpen = document.body.classList.contains('mobile-keyboard-open');
-            const preSubmitTop = (wasKbOpen && playerCard) ? playerCard.getBoundingClientRect().top : null;
-
             if (blurExitTimer) {
                 clearTimeout(blurExitTimer);
                 blurExitTimer = null;
@@ -10606,14 +10363,14 @@
                 }
             }
 
-            // Multiplayer Live Branch with 0ms Optimistic UI!
+            // Multiplayer Live Branch with 0ms Optimistic UI
             if (mpState.active) {
                 if (!mpState.roomData || mpState.roomData.status !== 'playing' || !mpState.roomData.currentRound) return;
 
                 if (aiEval.isCorrect) {
                     attemptHistory[currentAttemptIndex] = { type: 'correct', text: currentSong.cleanTitle };
                     clearGuessInput(false);
-                    exitMobileKeyboardModeSmoothly(true, preSubmitTop);
+                    exitMobileKeyboardModeSmoothly();
                     if (typeof window.__submitMpGuessResult === 'function') {
                         await window.__submitMpGuessResult({
                             isCorrect: true,
@@ -10655,7 +10412,7 @@
                     controlsBox.classList.add('shake-error');
 
                     clearGuessInput(false);
-                    exitMobileKeyboardModeSmoothly(true, preSubmitTop);
+                    exitMobileKeyboardModeSmoothly();
 
                     if (typeof window.__submitMpGuessResult === 'function') {
                         await window.__submitMpGuessResult({
@@ -10670,7 +10427,7 @@
 
             if (aiEval.isCorrect) {
                 attemptHistory.push({ type: 'correct', text: currentSong.cleanTitle });
-                finishRound(true, aiEval.wasFuzzyAI, preSubmitTop);
+                finishRound(true, aiEval.wasFuzzyAI);
             } else {
                 const compactGuess = normalizeCompactText(rawGuess);
                 const normGuess = normalizePolishText(rawGuess);
@@ -10706,7 +10463,7 @@
                 clearGuessInput(false);
 
                 if (currentAttemptIndex >= 5) {
-                    finishRound(false, false, preSubmitTop);
+                    finishRound(false, false);
                 } else {
                     const prevDur = ATTEMPT_DURATIONS[currentAttemptIndex];
                     currentAttemptIndex++;
@@ -10723,7 +10480,7 @@
 
                     updateAttemptTimelineUI();
                     renderAttemptsLadder();
-                    exitMobileKeyboardModeSmoothly(true, preSubmitTop);
+                    exitMobileKeyboardModeSmoothly();
                     advanceStageSeamlessAudio(isAudioCurrentlyPlaying());
                 }
             }
@@ -10751,10 +10508,6 @@
                 return;
             }
 
-            const playerCard = document.getElementById('mainPlayerCard');
-            const wasKbOpen = document.body.classList.contains('mobile-keyboard-open');
-            const preSkipTop = (wasKbOpen && playerCard) ? playerCard.getBoundingClientRect().top : null;
-
             if (blurExitTimer) {
                 clearTimeout(blurExitTimer);
                 blurExitTimer = null;
@@ -10766,7 +10519,7 @@
                 if (!mpState.roomData || mpState.roomData.status !== 'playing' || !mpState.roomData.currentRound) return;
                 attemptHistory[currentAttemptIndex] = { type: 'skip', text: 'Pominięto' };
                 clearGuessInput(false);
-                exitMobileKeyboardModeSmoothly(true, preSkipTop);
+                exitMobileKeyboardModeSmoothly();
                 if (typeof window.__voteSkipMpStage === 'function') {
                     await window.__voteSkipMpStage();
                 }
@@ -10777,7 +10530,7 @@
             clearGuessInput(false);
 
             if (currentAttemptIndex >= 5) {
-                finishRound(false, false, preSkipTop);
+                finishRound(false, false);
             } else {
                 const prevDur = ATTEMPT_DURATIONS[currentAttemptIndex];
                 currentAttemptIndex++;
@@ -10791,7 +10544,7 @@
 
                 updateAttemptTimelineUI();
                 renderAttemptsLadder();
-                exitMobileKeyboardModeSmoothly(true, preSkipTop);
+                exitMobileKeyboardModeSmoothly();
                 advanceStageSeamlessAudio(true);
             }
         }
@@ -10853,7 +10606,7 @@
             return { eligible: true, reason: '', earnedPoints, streakBonus };
         }
 
-        function finishRound(won, wasFuzzyAI = false, preFinishTop = null, mpRoundOverride = null) {
+        function finishRound(won, wasFuzzyAI = false, mpRoundOverride = null) {
             roundOver = true;
             roundWon = won;
             lastRoundFinishedAtMs = performance.now();
@@ -10986,7 +10739,6 @@
 
             updateFavoriteButtonUI();
             updateEditorAccessVisibility();
-            ensureAudioVisualizerConnected();
             activateFullSongPlaybackForMaxOrEnd();
 
             const sourceTag = currentSong.backupProvider || (activeAudioEngine === 'youtube' ? 'YouTube IFrame' : (currentSong.sourceType === 'local' ? 'Plik MP3' : 'Audio CDN'));
@@ -10994,7 +10746,7 @@
 
             updateAttemptTimelineUI();
             renderAttemptsLadder();
-            exitMobileKeyboardModeSmoothly(true, preFinishTop);
+            exitMobileKeyboardModeSmoothly();
             updateMarqueeIfNeeded();
             invalidateLayoutRectCache();
 
@@ -11015,11 +10767,11 @@
             startView.classList.add('hidden');
             startView.classList.remove('flex');
             gameView.classList.add('hidden');
-            gameView.classList.remove('grid', 'flex');
+            gameView.classList.remove('flex');
             editorView.classList.add('hidden');
             editorView.classList.remove('flex');
 
-            exitMobileKeyboardModeSmoothly(false);
+            exitMobileKeyboardModeSmoothly();
             document.documentElement.classList.remove('game-locked', 'mobile-keyboard-open');
             document.body.classList.remove('editor-mode', 'start-mode', 'game-locked', 'mobile-keyboard-open');
 
@@ -11050,7 +10802,7 @@
                     else setOutcomeScreenEffect('none', false);
                 }
                 gameView.classList.remove('hidden');
-                gameView.classList.add('grid');
+                gameView.classList.add('flex');
                 if (menuToggleLabel) menuToggleLabel.textContent = 'Biblioteka i czasy startu';
 
                 if (currentSong && (!mpState.active || mpState.roomData?.status === 'playing')) {
@@ -11177,7 +10929,6 @@
             unlockAllAudioElementsForIOS();
             const song = songsLibrary.find(s => s.id === editorSelectedSongId);
             if (!song) return;
-            ensureAudioVisualizerConnected();
 
             if (editorSnippetTimeout) {
                 clearTimeout(editorSnippetTimeout);
@@ -11277,7 +11028,6 @@
             unlockAllAudioElementsForIOS();
             const song = songsLibrary.find(s => s.id === editorSelectedSongId);
             if (!song) return;
-            ensureAudioVisualizerConnected();
 
             if (editorSnippetTimeout) clearTimeout(editorSnippetTimeout);
 
@@ -11310,6 +11060,7 @@
 
             song.cleanTitle = newTitle;
             song.startOffset = newOffset;
+            song.roundStartOffset = newOffset;
             song.normalizedSearch = searchMeta.normalizedSearch;
             song.compactSearch = searchMeta.compactSearch;
             song.artistNormalized = extractNormalizedArtist(newTitle);
@@ -11335,6 +11086,7 @@
             const searchMeta = buildSongSearchIndex(song.autoCleanedTitle, song.rawFileName);
             song.cleanTitle = song.autoCleanedTitle;
             song.startOffset = 0;
+            song.roundStartOffset = 0;
             song.normalizedSearch = searchMeta.normalizedSearch;
             song.compactSearch = searchMeta.compactSearch;
             song.artistNormalized = extractNormalizedArtist(song.cleanTitle);
@@ -11363,6 +11115,7 @@
             isEditorTestRound = true;
             setOutcomeScreenEffect('none');
             currentSong = song;
+            currentSong.roundStartOffset = song.startOffset || 0;
             currentAttemptIndex = 0;
             attemptHistory = [];
             roundOver = false;
@@ -11375,14 +11128,7 @@
             document.getElementById('roundResultCard').classList.remove('flex');
             document.getElementById('guessingControlsArea').classList.remove('hidden');
 
-            const offsetBadge = document.getElementById('offsetActiveBadge');
-            if (currentSong.startOffset > 0) {
-                offsetBadge.textContent = `(+${currentSong.startOffset.toFixed(1)}s)`;
-                offsetBadge.classList.remove('hidden');
-            } else {
-                offsetBadge.classList.add('hidden');
-            }
-
+            updateOffsetBadgeForCurrentSong();
             updateSliderFillProgress(document.getElementById('fullTrackSeekSlider'), 0);
             updateAttemptTimelineUI();
             renderAttemptsLadder();
@@ -11657,6 +11403,12 @@
                 }, true);
             };
 
+            window.__syncMpRoomSnippetMode = async function (newMode) {
+                if (!mpState.active || !mpState.roomCode || !mpState.isHost) return;
+                if (mpState.roomData) mpState.roomData.snippetMode = newMode;
+                await safeMpRoomWrite(mpState.roomCode, { snippetMode: newMode }, true);
+            };
+
             window.__notifyMpTypingState = function (isTypingNow) {
                 if (!mpState.active || !mpState.roomCode || !currentUser) return;
                 if (roundOver && isTypingNow) return;
@@ -11761,7 +11513,6 @@
                         el.style.setProperty('--orb-dur', `${dur}s`);
                         el.style.setProperty('--orb-delay', `${delay}s`);
 
-                        // Entire orb (top bubble, avatar circle, score pill, rim badge, and player name) is inside .orb-magnetic-unit!
                         el.innerHTML = `
                             <div class="orb-magnetic-unit magnetic-item relative flex flex-col items-center gap-1" data-base-scale="1">
                                 <div class="orb-top-bubble absolute -top-5 left-1/2 -translate-x-1/2 z-20 pointer-events-none whitespace-nowrap"></div>
@@ -11870,7 +11621,6 @@
                     orbEntry.rimBadge.innerHTML = '';
                     orbEntry.halo.className = 'orb-halo hidden absolute inset-0 rounded-full mp-winner-halo pointer-events-none';
 
-                    // Uniform appearance for all players; ONLY players who guessed the song turn emerald green!
                     if (hasGuessedSong) {
                         orbEntry.el.style.opacity = '1';
                         orbEntry.magneticUnit.dataset.baseScale = '1.12';
@@ -11952,6 +11702,8 @@
                 const headerMpBtn = document.getElementById('headerMpBtn');
                 const startMpBtnLabel = document.getElementById('startMpBtnLabel');
                 const hudBar = document.getElementById('mpLiveHudBar');
+
+                updateSnippetModeButtonsUI();
 
                 if (headerMpLabel) {
                     if (mpState.active && mpState.roomCode) {
@@ -12164,6 +11916,7 @@
 
                 const songData = roundObj.song;
                 const searchMeta = buildSongSearchIndex(songData.cleanTitle, songData.rawFileName || songData.cleanTitle);
+                const syncedStartOffset = songData.startOffset || 0;
                 const syncedSong = {
                     id: songData.id || ('mp_song_' + roundObj.roundId),
                     rawFileName: songData.rawFileName || songData.cleanTitle,
@@ -12179,11 +11932,13 @@
                     shortStreamUrl: songData.streamUrl || null,
                     corsStreamUrl: songData.corsStreamUrl || null,
                     youtubeId: songData.youtubeId || null,
+                    preferEngine: songData.preferEngine || null,
                     sourceType: songData.youtubeId && !songData.streamUrl ? 'youtube_hybrid' : 'online_stream',
                     isSyncedFromMpRoom: true,
                     fileHandle: null,
                     fileObj: null,
-                    startOffset: songData.startOffset || 0,
+                    startOffset: syncedStartOffset,
+                    roundStartOffset: syncedStartOffset,
                     isDemo: false
                 };
 
@@ -12199,20 +11954,14 @@
                 updateEditorAccessVisibility();
 
                 clearGuessInput(false);
-                exitMobileKeyboardModeSmoothly(false);
+                exitMobileKeyboardModeSmoothly();
 
                 const resultCard = document.getElementById('roundResultCard');
                 resultCard.classList.add('hidden');
                 resultCard.classList.remove('flex', 'reveal-enter');
                 document.getElementById('guessingControlsArea').classList.remove('hidden');
 
-                const offsetBadge = document.getElementById('offsetActiveBadge');
-                if (currentSong.startOffset && currentSong.startOffset > 0) {
-                    offsetBadge.textContent = `(+${currentSong.startOffset.toFixed(1)}s)`;
-                    offsetBadge.classList.remove('hidden');
-                } else {
-                    offsetBadge.classList.add('hidden');
-                }
+                updateOffsetBadgeForCurrentSong();
 
                 if (currentView !== 'game') await switchView('game');
 
@@ -12229,7 +11978,7 @@
 
                 if (roundObj.status === 'won' || roundObj.status === 'failed') {
                     mpState.lastSyncedRoundStatus = roundObj.status;
-                    finishRound(roundObj.status === 'won', false, null, roundObj);
+                    finishRound(roundObj.status === 'won', false, roundObj);
                     renderMpModalAndHud();
                     return;
                 }
@@ -12237,6 +11986,9 @@
                 if (pendingPlayRequestToken === myRoundToken) {
                     pendingPlayRequestToken = -1;
                     handleMainPlayButton();
+                } else {
+                    document.getElementById('playbackBarFill').style.width = '0%';
+                    document.getElementById('currentTimeLabel').textContent = '0.0s';
                 }
             }
 
@@ -12257,7 +12009,6 @@
                     const data = snap.data() || {};
                     const playersObj = data.players || {};
 
-                    // Check if local player was kicked by the Host!
                     if (currentUser && mpState.active && !mpState.isJoiningOrCreating && !playersObj[currentUser.uid]) {
                         if (mpState.roomUnsubscribe) {
                             mpState.roomUnsubscribe();
@@ -12328,7 +12079,7 @@
                         mpState.lastSyncedRoundStatus = r.status;
                         mpState.isAdvancingStage = false;
                         mpState.isSubmittingAction = false;
-                        finishRound(r.status === 'won', false, null, r);
+                        finishRound(r.status === 'won', false, r);
                         renderMpModalAndHud();
                     }
 
@@ -12446,6 +12197,7 @@
                         roomCode: code,
                         hostUid: currentUser.uid,
                         status: 'lobby',
+                        snippetMode: snippetPlaybackMode || 'full_from_start',
                         playlistTitle: currentActivePlaylistMeta?.title || 'Bazowa Playlista Hitów',
                         titlePool: songsLibrary.filter(s => !s.isDemo).slice(0, 160).map(s => s.cleanTitle),
                         typing: {},
@@ -12625,6 +12377,7 @@
 
                 showFloatingFeedbackPill('Synchronizacja kolejnego utworu...', 'neutral');
 
+                const roomMode = getActiveEffectiveSnippetMode();
                 let pickedSong = null;
                 for (let tries = 0; tries < 8; tries++) {
                     const poolIds = categoriesMap[activeCategory] || categoriesMap['WSZYSTKIE'] || [];
@@ -12639,7 +12392,8 @@
                     const candidate = songsLibrary.find(s => s.id === randId) || songsLibrary[0];
                     if (!candidate) continue;
 
-                    if (!candidate.url) {
+                    // Resolve CDN stream if needed or if mode is 'best_30s'
+                    if (!candidate.url && (roomMode === 'best_30s' || !candidate.youtubeId)) {
                         const backup = await resolvePlayableBackupStreamCascade(candidate, true);
                         if (backup && backup.streamUrl) {
                             candidate.url = backup.streamUrl;
@@ -12664,6 +12418,16 @@
                 }
 
                 markSongAsRecentlyPlayed(pickedSong);
+
+                // Compute synchronized startOffset for the room according to roomMode
+                let syncedStartOffset = pickedSong.startOffset || 0;
+                const preferEngine = (roomMode === 'best_30s' && pickedSong.url) ? 'html5_cdn' : (pickedSong.youtubeId ? 'youtube' : 'html5_cdn');
+
+                if (roomMode === 'random_moment') {
+                    // Roll a synchronized random offset so every player in the room hears the exact same moment!
+                    const estDur = (preferEngine === 'youtube') ? 160 : 29;
+                    syncedStartOffset = computeRandomMomentOffsetForDuration(estDur, pickedSong.startOffset || 0);
+                }
 
                 const samplePool = songsLibrary.filter(s => !s.isDemo).map(s => s.cleanTitle);
                 const shuffledSample = [...new Set([pickedSong.cleanTitle, ...samplePool])].slice(0, 180);
@@ -12698,12 +12462,14 @@
                         streamUrl: pickedSong.url || null,
                         corsStreamUrl: pickedSong.corsStreamUrl || null,
                         youtubeId: pickedSong.youtubeId || null,
-                        startOffset: pickedSong.startOffset || 0
+                        preferEngine,
+                        startOffset: syncedStartOffset
                     }
                 };
 
                 await safeMpRoomWrite(mpState.roomCode, {
                     status: 'playing',
+                    snippetMode: roomMode,
                     playlistTitle: currentActivePlaylistMeta?.title || 'Playlista Online',
                     titlePool: shuffledSample,
                     typing: {},
@@ -12711,7 +12477,6 @@
                 }, true);
             };
 
-            // 0ms Optimistic UI + 100% Atomic Firestore Transaction
             window.__submitMpGuessResult = async function ({ isCorrect, isArtistMatch, text }) {
                 if (!mpState.active || !mpState.roomCode || !currentUser || !mpState.roomData?.currentRound) return;
                 if (mpState.isSubmittingAction) return;
@@ -12722,7 +12487,6 @@
 
                 mpState.isSubmittingAction = true;
 
-                // --- INSTANT 0ms OPTIMISTIC UI FEEDBACK BEFORE NETWORK ROUNDTRIP ---
                 const localR = mpState.roomData.currentRound;
                 const activeStageOptimistic = typeof localR.stageIndex === 'number' ? localR.stageIndex : expectedStage;
                 if (!localR.winners) localR.winners = {};
@@ -12780,7 +12544,6 @@
                 renderAttemptsLadder();
                 updateGuessOrSkipButtonUI();
 
-                // --- BACKGROUND ATOMIC TRANSACTION FOR 100% MULTIPLAYER SYNC ---
                 try {
                     const updatedData = await safeMpRoomTransaction(mpState.roomCode, (data) => {
                         const r = data.currentRound;
@@ -12869,7 +12632,6 @@
                 }
             };
 
-            // 0ms Optimistic Skip Vote + Background Transaction
             window.__voteSkipMpStage = async function () {
                 if (!mpState.active || !mpState.roomCode || !currentUser || !mpState.roomData?.currentRound) return;
                 if (mpState.isSubmittingAction) return;
@@ -12880,7 +12642,6 @@
 
                 mpState.isSubmittingAction = true;
 
-                // Instant 0ms local state update
                 const localR = mpState.roomData.currentRound;
                 const activeStageOpt = typeof localR.stageIndex === 'number' ? localR.stageIndex : expectedStage;
                 if (!localR.stageActions) localR.stageActions = {};
@@ -12949,7 +12710,6 @@
                 if (!mpState.active || !mpState.roomCode || !currentUser || !mpState.roomData?.currentRound) return;
                 const myUid = currentUser.uid;
 
-                // Instant 0ms optimistic ready state
                 if (mpState.roomData?.currentRound) {
                     const nv = new Set(Array.isArray(mpState.roomData.currentRound.nextVotes) ? mpState.roomData.currentRound.nextVotes : []);
                     nv.add(myUid);
@@ -13637,6 +13397,7 @@
 
         Object.assign(window, {
             switchView,
+            setSnippetPlaybackMode,
             loadDefaultKluzekYouTubePlaylist,
             startOnlinePreset,
             startCustomOnlineQuery,
@@ -13709,6 +13470,7 @@
 
         window.onload = async function () {
             detectMobileTouchEnvironment();
+            loadSnippetPlaybackModeFromStorage();
             loadSavedMetadataFromStorage();
             loadFavoritesAndPlaylistsFromStorage();
             loadStatsFromStorage();
