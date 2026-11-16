@@ -172,7 +172,6 @@
             min-height: 0 !important;
         }
 
-        /* Mobile Keyboard Open State: cleanly docks player without zooming or overflowing */
         @media (max-width: 767px), (hover: none) and (pointer: coarse) {
             body.game-locked.mobile-keyboard-open main {
                 justify-content: flex-start !important;
@@ -461,7 +460,7 @@
     <input type="file" id="filesInput" multiple accept="audio/*,.json" class="hidden" />
     <input type="file" id="configFileInput" accept=".json" class="hidden" />
 
-    <!-- In-Viewport 200x200 Transparent YouTube IFrame Mounts (Official YouTube IFrame API) -->
+    <!-- In-Viewport 200x200 Transparent YouTube IFrame Mounts -->
     <div class="fixed bottom-0 right-0 w-[200px] h-[200px] overflow-hidden pointer-events-none opacity-[0.001] -z-10" aria-hidden="true">
         <div id="ytMainPlayerHost"></div>
         <div id="ytPlaylistExtractorHost"></div>
@@ -478,19 +477,19 @@
         <p class="text-zinc-400 text-sm mt-1">Podfoldery i podkategorie zostaną automatycznie rozpoznane.</p>
     </div>
 
-    <!-- ==================== COHESIVE MINIMALIST HEADER ==================== -->
+    <!-- ==================== COHESIVE MINIMALIST HEADER (DECLUTTERED ON MOBILE) ==================== -->
     <header class="studio-header">
         <div class="max-w-3xl mx-auto px-3 sm:px-4 h-14 sm:h-16 flex items-center justify-between gap-1.5 sm:gap-2">
             
-            <!-- Left: Brand + Active Category Pill + Background Sync Indicator -->
+            <!-- Left: Brand + Active Category Pill (Desktop) + Background Sync Indicator (Desktop) -->
             <div class="flex items-center gap-1.5 sm:gap-2 min-w-0 shrink">
                 <button id="brandLogoBtn" onclick="switchView('start')" class="magnetic-item h-8 px-2.5 rounded-full ui-pill inline-flex items-center gap-1.5 font-mono font-bold text-xs text-zinc-100 tracking-tight shrink-0" title="Menu startowe i wybór źródła muzyki">
                     <span class="w-2 h-2 rounded-full theme-accent-bg shrink-0"></span>
                     <span>KLUZEK</span>
                 </button>
 
-                <!-- Active Category Trigger Pill -->
-                <button id="activeCategoryPillBtn" onclick="toggleCategoryModal(true)" class="magnetic-item group h-8 inline-flex items-center gap-1.5 px-2.5 sm:px-3 rounded-full ui-pill text-xs shrink-0 whitespace-nowrap" title="Zmień kategorię lub podkategorię (Klawisz K)">
+                <!-- Active Category Trigger Pill (Hidden on mobile phones since it's in the Settings Gear menu) -->
+                <button id="activeCategoryPillBtn" onclick="toggleCategoryModal(true)" class="magnetic-item group hidden sm:inline-flex h-8 items-center gap-1.5 px-3 rounded-full ui-pill text-xs shrink-0 whitespace-nowrap" title="Zmień kategorię lub podkategorię (Klawisz K)">
                     <span id="headerActiveCategoryName" class="hidden">Wszystkie</span>
                     <span id="headerActiveCategoryCount" class="font-mono font-semibold text-xs text-zinc-200 shrink-0">4</span>
                     <svg class="w-3.5 h-3.5 text-zinc-500 group-hover:text-zinc-300 shrink-0 transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -505,7 +504,7 @@
                 </button>
             </div>
 
-            <!-- Right: Volume + Multiplayer + Score/Streak + Leaderboard + Account + Settings -->
+            <!-- Right: Volume (Desktop) + Multiplayer + Score/Streak + Leaderboard (Desktop) + Account + Settings -->
             <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
 
                 <!-- Sleek Header Volume Control (Desktop) -->
@@ -541,8 +540,8 @@
                     <span id="statGuessed" class="font-mono text-[11px] text-zinc-300">0 pkt</span>
                 </button>
 
-                <!-- Leaderboard Trophy Button -->
-                <button id="headerLeaderboardBtn" onclick="toggleLeaderboardModal(true)" class="magnetic-item w-8 h-8 rounded-full ui-pill text-zinc-300 hover:text-white inline-flex items-center justify-center shrink-0" title="Ranking Graczy">
+                <!-- Leaderboard Trophy Button (Hidden on mobile phones since it's in Account & Settings menus) -->
+                <button id="headerLeaderboardBtn" onclick="toggleLeaderboardModal(true)" class="magnetic-item hidden sm:inline-flex w-8 h-8 rounded-full ui-pill text-zinc-300 hover:text-white items-center justify-center shrink-0" title="Ranking Graczy">
                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
                         <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
@@ -839,15 +838,15 @@
 
         </div>
 
-        <!-- ==================== VIEW 1: ORIGINAL CENTERED STAGE WITH FIXED BOTTOM RESERVOIR (ZERO JUMPING) ==================== -->
-        <div id="gameView" class="hidden w-full max-w-lg mx-auto my-auto flex-col items-center gap-3 sm:gap-6">
+        <!-- ==================== VIEW 1: CENTERED STAGE WITH ANCHORED BOTTOM RESERVOIR ==================== -->
+        <div id="gameView" class="hidden w-full max-w-lg mx-auto my-auto flex-col items-center gap-3 sm:gap-5">
 
             <!-- BOXLESS FLOATING MULTIPLAYER AVATAR ORBS -->
             <div id="mpLiveHudBar" class="hidden w-full flex-col items-center pb-0.5">
                 <div id="mpHudPlayersList" class="w-full flex flex-wrap items-end justify-center gap-5 sm:gap-7 pt-5 pb-1 min-h-[78px]"></div>
             </div>
 
-            <!-- Open Player Stage (Exact original gap-4 sm:gap-7 spacing) -->
+            <!-- Open Player Stage (Original gap-4 sm:gap-7 spacing) -->
             <div id="mainPlayerCard" class="w-full flex flex-col items-center gap-4 sm:gap-7">
 
                 <!-- 1. Centered Stage Info + Play Hub -->
@@ -1009,16 +1008,18 @@
 
             </div>
 
-            <!-- 5. FIXED-HEIGHT BOTTOM ZONE: Keeps #mainPlayerCard at the exact original height while preventing any button jumping! -->
-            <div id="gameBottomZone" class="w-full h-24 sm:h-28 shrink-0 flex flex-col items-center justify-start gap-1.5 pt-1 overflow-hidden">
-                <div id="attemptsTrailWrapper" class="hidden w-full flex-col items-center min-h-0 flex-1 overflow-hidden">
-                    <div id="attemptsList" class="scrollable-touch-area flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 w-full max-h-16 sm:max-h-20 overflow-y-auto py-0.5 px-1"></div>
-                </div>
+            <!-- 5. ZERO-SHIFT ANCHORED BOTTOM ZONE: No artificial gap between chat & history, and never shifts #mainPlayerCard! -->
+            <div id="gameBottomZone" class="relative w-full h-12 sm:h-14 shrink-0">
+                <div class="absolute top-0 inset-x-0 flex flex-col items-center gap-2">
+                    <div id="attemptsTrailWrapper" class="hidden w-full flex-col items-center">
+                        <div id="attemptsList" class="scrollable-touch-area flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 w-full max-h-20 sm:max-h-24 overflow-y-auto py-0.5 px-1"></div>
+                    </div>
 
-                <div id="recentHistoryCard" class="hidden items-center justify-center gap-2 text-xs text-zinc-500 px-3 py-0.5 rounded-full shrink-0">
-                    <div id="inlineRecentHistoryList" class="inline-flex items-center gap-2 truncate max-w-[230px] sm:max-w-md"></div>
-                    <span class="text-zinc-800">·</span>
-                    <button onclick="toggleHistoryModal(true)" class="text-[11px] text-zinc-500 hover:text-zinc-200 font-mono shrink-0 transition-colors">Pełna historia</button>
+                    <div id="recentHistoryCard" class="hidden items-center justify-center gap-2 text-xs text-zinc-500 px-3 py-0.5 rounded-full shrink-0">
+                        <div id="inlineRecentHistoryList" class="inline-flex items-center gap-2 truncate max-w-[230px] sm:max-w-md"></div>
+                        <span class="text-zinc-800">·</span>
+                        <button onclick="toggleHistoryModal(true)" class="text-[11px] text-zinc-500 hover:text-zinc-200 font-mono shrink-0 transition-colors">Pełna historia</button>
+                    </div>
                 </div>
             </div>
 
@@ -1196,7 +1197,7 @@
                     </div>
                 </div>
 
-                <!-- Room Playback Mode Settings (Host configurable, Guest read-only live view) -->
+                <!-- Room Playback Mode Settings -->
                 <div class="p-3 rounded-2xl bg-[#09090b] border border-[#27272a] space-y-2">
                     <div class="flex items-center justify-between text-[11px] font-mono">
                         <span class="text-zinc-400">Tryb odtwarzania w pokoju:</span>
@@ -1678,6 +1679,7 @@
         let activeCategory = 'WSZYSTKIE';
         let currentExpandedFolderNode = null;
         let editorSearchDebounce = null;
+        let searchInputRafId = null;
         let unplayedPools = {};
 
         let recentlyPlayedKeys = new Set();
@@ -1942,7 +1944,7 @@
             return { eligible: true, reason: '' };
         }
 
-        // ==================== MOBILE KEYBOARD & VIEWPORT CONTROLLER (ZERO ZOOM / ZERO JUMP) ====================
+        // ==================== MOBILE KEYBOARD & VIEWPORT CONTROLLER ====================
         let isGuessInputFocused = false;
         let isInteractingWithAutocomplete = false;
         let wasMobileKeyboardOpen = false;
@@ -2084,7 +2086,7 @@
             }, 220);
         }
 
-        // ==================== FUZZY, CANONICAL DEDUPLICATION & PHONETIC MATCHING ENGINE ====================
+        // ==================== FAST ZERO-ALLOCATION FUZZY & PHONETIC MATCHING ENGINE ====================
         const AI_STOP_WORDS = new Set(['a', 'an', 'the', 'to', 'in', 'on', 'of', 'for', 'and', 'or', 'i', 'w', 'z', 'na', 'do', 'feat', 'ft']);
 
         function getCanonicalSongKey(rawTitle) {
@@ -2161,6 +2163,11 @@
             return s;
         }
 
+        // Pre-allocated flat buffers for zero-GC Damerau-Levenshtein distance
+        const _levRow0 = new Uint16Array(128);
+        const _levRow1 = new Uint16Array(128);
+        const _levRow2 = new Uint16Array(128);
+
         function damerauLevenshteinDistance(a, b) {
             const lenA = a.length;
             const lenB = b.length;
@@ -2168,22 +2175,31 @@
             if (lenB === 0) return lenA;
             if (a === b) return 0;
             if (Math.abs(lenA - lenB) > 8) return Math.abs(lenA - lenB);
+            if (lenB >= 126 || lenA >= 126) return Math.abs(lenA - lenB);
 
-            const dp = Array.from({ length: lenA + 1 }, () => new Uint16Array(lenB + 1));
-            for (let i = 0; i <= lenA; i++) dp[i][0] = i;
-            for (let j = 0; j <= lenB; j++) dp[0][j] = j;
+            let prev2 = _levRow0;
+            let prev1 = _levRow1;
+            let curr = _levRow2;
+
+            for (let j = 0; j <= lenB; j++) prev1[j] = j;
 
             for (let i = 1; i <= lenA; i++) {
+                curr[0] = i;
+                const chA = a.charCodeAt(i - 1);
                 for (let j = 1; j <= lenB; j++) {
-                    const cost = a[i - 1] === b[j - 1] ? 0 : 1;
-                    let val = Math.min(dp[i - 1][j] + 1, dp[i][j - 1] + 1, dp[i - 1][j - 1] + cost);
-                    if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) {
-                        val = Math.min(val, dp[i - 2][j - 2] + 1);
+                    const cost = chA === b.charCodeAt(j - 1) ? 0 : 1;
+                    let val = Math.min(prev1[j] + 1, curr[j - 1] + 1, prev1[j - 1] + cost);
+                    if (i > 1 && j > 1 && chA === b.charCodeAt(j - 2) && a.charCodeAt(i - 2) === b.charCodeAt(j - 1)) {
+                        val = Math.min(val, prev2[j - 2] + 1);
                     }
-                    dp[i][j] = val;
+                    curr[j] = val;
                 }
+                const tmp = prev2;
+                prev2 = prev1;
+                prev1 = curr;
+                curr = tmp;
             }
-            return dp[lenA][lenB];
+            return prev1[lenB];
         }
 
         function computeDiceBigrams(a, b) {
@@ -2210,7 +2226,7 @@
             return (2.0 * intersection) / ((s1.length - 1) + (s2.length - 1));
         }
 
-        function computeTokenFuzzySimilarity(queryTok, targetTok) {
+        function computeTokenFuzzySimilarity(queryTok, targetTok, queryPhon = null, targetPhon = null) {
             if (!queryTok || !targetTok) return 0;
             if (queryTok === targetTok) return 1.0;
 
@@ -2227,8 +2243,8 @@
             const editDist = damerauLevenshteinDistance(queryTok, targetTok);
             const editSim = 1 - (editDist / maxLen);
 
-            const pA = normalizePhoneticPL_EN(queryTok);
-            const pB = normalizePhoneticPL_EN(targetTok);
+            const pA = queryPhon !== null ? queryPhon : normalizePhoneticPL_EN(queryTok);
+            const pB = targetPhon !== null ? targetPhon : normalizePhoneticPL_EN(targetTok);
             let phonSim = 0;
             if (pA && pB) {
                 if (pA === pB) phonSim = 0.94;
@@ -2242,9 +2258,20 @@
             return Math.max(editSim, phonSim);
         }
 
-        function computeSongFuzzyScore(song, rawQuery) {
-            const normQ = normalizePolishText(rawQuery);
-            const compactQ = normalizeCompactText(rawQuery);
+        function ensureSongCachedSearchTokens(song) {
+            if (song._cachedCleanTitle === song.cleanTitle && song._sTokens) return;
+            song._cachedCleanTitle = song.cleanTitle;
+            const sTokens = normalizePolishText(stripTrackClutterForMatching(song.cleanTitle)).split(' ').filter(Boolean);
+            song._sTokens = sTokens;
+            song._sPhonTokens = sTokens.map(t => normalizePhoneticPL_EN(t));
+            song._cleanCompact = normalizeCompactText(song.cleanTitle);
+            const parsed = parseArtistAndTrackTitle(song.cleanTitle);
+            song._titleOnlyCompact = normalizeCompactText(parsed.title);
+        }
+
+        function computeSongFuzzyScore(song, rawQuery, precomputedQuery = null) {
+            const normQ = precomputedQuery ? precomputedQuery.normQ : normalizePolishText(rawQuery);
+            const compactQ = precomputedQuery ? precomputedQuery.compactQ : normalizeCompactText(rawQuery);
             if (!normQ) return { score: 0, isFuzzyRescue: false };
 
             if (song.normalizedSearch.includes(normQ) || (compactQ.length >= 2 && song.compactSearch.includes(compactQ))) {
@@ -2252,22 +2279,28 @@
                 return { score: 96 + startsWithBonus, isFuzzyRescue: false };
             }
 
-            const qTokens = normQ.split(' ').filter(Boolean);
-            const sTokens = normalizePolishText(stripTrackClutterForMatching(song.cleanTitle)).split(' ').filter(Boolean);
+            ensureSongCachedSearchTokens(song);
+            const sTokens = song._sTokens;
+            const sPhonTokens = song._sPhonTokens;
             if (sTokens.length === 0) return { score: 0, isFuzzyRescue: false };
+
+            const qTokens = precomputedQuery ? precomputedQuery.qTokens : normQ.split(' ').filter(Boolean);
+            const qPhonTokens = precomputedQuery ? precomputedQuery.qPhonTokens : qTokens.map(t => normalizePhoneticPL_EN(t));
 
             let exactAllTokens = true;
             let totalTokSim = 0;
             let weightSum = 0;
 
-            for (const qTok of qTokens) {
+            for (let qi = 0; qi < qTokens.length; qi++) {
+                const qTok = qTokens[qi];
+                const qPhon = qPhonTokens[qi];
                 const isExact = song.normalizedSearch.includes(qTok) || song.compactSearch.includes(qTok);
                 if (!isExact) exactAllTokens = false;
 
                 let bestSim = isExact ? 1.0 : 0;
                 if (!isExact) {
-                    for (const sTok of sTokens) {
-                        const sim = computeTokenFuzzySimilarity(qTok, sTok);
+                    for (let si = 0; si < sTokens.length; si++) {
+                        const sim = computeTokenFuzzySimilarity(qTok, sTokens[si], qPhon, sPhonTokens[si]);
                         if (sim > bestSim) bestSim = sim;
                     }
                 }
@@ -2279,9 +2312,10 @@
             if (exactAllTokens) return { score: 92, isFuzzyRescue: false };
 
             const avgQuerySim = weightSum > 0 ? (totalTokSim / weightSum) : 0;
-            const diceFull = computeDiceBigrams(compactQ, normalizeCompactText(song.cleanTitle));
-            const parsed = parseArtistAndTrackTitle(song.cleanTitle);
-            const diceTitleOnly = computeDiceBigrams(compactQ, normalizeCompactText(parsed.title));
+            if (avgQuerySim < 0.45 && compactQ.length < 4) return { score: 0, isFuzzyRescue: false };
+
+            const diceFull = computeDiceBigrams(compactQ, song._cleanCompact);
+            const diceTitleOnly = computeDiceBigrams(compactQ, song._titleOnlyCompact);
             const bestDice = Math.max(diceFull, diceTitleOnly);
 
             const combinedScore = Math.round(Math.max(avgQuerySim * 88, bestDice * 86, (avgQuerySim * 0.65 + bestDice * 0.35) * 90));
@@ -2448,7 +2482,7 @@
 
             input.value = cleanSpoken;
             document.getElementById('clearInputBtn').classList.remove('hidden');
-            onSearchInput();
+            filteredSuggestions = computeDeduplicatedSuggestions(cleanSpoken);
 
             if (filteredSuggestions.length > 0) {
                 const topEntry = filteredSuggestions[0];
@@ -2456,9 +2490,9 @@
                 const secondScore = filteredSuggestions[1] ? (filteredSuggestions[1].score || 0) : 0;
                 if (topEntry.score >= 82 && (filteredSuggestions.length === 1 || topEntry.score - secondScore >= 8)) {
                     input.value = topSong.cleanTitle;
-                    onSearchInput();
                 }
             }
+            onSearchInput();
 
             showFloatingFeedbackPill(`Usłyszano: „${input.value}”`, 'emerald', 'Sprawdź na pasku i kliknij Zgadnij');
         }
@@ -3108,6 +3142,21 @@
             phase: 0,
             barHeights: [2.8, 2.8, 2.8, 2.8, 2.8],
             barOffsetsY: [0, 0, 0, 0, 0]
+        };
+
+        const visualizerPCMState = {
+            songId: null,
+            shortUrl: null,
+            shortPCM: null,
+            shortSampleRate: 0,
+            preloadSongId: null,
+            preloadUrl: null,
+            preloadPCM: null,
+            preloadSampleRate: 0,
+            loadingKeys: new Set(),
+            fastEnv: [0, 0, 0, 0, 0],
+            slowEnv: [0, 0, 0, 0, 0],
+            peakEnv: [0.015, 0.015, 0.015, 0.015, 0.015]
         };
 
         let activeParticles = [];
@@ -4412,7 +4461,6 @@
                                 ytMainState = ev.data;
                                 if (activeAudioEngine === 'youtube') {
                                     if (ev.data === YT.PlayerState.PLAYING) {
-                                        // Guard against unexpected autoplay when cued before user clicks Play
                                         if (currentView === 'game' && !roundOver && (!isSnippetPlaying || isPreparingRoundAudio)) {
                                             try { ytMainPlayer.pauseVideo(); } catch (e) {}
                                             ytMainState = 2;
@@ -4487,7 +4535,7 @@
 
                 try {
                     activeAudioEngine = 'youtube';
-                    ytMainState = 5; // CUED state immediately so old PLAYING state never leaks
+                    ytMainState = 5;
                     ytMainCurrentVideoId = videoId;
                     syncMasterVolumeToYouTube();
                     ytMainPlayer.cueVideoById({
@@ -4534,8 +4582,6 @@
         }
 
         function isAudioCurrentlyPlaying() {
-            if (isPreparingRoundAudio) return false;
-            if (currentView === 'game' && !roundOver && !isSnippetPlaying) return false;
             if (activeAudioEngine === 'youtube') {
                 return Boolean(ytMainPlayerReady && ytMainState === 1);
             }
@@ -4905,6 +4951,34 @@
             }
 
             return queries.slice(0, 4);
+        }
+
+        async function resolveCorsStreamForVisualizer(song) {
+            if (!song) return null;
+            if (song.corsStreamUrl) return song.corsStreamUrl;
+            const queries = buildBackupSearchQueriesForSong(song);
+            for (let i = 0; i < Math.min(2, queries.length); i++) {
+                const q = queries[i];
+                try {
+                    const itunesUrl = `https://itunes.apple.com/search?term=${encodeURIComponent(q)}&entity=song&limit=6&country=PL`;
+                    const resp = await withTimeout(fetch(itunesUrl), 2500);
+                    if (resp.ok) {
+                        const data = await resp.json();
+                        if (data && Array.isArray(data.results) && data.results.length > 0) {
+                            const good = data.results.find(r =>
+                                r.previewUrl &&
+                                !isFillerOrRemixTrackTitle(r.trackName) &&
+                                isCandidateTrackMatchingSong(song, r.artistName || '', r.trackName || '', r.primaryGenreName || '')
+                            );
+                            if (good && good.previewUrl) {
+                                song.corsStreamUrl = good.previewUrl;
+                                return good.previewUrl;
+                            }
+                        }
+                    }
+                } catch (e) {}
+            }
+            return null;
         }
 
         async function resolvePlayableBackupStreamCascade(songOrTitle, deepSearch = false) {
@@ -6465,7 +6539,7 @@
             }, 4500);
         }
 
-        // ==================== DIRECTORY HANDLE PERSISTENCE, PRE-LOADER & HYBRID PLAYBACK WITH SNIPPET MODES ====================
+        // ==================== DIRECTORY HANDLE PERSISTENCE, PRE-LOADER & HYBRID PLAYBACK ====================
         function openLibraryIDB() {
             return new Promise((resolve, reject) => {
                 if (!window.indexedDB) {
@@ -6612,9 +6686,12 @@
                         return null;
                     }
                 }
-                if (nextSong.url && preloadAudioEl) {
-                    preloadAudioEl.src = nextSong.url;
-                    preloadAudioEl.load();
+                if (nextSong.url) {
+                    if (preloadAudioEl) {
+                        preloadAudioEl.src = nextSong.url;
+                        preloadAudioEl.load();
+                    }
+                    await loadVisualizerPCMForUrl(nextSong, nextSong.url, 'preload');
                 }
                 return nextSong;
             })();
@@ -6665,7 +6742,6 @@
             const isSyncedMp = Boolean(mpState.active && song.isSyncedFromMpRoom);
             const isEditorView = (currentView === 'editor');
 
-            // Reset roundStartOffset unless already set by MP Room sync
             if (!isSyncedMp) {
                 song.roundStartOffset = song.startOffset || 0;
             }
@@ -6703,18 +6779,19 @@
                         audioEl.load();
                         const readyOk = await waitForAudioElementReady(audioEl, getEffectiveSongStartOffset(song), 2800);
                         if (roundToken !== currentRoundToken) return false;
-                        if (readyOk) return finalizeReadyTrack();
+                        if (readyOk) {
+                            syncVisualizerTapSourceWithCurrentSong(song);
+                            return finalizeReadyTrack();
+                        }
                     }
                 } catch (e) { return false; }
                 return false;
             }
 
-            // Determine whether to prefer YouTube IFrame first or 30s Hit CDN first
             const prefer30sCdnFirst = isSyncedMp
                 ? (song.preferEngine === 'html5_cdn' || (!song.youtubeId && Boolean(song.url)))
                 : (mode === 'best_30s');
 
-            // Helper to try loading via Official YouTube IFrame Player
             const tryLoadYouTubeIframe = async () => {
                 if (!song.youtubeId || song.wasTitleSubstitutedByBackup) return false;
                 const initialStart = getEffectiveSongStartOffset(song);
@@ -6724,12 +6801,12 @@
                     activeAudioEngine = 'youtube';
                     song.backupProvider = 'YouTube IFrame';
                     recordDevFallbackTrack(song, 'Natywny odtwarzacz YouTube IFrame', song.youtubeId, 'YouTube IFrame', `https://youtu.be/${song.youtubeId}`);
+                    syncVisualizerTapSourceWithCurrentSong(song);
                     return finalizeReadyTrack();
                 }
                 return false;
             };
 
-            // Helper to try loading via 30s CDN (iTunes / Deezer)
             const tryLoadCdnStream = async () => {
                 activeAudioEngine = 'html5';
                 if (!song.url && (song.sourceType === 'youtube_hybrid' || song.sourceType === 'spotify_hybrid')) {
@@ -6751,6 +6828,7 @@
                     audioEl.dataset.songId = song.id;
                     audioEl.src = song.url;
                     audioEl.load();
+                    syncVisualizerTapSourceWithCurrentSong(song);
                     const readyOk = await waitForAudioElementReady(audioEl, getEffectiveSongStartOffset(song), 2800);
                     if (roundToken !== currentRoundToken) return false;
                     if (readyOk) return finalizeReadyTrack();
@@ -6763,6 +6841,7 @@
                             song.shortStreamUrl = retryBackup.streamUrl;
                             audioEl.src = song.url;
                             audioEl.load();
+                            syncVisualizerTapSourceWithCurrentSong(song);
                             const retryOk = await waitForAudioElementReady(audioEl, getEffectiveSongStartOffset(song), 2600);
                             if (roundToken !== currentRoundToken) return false;
                             if (retryOk) return finalizeReadyTrack();
@@ -7385,79 +7464,318 @@
             window.open(`https://www.youtube.com/results?search_query=${query}`, '_blank', 'noopener,noreferrer');
         }
 
-        // ==================== ROCK-SOLID DETERMINISTIC STUDIO AUDIO VISUALIZER (ZERO BUGS, ZERO PROXY FETCHES) ====================
-        function getSongVisualizerSeed(song) {
-            if (!song) return 120;
-            if (typeof song._vizSeed === 'number') return song._vizSeed;
-            const str = song.cleanTitle || song.id || 'kluzek';
-            let hash = 2166136261;
-            for (let i = 0; i < str.length; i++) {
-                hash ^= str.charCodeAt(i);
-                hash = Math.imul(hash, 16777619);
+        // ==================== RESTORED ORIGINAL REAL PCM AUDIO SPECTRUM + 120HZ BUFFERING WAVE ====================
+        async function fetchAudioArrayBufferWithCorsFallback(targetUrl) {
+            if (!targetUrl) return null;
+            if (targetUrl.startsWith('blob:') || targetUrl.startsWith('data:')) {
+                try {
+                    const r = await fetch(targetUrl);
+                    if (r.ok) return await r.arrayBuffer();
+                } catch (e) {}
+                return null;
             }
-            song._vizSeed = Math.abs(hash) || 12345;
-            return song._vizSeed;
+
+            try {
+                const directResp = await withTimeout(fetch(targetUrl, { mode: 'cors', credentials: 'omit' }), 3000);
+                if (directResp.ok) {
+                    const buf = await directResp.arrayBuffer();
+                    if (buf && buf.byteLength > 4000 && buf.byteLength < 3500000) return buf;
+                }
+            } catch (e) {}
+
+            const proxyUrls = [
+                `https://corsproxy.io/?url=${encodeURIComponent(targetUrl)}`,
+                `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`,
+                `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`
+            ];
+
+            const proxyTasks = proxyUrls.map(async (pUrl) => {
+                const r = await withTimeout(fetch(pUrl, { mode: 'cors', credentials: 'omit' }), 4500);
+                if (!r.ok) throw new Error('proxy_status');
+                const buf = await r.arrayBuffer();
+                if (!buf || buf.byteLength <= 4000 || buf.byteLength > 3500000) throw new Error('invalid_size');
+                return buf;
+            });
+
+            try { return await Promise.any(proxyTasks); } catch (e) { return null; }
+        }
+
+        async function decodeAudioBufferToMonoPCM(arrayBuffer) {
+            if (!arrayBuffer || arrayBuffer.byteLength <= 4000) return null;
+            try {
+                const OfflineCtx = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                const ctx = OfflineCtx ? new OfflineCtx(1, 1, 44100) : (audioCtx || (AudioCtx ? new AudioCtx() : null));
+                if (!ctx) return null;
+
+                const decoded = await new Promise((resolve) => {
+                    try {
+                        const res = ctx.decodeAudioData(
+                            arrayBuffer.slice(0),
+                            (buf) => resolve(buf),
+                            () => resolve(null)
+                        );
+                        if (res && typeof res.catch === 'function') res.catch(() => resolve(null));
+                    } catch (err) { resolve(null); }
+                });
+
+                if (!decoded || !decoded.length) return null;
+
+                const sr = decoded.sampleRate || 44100;
+                const ch0 = decoded.getChannelData(0);
+                const ch1 = decoded.numberOfChannels > 1 ? decoded.getChannelData(1) : null;
+                const step = sr >= 40000 ? 2 : 1;
+                const maxSamples = Math.min(Math.floor(ch0.length / step), Math.floor((sr / step) * 35));
+                const mono = new Float32Array(maxSamples);
+
+                if (ch1) {
+                    for (let i = 0, j = 0; i < maxSamples; i++, j += step) mono[i] = (ch0[j] + ch1[j]) * 0.5;
+                } else {
+                    for (let i = 0, j = 0; i < maxSamples; i++, j += step) mono[i] = ch0[j];
+                }
+
+                return { pcm: mono, sampleRate: sr / step };
+            } catch (e) { return null; }
+        }
+
+        async function loadVisualizerPCMForUrl(songOrId, streamUrl, slot = 'short') {
+            if (slot === 'full') return;
+            const songObj = typeof songOrId === 'object' ? songOrId : songsLibrary.find(s => s.id === songOrId);
+            const songId = songObj ? songObj.id : songOrId;
+            if (!songId) return;
+
+            if (slot === 'short' && visualizerPCMState.songId === songId && visualizerPCMState.shortUrl === streamUrl && visualizerPCMState.shortPCM) return;
+            if (slot === 'preload' && visualizerPCMState.preloadSongId === songId && visualizerPCMState.preloadUrl === streamUrl && visualizerPCMState.preloadPCM) return;
+
+            const loadKey = `${slot}:${songId}:${streamUrl || 'cors_lookup'}`;
+            if (visualizerPCMState.loadingKeys.has(loadKey)) return;
+            visualizerPCMState.loadingKeys.add(loadKey);
+
+            try {
+                let rawBuf = streamUrl ? await fetchAudioArrayBufferWithCorsFallback(streamUrl) : null;
+                let usedUrl = streamUrl;
+                if (!rawBuf && songObj && !songObj.isDemo && songObj.sourceType !== 'local') {
+                    const corsFallbackUrl = await resolveCorsStreamForVisualizer(songObj);
+                    if (corsFallbackUrl && corsFallbackUrl !== streamUrl) {
+                        usedUrl = corsFallbackUrl;
+                        rawBuf = await fetchAudioArrayBufferWithCorsFallback(corsFallbackUrl);
+                    }
+                }
+
+                const decoded = await decodeAudioBufferToMonoPCM(rawBuf);
+                if (!decoded) return;
+
+                if (slot === 'preload') {
+                    visualizerPCMState.preloadSongId = songId;
+                    visualizerPCMState.preloadUrl = usedUrl;
+                    visualizerPCMState.preloadPCM = decoded.pcm;
+                    visualizerPCMState.preloadSampleRate = decoded.sampleRate;
+                    if (visualizerPCMState.songId === songId && !visualizerPCMState.shortPCM) {
+                        visualizerPCMState.shortUrl = usedUrl;
+                        visualizerPCMState.shortPCM = decoded.pcm;
+                        visualizerPCMState.shortSampleRate = decoded.sampleRate;
+                    }
+                } else {
+                    if (visualizerPCMState.songId === songId) {
+                        visualizerPCMState.shortUrl = usedUrl;
+                        visualizerPCMState.shortPCM = decoded.pcm;
+                        visualizerPCMState.shortSampleRate = decoded.sampleRate;
+                    }
+                }
+            } finally {
+                visualizerPCMState.loadingKeys.delete(loadKey);
+            }
         }
 
         function ensureAudioVisualizerConnected() {
-            // Deterministic studio visualizer requires no external network/proxy fetches
+            const activeSong = currentView === 'editor' && editorSelectedSongId
+                ? (songsLibrary.find(s => s.id === editorSelectedSongId) || currentSong)
+                : currentSong;
+            if (!activeSong) return;
+
+            if (visualizerPCMState.songId !== activeSong.id) {
+                syncVisualizerTapSourceWithCurrentSong(activeSong);
+            } else if (!visualizerPCMState.shortPCM) {
+                loadVisualizerPCMForUrl(activeSong, activeObjectUrl || audioEl.src || activeSong.url || activeSong.corsStreamUrl || null, 'short');
+            }
+        }
+
+        async function syncVisualizerTapSourceWithCurrentSong(targetSong = null) {
+            const song = targetSong || currentSong;
+            if (!song) return;
+
+            if (visualizerPCMState.songId !== song.id) {
+                visualizerPCMState.songId = song.id;
+                visualizerPCMState.fastEnv = [0, 0, 0, 0, 0];
+                visualizerPCMState.slowEnv = [0, 0, 0, 0, 0];
+                visualizerPCMState.peakEnv = [0.015, 0.015, 0.015, 0.015, 0.015];
+
+                if (visualizerPCMState.preloadSongId === song.id && visualizerPCMState.preloadPCM) {
+                    visualizerPCMState.shortUrl = visualizerPCMState.preloadUrl;
+                    visualizerPCMState.shortPCM = visualizerPCMState.preloadPCM;
+                    visualizerPCMState.shortSampleRate = visualizerPCMState.preloadSampleRate;
+                } else {
+                    visualizerPCMState.shortUrl = null;
+                    visualizerPCMState.shortPCM = null;
+                    visualizerPCMState.shortSampleRate = 0;
+                }
+            }
+
+            const primaryUrl = activeObjectUrl || song.url || song.shortStreamUrl || song.corsStreamUrl || audioEl.src || null;
+            loadVisualizerPCMForUrl(song, primaryUrl, 'short');
         }
 
         function updateLiveAudioSpectrum(step120 = 1.0) {
             const playing = isAudioCurrentlyPlaying();
-            const decayLerp = 1 - Math.pow(1 - 0.24, step120);
+            const decayLerp = 1 - Math.pow(1 - 0.22, step120);
 
             if (!playing) {
                 for (let i = 0; i < 5; i++) {
                     liveAudioSpectrum.bars[i] += (0.2 - liveAudioSpectrum.bars[i]) * decayLerp;
+                    visualizerPCMState.fastEnv[i] *= Math.pow(0.85, step120);
                 }
-                liveAudioSpectrum.energy *= Math.pow(0.86, step120);
+                liveAudioSpectrum.energy *= Math.pow(0.88, step120);
                 return;
             }
 
-            const activeSong = (currentView === 'editor' && editorSelectedSongId)
-                ? (songsLibrary.find(s => s.id === editorSelectedSongId) || currentSong)
-                : currentSong;
+            const pcm = visualizerPCMState.shortPCM;
+            const sr = visualizerPCMState.shortSampleRate;
 
-            const seed = getSongVisualizerSeed(activeSong);
-            const curSec = getActiveCurrentTime();
-
-            // Deterministic per-song BPM (112 - 136 BPM) and groove signature locked to the exact playback clock
-            const bpm = 112 + (seed % 25);
-            const beatFreq = (bpm / 60) * Math.PI * 2;
-            const t = curSec + (seed % 17) * 0.37;
-
-            // Multi-band studio transient synthesis (Kick, Bassline, Vocal Mid, Snare, Hi-Hat)
-            const phraseMod = 0.72 + 0.28 * Math.sin(t * 0.85 + (seed % 7));
-            const kickEnv = Math.pow(Math.max(0, Math.sin(t * beatFreq * 0.5)), 2.6);
-            const subBass = Math.pow(0.5 + 0.5 * Math.sin(t * beatFreq * 0.25 + 0.8), 1.8);
-            const snareEnv = Math.pow(Math.max(0, Math.sin(t * beatFreq * 0.5 - Math.PI * 0.5)), 3.0);
-            const vocalA = 0.5 + 0.5 * Math.sin(t * 7.4 + (seed % 5));
-            const vocalB = 0.5 + 0.5 * Math.cos(t * 11.3 + (seed % 11));
-            const vocalEnv = Math.pow(vocalA * 0.6 + vocalB * 0.4, 1.35);
-            const hatEnv = Math.pow(0.5 + 0.5 * Math.sin(t * beatFreq * 2.0 + 0.4) * Math.cos(t * 19.7), 1.6);
-
-            const targets = [
-                Math.min(1.0, 0.22 + (kickEnv * 0.58 + subBass * 0.22) * phraseMod),
-                Math.min(1.0, 0.22 + (kickEnv * 0.34 + vocalEnv * 0.46) * phraseMod),
-                Math.min(1.0, 0.22 + (vocalEnv * 0.54 + snareEnv * 0.28) * phraseMod),
-                Math.min(1.0, 0.22 + (snareEnv * 0.48 + vocalB * 0.26 + hatEnv * 0.14) * phraseMod),
-                Math.min(1.0, 0.20 + (hatEnv * 0.56 + snareEnv * 0.22) * phraseMod)
-            ];
-
-            const attackLerp = 1 - Math.pow(1 - 0.48, step120);
-            const releaseLerp = 1 - Math.pow(1 - 0.22, step120);
-            let eSum = 0;
-
-            for (let i = 0; i < 5; i++) {
-                const curBar = liveAudioSpectrum.bars[i];
-                const tgt = targets[i];
-                const nextBar = curBar + (tgt - curBar) * (tgt > curBar ? attackLerp : releaseLerp);
-                liveAudioSpectrum.bars[i] = nextBar;
-                eSum += nextBar;
+            if (!pcm || !sr) {
+                ensureAudioVisualizerConnected();
+                for (let i = 0; i < 5; i++) {
+                    liveAudioSpectrum.bars[i] += (0.2 - liveAudioSpectrum.bars[i]) * decayLerp;
+                }
+                liveAudioSpectrum.energy *= Math.pow(0.88, step120);
+                return;
             }
 
-            liveAudioSpectrum.energy = Math.max(0, (eSum / 5 - 0.2) / 0.8);
+            const curSec = getActiveCurrentTime();
+            const totalSamples = pcm.length;
+            const bufferDur = totalSamples / sr;
+            if (bufferDur <= 0) return;
+
+            const effectiveSec = curSec <= bufferDur ? Math.max(0, curSec) : (curSec % bufferDur);
+            const endSample = Math.min(totalSamples, Math.floor(effectiveSec * sr));
+            const measureCount = Math.min(endSample, Math.max(96, Math.round(sr * 0.018)));
+
+            if (measureCount < 48) {
+                for (let i = 0; i < 5; i++) {
+                    liveAudioSpectrum.bars[i] += (0.2 - liveAudioSpectrum.bars[i]) * decayLerp;
+                }
+                liveAudioSpectrum.energy *= Math.pow(0.88, step120);
+                return;
+            }
+
+            const measureStart = endSample - measureCount;
+            const warmupCount = Math.min(measureStart, Math.round(sr * 0.010));
+            const warmupStart = measureStart - warmupCount;
+
+            const a1 = 1 - Math.exp(-2 * Math.PI * 135 / sr);
+            const a2 = 1 - Math.exp(-2 * Math.PI * 380 / sr);
+            const a3 = 1 - Math.exp(-2 * Math.PI * 1150 / sr);
+            const a4 = 1 - Math.exp(-2 * Math.PI * 3400 / sr);
+
+            let l1a = 0, l1b = 0;
+            let l2a = 0, l2b = 0;
+            let l3a = 0, l3b = 0;
+            let l4a = 0, l4b = 0;
+
+            for (let i = warmupStart; i < measureStart; i++) {
+                const x = pcm[i];
+                l1a += a1 * (x - l1a); l1b += a1 * (l1a - l1b);
+                l2a += a2 * (x - l2a); l2b += a2 * (l2a - l2b);
+                l3a += a3 * (x - l3a); l3b += a3 * (l3a - l3b);
+                l4a += a4 * (x - l4a); l4b += a4 * (l4a - l4b);
+            }
+
+            let s0 = 0, s1 = 0, s2 = 0, s3 = 0, s4 = 0;
+            let totalSq = 0;
+
+            for (let i = measureStart; i < endSample; i++) {
+                const x = pcm[i];
+                totalSq += x * x;
+
+                l1a += a1 * (x - l1a); l1b += a1 * (l1a - l1b);
+                l2a += a2 * (x - l2a); l2b += a2 * (l2a - l2b);
+                l3a += a3 * (x - l3a); l3b += a3 * (l3a - l3b);
+                l4a += a4 * (x - l4a); l4b += a4 * (l4a - l4b);
+
+                const b0 = l1b;
+                const b1 = l2b - l1b;
+                const b2 = l3b - l2b;
+                const b3 = l4b - l3b;
+                const b4 = x - l4b;
+
+                s0 += b0 * b0;
+                s1 += b1 * b1;
+                s2 += b2 * b2;
+                s3 += b3 * b3;
+                s4 += b4 * b4;
+            }
+
+            const invN = 1 / measureCount;
+            const totalRms = Math.sqrt(totalSq * invN);
+
+            if (totalRms < 0.0015) {
+                for (let i = 0; i < 5; i++) {
+                    visualizerPCMState.fastEnv[i] *= Math.pow(0.80, step120);
+                    liveAudioSpectrum.bars[i] += (0.2 - liveAudioSpectrum.bars[i]) * decayLerp;
+                }
+                liveAudioSpectrum.energy *= Math.pow(0.85, step120);
+                return;
+            }
+
+            const rawBands = [
+                Math.sqrt(s0 * invN) * 1.15,
+                Math.sqrt(s1 * invN) * 1.45,
+                Math.sqrt(s2 * invN) * 1.95,
+                Math.sqrt(s3 * invN) * 2.85,
+                Math.sqrt(s4 * invN) * 4.20
+            ];
+
+            const fastAttack = 1 - Math.pow(1 - 0.68, step120);
+            const fastRelease = 1 - Math.pow(1 - 0.20, step120);
+            const slowLerp = 1 - Math.pow(1 - 0.038, step120);
+            const peakDecay = Math.pow(0.995, step120);
+
+            const barAttack = 1 - Math.pow(1 - 0.54, step120);
+            const barRelease = 1 - Math.pow(1 - 0.20, step120);
+
+            let energySum = 0;
+
+            for (let i = 0; i < 5; i++) {
+                const raw = rawBands[i];
+                const prevFast = visualizerPCMState.fastEnv[i];
+                const nextFast = prevFast + (raw - prevFast) * (raw > prevFast ? fastAttack : fastRelease);
+                visualizerPCMState.fastEnv[i] = nextFast;
+
+                const prevSlow = visualizerPCMState.slowEnv[i];
+                const nextSlow = prevSlow + (raw - prevSlow) * slowLerp;
+                visualizerPCMState.slowEnv[i] = nextSlow;
+
+                const nextPeak = Math.max(0.012, visualizerPCMState.peakEnv[i] * peakDecay, nextFast);
+                visualizerPCMState.peakEnv[i] = nextPeak;
+
+                let targetBar = 0.2;
+                if (nextFast >= 0.002) {
+                    const sustained = Math.min(1, nextFast / nextPeak);
+                    const onsetDelta = Math.max(0, nextFast - nextSlow * 0.80);
+                    const onsetPunch = Math.min(1, onsetDelta / (nextPeak * 0.38 + 0.001));
+
+                    targetBar = Math.max(
+                        0.2,
+                        Math.min(1.0, 0.18 + Math.pow(sustained, 1.7) * 0.30 + Math.pow(onsetPunch, 0.85) * 0.54)
+                    );
+                }
+
+                const curBar = liveAudioSpectrum.bars[i];
+                const nextBar = curBar + (targetBar - curBar) * (targetBar > curBar ? barAttack : barRelease);
+                liveAudioSpectrum.bars[i] = nextBar;
+                energySum += nextBar;
+            }
+
+            liveAudioSpectrum.energy = Math.max(0, (energySum / 5 - 0.2) / 0.8);
         }
 
         function drawMiniEqualizer(step120 = 1.0) {
@@ -9544,7 +9862,6 @@
             if (!container || !trailWrapper) return;
             container.innerHTML = '';
 
-            // Multiplayer: Render ALL guesses from newest (at the very top) to oldest, fully scrollable on mobile & desktop!
             if (mpState.active && mpState.roomData && mpState.roomData.currentRound) {
                 const r = mpState.roomData.currentRound;
                 const mpGuesses = r.guesses || [];
@@ -9566,7 +9883,6 @@
                     }
                 }
 
-                // All non-skip guesses, reversed so NEWEST is at the very top!
                 const guessPillsNewestFirst = mpGuesses.filter(g => g.type !== 'skip').slice().reverse();
 
                 if (guessPillsNewestFirst.length === 0 && currentStageSkips.length === 0) {
@@ -9628,7 +9944,6 @@
                 return;
             }
 
-            // Solo: Newest guesses at the top!
             const meaningfulAttemptsNewestFirst = attemptHistory
                 .map((h, idx) => ({ ...h, stageIdx: idx }))
                 .filter(h => h.type === 'wrong' || h.type === 'artist_match')
@@ -9728,6 +10043,8 @@
                 return;
             }
 
+            ensureAudioVisualizerConnected();
+
             if (isAudioCurrentlyPlaying()) {
                 pauseActiveAudio();
                 isSnippetPlaying = false;
@@ -9777,6 +10094,8 @@
                 return;
             }
 
+            ensureAudioVisualizerConnected();
+
             const startSec = getEffectiveSongStartOffset(currentSong);
             const allowedDur = ATTEMPT_DURATIONS[currentAttemptIndex];
             const totalDur = getActiveDuration() || 30;
@@ -9805,6 +10124,8 @@
                 }
                 return;
             }
+
+            ensureAudioVisualizerConnected();
 
             const startSec = getEffectiveSongStartOffset(currentSong);
             const newAllowedDur = ATTEMPT_DURATIONS[currentAttemptIndex];
@@ -10089,14 +10410,38 @@
                 return initialList;
             }
 
-            const scored = [];
+            const normQ = normalizePolishText(rawQuery);
+            const compactQ = normalizeCompactText(rawQuery);
+            if (!normQ) return [];
+
+            // Fast-path pass 1: check direct substring/token matches first (super fasteven for 2000+ songs)
+            const exactScored = [];
             for (let i = 0; i < candidatePool.length; i++) {
                 const s = candidatePool[i];
-                const res = computeSongFuzzyScore(s, rawQuery);
-                if (res.score >= 56) {
-                    scored.push({ song: s, score: res.score, isFuzzyRescue: res.isFuzzyRescue });
+                if (s.normalizedSearch.includes(normQ) || (compactQ.length >= 2 && s.compactSearch.includes(compactQ))) {
+                    const startsWithBonus = s.normalizedSearch.startsWith(normQ) ? 4 : 0;
+                    exactScored.push({ song: s, score: 96 + startsWithBonus, isFuzzyRescue: false });
                 }
             }
+
+            let scored = exactScored;
+
+            // Only run fuzzy Levenshtein/Phonetic pass if exact matches are fewer than 18
+            if (exactScored.length < 18) {
+                const qTokens = normQ.split(' ').filter(Boolean);
+                const qPhonTokens = qTokens.map(t => normalizePhoneticPL_EN(t));
+                const precomputedQuery = { normQ, compactQ, qTokens, qPhonTokens };
+                scored = [];
+
+                for (let i = 0; i < candidatePool.length; i++) {
+                    const s = candidatePool[i];
+                    const res = computeSongFuzzyScore(s, rawQuery, precomputedQuery);
+                    if (res.score >= 56) {
+                        scored.push({ song: s, score: res.score, isFuzzyRescue: res.isFuzzyRescue });
+                    }
+                }
+            }
+
             scored.sort((a, b) => {
                 if (b.score !== a.score) return b.score - a.score;
                 if (currentSong) {
@@ -10134,9 +10479,14 @@
 
             updateGuessOrSkipButtonUI();
 
-            filteredSuggestions = computeDeduplicatedSuggestions(rawQuery);
-            highlightedSuggestionIndex = -1;
-            renderAutocompleteDropdown();
+            if (searchInputRafId) cancelAnimationFrame(searchInputRafId);
+            searchInputRafId = requestAnimationFrame(() => {
+                searchInputRafId = null;
+                if (!input || input.disabled) return;
+                filteredSuggestions = computeDeduplicatedSuggestions(input.value);
+                highlightedSuggestionIndex = -1;
+                renderAutocompleteDropdown();
+            });
         }
 
         function updateAutocompleteHighlightVisuals(scrollIntoView = false) {
@@ -10217,6 +10567,10 @@
                 clearTimeout(blurExitTimer);
                 blurExitTimer = null;
             }
+            if (searchInputRafId) {
+                cancelAnimationFrame(searchInputRafId);
+                searchInputRafId = null;
+            }
             const input = document.getElementById('guessInput');
             if (!input || !song || input.disabled) return;
             input.value = song.cleanTitle;
@@ -10268,6 +10622,10 @@
         }
 
         function clearGuessInput(shouldFocus = false) {
+            if (searchInputRafId) {
+                cancelAnimationFrame(searchInputRafId);
+                searchInputRafId = null;
+            }
             const input = document.getElementById('guessInput');
             if (!input) return;
             input.value = '';
@@ -10334,6 +10692,11 @@
                 return;
             }
 
+            if (searchInputRafId) {
+                cancelAnimationFrame(searchInputRafId);
+                searchInputRafId = null;
+            }
+
             mpState.localTypingUntilMs = 0;
             if (typeof window.__notifyMpTypingState === 'function') window.__notifyMpTypingState(false);
 
@@ -10351,7 +10714,7 @@
             if (!aiEval.isCorrect && currentMatches.length > 0) {
                 const topEntry = currentMatches[0];
                 const topSong = topEntry.song || topEntry;
-                const secondScore = currentMatches[1] ? (filteredSuggestions[1]?.score || 0) : 0;
+                const secondScore = currentMatches[1] ? (currentMatches[1]?.score || 0) : 0;
 
                 if (areSongsSameCanonicalTrack(topSong, currentSong)) {
                     if (
@@ -10363,7 +10726,6 @@
                 }
             }
 
-            // Multiplayer Live Branch with 0ms Optimistic UI
             if (mpState.active) {
                 if (!mpState.roomData || mpState.roomData.status !== 'playing' || !mpState.roomData.currentRound) return;
 
@@ -10739,6 +11101,7 @@
 
             updateFavoriteButtonUI();
             updateEditorAccessVisibility();
+            ensureAudioVisualizerConnected();
             activateFullSongPlaybackForMaxOrEnd();
 
             const sourceTag = currentSong.backupProvider || (activeAudioEngine === 'youtube' ? 'YouTube IFrame' : (currentSong.sourceType === 'local' ? 'Plik MP3' : 'Audio CDN'));
@@ -10929,6 +11292,7 @@
             unlockAllAudioElementsForIOS();
             const song = songsLibrary.find(s => s.id === editorSelectedSongId);
             if (!song) return;
+            ensureAudioVisualizerConnected();
 
             if (editorSnippetTimeout) {
                 clearTimeout(editorSnippetTimeout);
@@ -11028,6 +11392,7 @@
             unlockAllAudioElementsForIOS();
             const song = songsLibrary.find(s => s.id === editorSelectedSongId);
             if (!song) return;
+            ensureAudioVisualizerConnected();
 
             if (editorSnippetTimeout) clearTimeout(editorSnippetTimeout);
 
@@ -11310,7 +11675,14 @@
                         if (!snap.exists) return null;
                         const data = snap.data() || {};
                         const nextData = updateFn(data);
-                        if (nextData) tx.set(ref, nextData, { merge: false });
+                        if (nextData === 'DELETE_ROOM') {
+                            tx.delete(ref);
+                            return null;
+                        }
+                        if (nextData) {
+                            nextData.expiresAt = new Date(Date.now() + 12 * 60 * 60 * 1000);
+                            tx.set(ref, nextData, { merge: false });
+                        }
                         return nextData || data;
                     });
                 };
@@ -11413,14 +11785,20 @@
                 if (!mpState.active || !mpState.roomCode || !currentUser) return;
                 if (roundOver && isTypingNow) return;
 
-                if (mpState.roomData) {
-                    if (!mpState.roomData.typing) mpState.roomData.typing = {};
-                    mpState.roomData.typing[currentUser.uid] = isTypingNow ? Date.now() : 0;
-                    renderMpModalAndHud();
-                }
-
                 const nowMs = Date.now();
+
                 if (isTypingNow) {
+                    // Only trigger local DOM orb update when transitioning from not-typing -> typing!
+                    if (!lastTypingValueSent && mpState.roomData) {
+                        if (!mpState.roomData.typing) mpState.roomData.typing = {};
+                        mpState.roomData.typing[currentUser.uid] = nowMs;
+                        const hudPlayers = document.getElementById('mpHudPlayersList');
+                        if (hudPlayers) {
+                            const uniquePlayers = deduplicatePlayersList(mpState.roomData.players || {});
+                            const steadyOrbPlayers = [...uniquePlayers].sort((a, b) => (a.joinedAt || 0) - (b.joinedAt || 0));
+                            renderMpFloatingOrbs(mpState.roomData, steadyOrbPlayers, hudPlayers);
+                        }
+                    }
                     if (lastTypingValueSent && (nowMs - lastTypingSentMs < 1800)) return;
                     lastTypingSentMs = nowMs;
                     lastTypingValueSent = true;
@@ -11429,6 +11807,15 @@
                     if (!lastTypingValueSent) return;
                     lastTypingValueSent = false;
                     lastTypingSentMs = 0;
+                    if (mpState.roomData && mpState.roomData.typing) {
+                        mpState.roomData.typing[currentUser.uid] = 0;
+                        const hudPlayers = document.getElementById('mpHudPlayersList');
+                        if (hudPlayers) {
+                            const uniquePlayers = deduplicatePlayersList(mpState.roomData.players || {});
+                            const steadyOrbPlayers = [...uniquePlayers].sort((a, b) => (a.joinedAt || 0) - (b.joinedAt || 0));
+                            renderMpFloatingOrbs(mpState.roomData, steadyOrbPlayers, hudPlayers);
+                        }
+                    }
                     safeMpRoomWrite(mpState.roomCode, { typing: { [currentUser.uid]: 0 } }, true);
                 }
             };
@@ -12201,6 +12588,7 @@
                         playlistTitle: currentActivePlaylistMeta?.title || 'Bazowa Playlista Hitów',
                         titlePool: songsLibrary.filter(s => !s.isDemo).slice(0, 160).map(s => s.cleanTitle),
                         typing: {},
+                        expiresAt: new Date(Date.now() + 12 * 60 * 60 * 1000),
                         players: {
                             [currentUser.uid]: {
                                 uid: currentUser.uid,
@@ -12322,7 +12710,7 @@
                         const remainingPlayers = { ...(data.players || {}) };
                         delete remainingPlayers[currentUser.uid];
                         const remUids = Object.keys(remainingPlayers);
-                        if (remUids.length === 0) return null;
+                        if (remUids.length === 0) return 'DELETE_ROOM';
                         data.players = remainingPlayers;
                         if (data.hostUid === currentUser.uid) data.hostUid = remUids[0];
                         if (data.typing && data.typing[currentUser.uid]) delete data.typing[currentUser.uid];
@@ -12392,7 +12780,6 @@
                     const candidate = songsLibrary.find(s => s.id === randId) || songsLibrary[0];
                     if (!candidate) continue;
 
-                    // Resolve CDN stream if needed or if mode is 'best_30s'
                     if (!candidate.url && (roomMode === 'best_30s' || !candidate.youtubeId)) {
                         const backup = await resolvePlayableBackupStreamCascade(candidate, true);
                         if (backup && backup.streamUrl) {
@@ -12419,12 +12806,10 @@
 
                 markSongAsRecentlyPlayed(pickedSong);
 
-                // Compute synchronized startOffset for the room according to roomMode
                 let syncedStartOffset = pickedSong.startOffset || 0;
                 const preferEngine = (roomMode === 'best_30s' && pickedSong.url) ? 'html5_cdn' : (pickedSong.youtubeId ? 'youtube' : 'html5_cdn');
 
                 if (roomMode === 'random_moment') {
-                    // Roll a synchronized random offset so every player in the room hears the exact same moment!
                     const estDur = (preferEngine === 'youtube') ? 160 : 29;
                     syncedStartOffset = computeRandomMomentOffsetForDuration(estDur, pickedSong.startOffset || 0);
                 }
@@ -12473,6 +12858,7 @@
                     playlistTitle: currentActivePlaylistMeta?.title || 'Playlista Online',
                     titlePool: shuffledSample,
                     typing: {},
+                    expiresAt: new Date(Date.now() + 12 * 60 * 60 * 1000),
                     currentRound: roundPayload
                 }, true);
             };
